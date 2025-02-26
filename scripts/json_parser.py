@@ -1,6 +1,6 @@
 import json
 
-class Settings:
+class JsonParser:
     def __init__(self, path:str):
         self.path = path
         try:

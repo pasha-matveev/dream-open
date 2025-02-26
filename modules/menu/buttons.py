@@ -5,27 +5,42 @@ class Button:
     def __init__(self, pin: int) -> None:
         self.pin = pin
         self.button = Button(pin)
+        self.pressed = False
+        self.first_pressed = False
 
-    def is_pressed(self) -> bool:
-        return self.button.is_pressed
-
-    def add_press_callback(self, callback):
-        self.button.when_pressed = callback
-
-    def add_release_callback(self, callback):
-        self.button.when_released = callback
+    def read(self):
+        if self.pressed:
+            if self.button.is_pressed():
+                self.pressed = True
+                self.first_pressed = False
+            else:
+                self.pressed = False
+                self.first_pressed = False
+        else:
+            if self.button.is_pressed():
+                self.pressed = True
+                self.first_pressed = True
+            else:
+                self.pressed = False
+                self.first_pressed = False
+        
+class ButtonArray:
+    def __init__(self, pins: list) -> None:
+        self.pins = pins
+        self.buttons = [Button(pin) for pin in pins]
+    
+    def read(self):
+        return [button.read() for button in self.buttons]
+    
+    def __getattr__(self, name):
+        return self.buttons[name].first_pressed
 
 
 if __name__ == '__main__':
-    buttons = [
-        Button(17),
-        Button(27),
-        Button(22)
-    ]
+    buttons = ButtonArray([17, 27, 22])
 
     while True:
-        for button in buttons:
-            if button.is_pressed():
-                print('Button pressed')
-            else:
-                print('Button released')
+        buttons.read()
+        for i in range(len(buttons)):
+            if buttons[i]:
+                print(f'Button {i+1} pressed')

@@ -1,14 +1,14 @@
 {
   "res": [
-    1920,
-    1080
+    1296,
+    972
   ],
   "center": [
-    960,
-    540
+    648,
+    486
   ],
-  "outer_radius": 500,
-  "inner_radius": 100,
+  "outer_radius": 486,
+  "inner_radius": 50,
   "objects": {
     "ball": {
       "threshold": [

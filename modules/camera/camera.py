@@ -9,10 +9,13 @@ class Camera(CameraCV2):
     
     def start(self):
         self.video = Picamera2()
+        print('Camera resultion:', self.res)
         config = self.video.create_preview_configuration(main={"size": self.res})
+        print('Camera Config:', config["main"]["format"])
         self.video.configure(config)
         self.video.start()
     
     def get_frame(self):
-        yuv420 = self.video.capture_array("main")
-        self.frame = cv.cvtColor(yuv420, cv.COLOR_YUV420p2RGB)
+        frame = self.video.capture_array("main")
+        self.frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+#         self.frame = cv.cvtColor(yuv420, cv.COLOR_YUV420p2RGB)

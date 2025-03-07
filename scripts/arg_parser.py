@@ -3,6 +3,7 @@ import argparse
 
 def generate_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', '-v', help='verbose output', action="store_true")
 
     # Robot
     parser.add_argument('--field', help='preview robot position on the field', action="store_true")

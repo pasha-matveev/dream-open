@@ -2,6 +2,7 @@ from scripts.json_parser import JsonParser
 from modules.camera.tracking_object import Ball, BlueGoal, YellowGoal
 import cv2 as cv
 import numpy as np
+import logging
 
 
 class CameraCV2:
@@ -31,6 +32,10 @@ class CameraCV2:
             self.yellow_goal.start_preview_detection()
         
         self.start()
+        if self.is_opened:
+            logging.info('Camera connected')
+        else:
+            logging.error('Camera not connected')
     
     def start(self):
         self.video = cv.VideoCapture(0)
@@ -46,7 +51,7 @@ class CameraCV2:
         self.get_frame()
 
         self.frame = self.frame[max(self.center[1] - self.outer_radius, 0):min(self.center[1] + self.outer_radius, self.frame.shape[0]),
-                                max(self.center[0] - self.outer_radius, 0):min(self.center[0] + self.outer_radius, self.frame.shape[1])]
+                                max(self.center[0] - self.outer_radius, 0):min(self.center[0] + self.outer_radius, self.frame.shape[1])]        
         self.frame = cv.bitwise_and(self.frame, self.frame, mask=self.mask)
         self.frame_HSV = cv.cvtColor(self.frame, cv.COLOR_RGB2HSV)
 

@@ -8,8 +8,8 @@ class TrackingObject:
         self.settings = settings
         self.name = name
         self.threshold = settings['objects'][self.name]['threshold']
-        self.mirror_center = [settings['outer_radius'], 
-                              settings['outer_radius']]
+        self.mirror_center = (settings['outer_radius'], 
+                              settings['outer_radius'])
         self.low_H = self.threshold[0]
         self.high_H = self.threshold[1]
         self.low_S = self.threshold[2]
@@ -168,3 +168,4 @@ class BlueGoal(Goal):
 
     def draw(self, frame):
         super().draw(frame, (255, 0, 0))
+

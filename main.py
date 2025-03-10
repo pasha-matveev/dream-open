@@ -14,7 +14,8 @@ while True:
     camera.read()
     print(f'[Arduino]: {uart.data}')
     # logging.info(f'Arduino data: {uart.data}')
-    uart.write('fff', camera.ball.angle, 10, camera.ball.angle)
+    uart.write('iii', 1000, -10, -20)
+    print(uart.data)
 
     camera.preview()
     key = cv.waitKey(30)

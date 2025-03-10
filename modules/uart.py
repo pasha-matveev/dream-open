@@ -6,11 +6,11 @@ import logging
 
 class UART:
     def __init__(self):
-        self.port = '/dev/ttyACM0'
+        self.port = '/dev/cu.usbserial-210'
         self.baudrate = 115200
         self.timeout = 1
 
-        self.input_format = 'fii'
+        self.input_format = 'iiii'
         self.data = None
 
         self.running = False

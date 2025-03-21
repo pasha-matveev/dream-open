@@ -1,0 +1,6 @@
+[submodule "lidar/SFML"]
+	path = lidar/SFML
+	url = https://github.com/SFML/SFML.git
+[submodule "lidar/rplidar_sdk"]
+	path = lidar/rplidar_sdk
+	url = https://github.com/Slamtec/rplidar_sdk.git

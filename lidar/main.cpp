@@ -33,6 +33,8 @@ static inline void delay(sl_word_size_t ms)
 #include <chrono>
 #include <thread>
 #include <algorithm>
+#include <queue>
+#include <cmath>
 
 using namespace sl;
 using namespace std;

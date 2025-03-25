@@ -29,6 +29,8 @@ void setup()
 
 void loop()
 {
+  robot.read();
+
   if (Serial.available())
   {
     robot.direction = read_data<float>();

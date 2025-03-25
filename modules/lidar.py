@@ -2,6 +2,7 @@ import subprocess
 import threading
 import logging
 from queue import Queue
+import serial.tools.list_ports
 
 
 class Lidar:
@@ -13,20 +14,34 @@ class Lidar:
         self.output_thread = None
         self.output_queue = Queue()
 
+    def find_port(self):
+        ports = serial.tools.list_ports.comports()
+        for port, desc, hwid in ports:
+            if desc == 'CP2102N USB to UART Bridge Controller':
+                return port
+        return None
+
     def start(self):
-        command = [self.lidar_path, '1' if self.args.lidar else '0']
+        self.port = self.find_port()
 
-        self.proc = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,   # lines come back as strings
-            bufsize=1    # line-buffered on Python side
-        )
+        if self.port != None:
+            logging.info(f'Lidar on port: {self.port}')
 
-        self.output_thread = threading.Thread(
-            target=self.output_loop, args=(self.proc, self.output_queue), daemon=True)
-        self.output_thread.start()
+            command = [self.lidar_path, '1' if self.args.lidar else '0', self.port]
+
+            self.proc = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,   # lines come back as strings
+                bufsize=1    # line-buffered on Python side
+            )
+
+            self.output_thread = threading.Thread(
+                target=self.output_loop, args=(self.proc, self.output_queue), daemon=True)
+            self.output_thread.start()
+        else:
+            logging.error('Cannot find Lidar')
 
     def output_loop(self, proc, output_queue):
         for line in iter(proc.stdout.readline, ''):

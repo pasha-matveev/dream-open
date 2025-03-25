@@ -521,23 +521,31 @@ void draw_circle(sf::RenderWindow &window, Point pos, float radius, sf::Color ou
 
 int main(int argc, const char *argv[])
 {
-    const char *port = "/dev/cu.usbserial-110";
+    const char *port;
     int baudrate = 460800;
+    bool preview;
+    bool running = true;
     sl_result op_result;
     IChannel *_channel;
     ILidarDriver *drv = *createLidarDriver();
     vector<LidarScanMode> scanModes;
     LidarMotorInfo motorInfo;
-    bool preview = true;
-    bool running = true;
 
     if (argc > 1)
+    {
         preview = atoi(argv[1]);
+        port = argv[2];
+    }
+    else
+    {
+        preview = 1;
+        port = "/dev/cu.usbserial-110";
+    }
 
     Point center = {400, 400};
     sf::RenderWindow window;
     if (preview)
-        window = sf::RenderWindow(sf::VideoMode({800, 800}), "My window");
+        window = sf::RenderWindow(sf::VideoMode({800, 800}), "Lidar Preview");
 
     if (!drv)
     {

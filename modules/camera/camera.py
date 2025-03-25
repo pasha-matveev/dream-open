@@ -14,6 +14,7 @@ class Camera(CameraCV2):
         print('Camera Config:', config["main"]["format"])
         self.video.configure(config)
         self.video.start()
+        self.is_opened = True
     
     def get_frame(self):
         frame = self.video.capture_array("main")

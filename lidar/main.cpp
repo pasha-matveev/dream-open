@@ -11,10 +11,6 @@
 #define _countof(_Array) (int)(sizeof(_Array) / sizeof(_Array[0]))
 #endif
 
-#ifdef _WIN32
-#include <Windows.h>
-#define delay(x) ::Sleep(x)
-#else
 #include <unistd.h>
 static inline void delay(sl_word_size_t ms)
 {
@@ -26,7 +22,6 @@ static inline void delay(sl_word_size_t ms)
     if (ms != 0)
         usleep(ms * 1000);
 }
-#endif
 
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -35,9 +30,22 @@ static inline void delay(sl_word_size_t ms)
 #include <algorithm>
 #include <queue>
 #include <cmath>
+#include <csignal>
+#include <atomic>
+#include <iostream>
 
 using namespace sl;
 using namespace std;
+
+std::atomic<bool> keepRunning(true);
+
+// Signal handler for SIGTERM
+void handle_sigterm(int signum)
+{
+    cout << "\nCaught SIGTERM (signal " << signum << "), preparing to exit gracefully.\n"
+         << flush;
+    keepRunning.store(false);
+}
 
 bool checkSLAMTECLIDARHealth(ILidarDriver *drv)
 {
@@ -47,10 +55,12 @@ bool checkSLAMTECLIDARHealth(ILidarDriver *drv)
     op_result = drv->getHealth(healthinfo);
     if (SL_IS_OK(op_result))
     {
-        printf("SLAMTEC Lidar health status : %d\n\n", healthinfo.status);
+        cout << "SLAMTEC Lidar health status : " << healthinfo.status << "\n\n"
+             << flush;
         if (healthinfo.status == SL_LIDAR_STATUS_ERROR)
         {
-            fprintf(stderr, "Error, slamtec lidar internal error detected. Please reboot the device to retry.\n");
+            cout << "Error, slamtec lidar internal error detected. Please reboot the device to retry.\n"
+                 << flush;
             return false;
         }
         else
@@ -60,7 +70,8 @@ bool checkSLAMTECLIDARHealth(ILidarDriver *drv)
     }
     else
     {
-        fprintf(stderr, "Error, cannot retrieve the lidar health code: %x\n", op_result);
+        cout << "Error, cannot retrieve the lidar health code: " << op_result << "\n"
+             << flush;
         return false;
     }
 }
@@ -518,6 +529,7 @@ int main(int argc, const char *argv[])
     vector<LidarScanMode> scanModes;
     LidarMotorInfo motorInfo;
     bool preview = true;
+    bool running = true;
 
     if (argc > 1)
         preview = atoi(argv[1]);
@@ -529,7 +541,8 @@ int main(int argc, const char *argv[])
 
     if (!drv)
     {
-        fprintf(stderr, "insufficent memory, exit\n");
+        cout << "insufficent memory, exit\n"
+             << flush;
         exit(-2);
     }
 
@@ -556,7 +569,8 @@ int main(int argc, const char *argv[])
     // Failed to connect
     if (!connectSuccess)
     {
-        fprintf(stderr, "Error, cannot bind to the specified serial port %s.\n", port);
+        cout << "Error, cannot bind to the specified serial port " << port << ".\n"
+             << flush;
         goto on_finished;
     }
 
@@ -586,12 +600,30 @@ int main(int argc, const char *argv[])
     // printf("Motor max speed: %d\n", motorInfo.max_speed);
     // printf("Motor desired speed: %d\n\n", motorInfo.desired_speed);
 
+    // Register the SIGTERM handler
+    struct sigaction action;
+    action.sa_handler = handle_sigterm;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+
+    if (sigaction(SIGTERM, &action, nullptr) < 0)
+    {
+        cout << "Error setting up SIGTERM handler.\n"
+             << flush;
+        return 1;
+    }
+
+    cout << "C++ program started. PID: " << getpid() << "\n"
+         << flush;
+    cout << "Waiting for SIGTERM.\n"
+         << flush;
+
     signal(SIGINT, ctrlc);
 
     drv->setMotorSpeed();
     drv->startScan(0, 1);
 
-    while (1)
+    while (!ctrl_c_pressed && keepRunning.load() && running)
     {
         sl_lidar_response_measurement_node_hq_t nodes[8192];
         size_t count = _countof(nodes);
@@ -619,7 +651,7 @@ int main(int argc, const char *argv[])
             // drv->getFrequency(scanModes[0], nodes, count, frequency);
             // printf("Frequency: %f", frequency);
         }
-        
+
         Rect field = minimalAreaBoundingRectangle(points);
         result_data.push_back(field);
         Rect inner = padRectangle(field, -20);
@@ -630,17 +662,15 @@ int main(int argc, const char *argv[])
             if (cluster.size() > 20)
                 result_data.push_back(minimalAreaBoundingRectangle(cluster));
 
-        if (ctrl_c_pressed)
-        {
-            break;
-        }
-
         if (preview)
         {
+            running = window.isOpen();
             while (const optional event = window.pollEvent())
             {
                 if (event->is<sf::Event::Closed>())
+                {
                     window.close();
+                }
             }
             window.clear(sf::Color::Black);
             draw_circle(window, center, 300, sf::Color::White);
@@ -653,7 +683,7 @@ int main(int argc, const char *argv[])
             window.display();
         }
 
-        printf("data");
+        cout << "Data ";
         for (Rect &object : result_data)
         {
             Point object_center = computeRectCenter(object);
@@ -662,14 +692,24 @@ int main(int argc, const char *argv[])
             double rotation = object.angle * 180.f / M_PI;
             double width = object.width;
             double height = object.height;
-            printf(" %.2f %.2f %.2f %.2f %.2f", angle, dist, rotation, width, height);
+            cout << setprecision(4) << angle << ' ';
+            cout << setprecision(4) << dist << ' ';
+            cout << setprecision(4) << rotation << ' ';
+            cout << (int)width << ' ';
+            cout << (int)height << ' ';
+            // printf(" %.2f %.2f %.2f %.2f %.2f", angle, dist, rotation, width, height);
         }
-        printf("\n");
+        // printf("\n");
+        cout << '\n'
+             << flush;
     }
 
     drv->stop();
     delay(200);
     drv->setMotorSpeed(0);
+
+    cout << "Exiting.\n"
+         << flush;
 
 on_finished:
     if (drv)

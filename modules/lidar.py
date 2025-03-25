@@ -1,22 +1,18 @@
 import subprocess
 import threading
+import logging
+from queue import Queue
+
 
 class Lidar:
     def __init__(self, args):
         self.args = args
-        self.lidar_path = './lidar/out/build/Clang 16.0.0 arm64-apple-darwin24.3.0/main'
+        self.lidar_path = './lidar/build/bin/main'
 
         self.proc = None
         self.output_thread = None
+        self.output_queue = Queue()
 
-        self.output_line = None
-        self.error_line = None
-        self.data = []
-
-        self.angle = None
-        self.dist = None
-
-    
     def start(self):
         command = [self.lidar_path, '1' if self.args.lidar else '0']
 
@@ -24,27 +20,32 @@ class Lidar:
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            bufsize=1,  # line-buffered
-            close_fds=True
+            text=True,   # lines come back as strings
+            bufsize=1    # line-buffered on Python side
         )
 
-        self.output_thread = threading.Thread(target=self.output_loop, args=(self.proc,), daemon=True)
+        self.output_thread = threading.Thread(
+            target=self.output_loop, args=(self.proc, self.output_queue), daemon=True)
         self.output_thread.start()
 
-    def output_loop(self, proc):
-        for line in iter(proc.stdout.readline, b''):
-            self.output_line = line.decode('utf-8', errors='replace').rstrip('\n')
-        
-        for err_line in iter(proc.stderr.readline, b''):
-            self.error_line = err_line.decode('utf-8', errors='replace').rstrip('\n')
-            print(f"[CPP ERROR]: {self.error_line}")
+    def output_loop(self, proc, output_queue):
+        for line in iter(proc.stdout.readline, ''):
+            line = line.rstrip('\n')
+            data = line.split()
+            if len(data):
+                if data[0] == 'Data':
+                    output_queue.put(data[1:])
+                else:
+                    logging.error(line)
+            else:
+                logging.error(line)
 
-        self.data = self.output_line.split(' ')
-        self.angle = float(self.data[0])
-        self.dist = float(self.data[1])
-        
-    
     def stop(self):
-        self.proc.terminate()
-        self.proc.wait()
-        self.output_thread.join()
+        if self.proc != None:
+            self.proc.terminate()
+            self.proc.wait()
+        if self.output_thread != None:
+            self.output_thread.join()
+    
+    def new_data(self):
+        return not self.output_queue.empty()

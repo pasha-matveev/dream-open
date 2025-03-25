@@ -101,7 +101,6 @@ class Ball(TrackingObject):
         self.visible = False
         if len(contours):
             cnt = max(contours, key=lambda x: cv.contourArea(x))
-            M = cv.moments(cnt)
 
             if cv.contourArea(cnt) > self.min_area:
                 self.visible = True
@@ -132,7 +131,6 @@ class Goal(TrackingObject):
 
         if len(contours):
             cnt = max(contours, key=lambda x: cv.contourArea(x))
-            M = cv.moments(cnt)
 
             if cv.contourArea(cnt) > self.min_area:
                 self.visible = True

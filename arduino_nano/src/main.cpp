@@ -21,30 +21,33 @@ void write_data(T var)
 
 void setup()
 {
-  Serial.begin(115200);
-  robot.init_dribling = false;
-  robot.init_kicker = false;
+  // robot.init_kicker = false;
+  // robot.init_dribling = false;
   robot.init();
+  Serial.begin(115200);
 }
 
 void loop()
-{
+{ 
   robot.read();
 
   if (Serial.available())
-  {
+  {    
     robot.direction = read_data<float>();
     robot.speed = read_data<float>();
     robot.rotation = read_data<float>();
     robot.dribling->set_speed(read_data<int32_t>());
     robot.kicker->force = read_data<int32_t>();
 
+    write_data(robot.direction);
+    write_data(robot.speed);
+    write_data(robot.rotation);
+
     write_data(robot.gyro->angle);
     write_data(robot.emitter->val);
     write_data(robot.kicker->is_ready());
 
-    robot.dribling->set_speed(robot.dribling_speed);
-    robot.kicker->kick(robot.kicker_force);
+    robot.kicker->kick(robot.kicker->force);
 
     alive_tm = millis() + 1000;
   }

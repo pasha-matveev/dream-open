@@ -32,6 +32,8 @@ void Dribling::init()
   ESC1->writeMicroseconds(1450);
   ESC2->writeMicroseconds(1450);
   delay(2000);
+
+  set_speed(0);
 }
 
 void Dribling::set_speed(int rotation)
@@ -56,6 +58,11 @@ void Dribling::run()
       current_speed = lst_speed * (1 - k) + desired_speed * k;
     }
   }
-  ESC1->writeMicroseconds(map(current_speed, 0, 100, 1440, 1700));
-  ESC2->writeMicroseconds(map(current_speed, 0, 100, 1440, 1705));
+  // float sp1 = 0.00000010104 * pow(current_speed, 2) + 0.00574335 * current_speed + 1476.39431;
+  // float sp2 = 0.00000209126 * pow(current_speed, 2) + 0.0120873 * current_speed + 1470.89056;
+
+  float sp1 = map(current_speed, 0, 100, 1470, 1500);
+  float sp2 = map(current_speed, 0, 100, 1466, 1545);
+  ESC1->writeMicroseconds(sp1);
+  ESC2->writeMicroseconds(sp2);
 }

@@ -6,7 +6,8 @@ private:
   unsigned long long kick_tm = 0;
   int min_delay = 500;
   int max_delay = 10000;
-  int pin = 9;
+  int kick_pin = 8;
+  int charge_pin = 4;
 public:
   void init();
   void kick(int);
@@ -16,8 +17,11 @@ public:
 
 void Kicker::init()
 {
-  pinMode(pin, OUTPUT);
-  digitalWrite(pin, 0);
+  pinMode(kick_pin, OUTPUT);
+  pinMode(charge_pin, OUTPUT);
+  digitalWrite(kick_pin, 0);
+  digitalWrite(charge_pin, 0);
+  kick_tm = millis() + 5000;
 }
 
 bool Kicker::is_ready()
@@ -29,10 +33,19 @@ void Kicker::kick(int power)
 {
   if (is_ready() && power)
   {
-    digitalWrite(pin, 1);
+    digitalWrite(kick_pin, 1);
     power = constrain(power, 1, 100);
     delayMicroseconds(map(power, 1, 100, min_delay, max_delay));
-    digitalWrite(pin, 0);
+    digitalWrite(kick_pin, 0);
     kick_tm = millis() + (float)power * 31.38 + 3500;
+  }
+
+  if (is_ready())
+  {
+    digitalWrite(charge_pin, 0);
+  }
+  else
+  {
+    digitalWrite(charge_pin, 1);
   }
 }

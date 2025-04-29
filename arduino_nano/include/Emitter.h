@@ -21,7 +21,7 @@ void Emitter::init()
 void Emitter::read()
 {
   raw = analogRead(pin);
-  val = raw < 880;
+  val = raw < 950;
   if (val)
   {
     if (first)

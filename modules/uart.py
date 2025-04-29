@@ -5,7 +5,7 @@ import threading
 import logging
 
 class UART:
-    def __init__(self, port:str = '/dev/cu.usbserial-210', boudrate:int = 115200, input_format:str = 'i'):
+    def __init__(self, port:str = '/dev/cu.usbserial-210', boudrate:int = 115200, input_format:str = 'f??'):
         self.port = port
         self.baudrate = boudrate
         self.timeout = 1
@@ -52,7 +52,7 @@ class UART:
             if recv_size == data_size:
                 raw_data = self.serial.read(data_size)
                 self.data = struct.unpack(self.input_format, raw_data)
-                logging.info(f'[Arduino]: {uart.data}')
+                logging.info(f'[Arduino]: {self.data}')
             elif recv_size > 0:
                 logging.error(f'Unexpected data size: {recv_size}')
                 self.serial.reset_input_buffer()

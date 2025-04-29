@@ -36,12 +36,12 @@ void Robot::init()
     gyro->init();
   if (init_motors)
     motors->init();
-  if (init_kicker)
-    kicker->init();
   if (init_dribling)
     dribling->init();
   if (init_emitter)
     emitter->init();
+  if (init_kicker)
+    kicker->init();
 }
 
 void Robot::read()

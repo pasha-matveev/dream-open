@@ -30,18 +30,17 @@ class CameraCV2:
             self.blue_goal.start_preview_detection()
         if self.args.yellow:
             self.yellow_goal.start_preview_detection()
-        
-        self.start()
-        if self.is_opened:
-            logging.info('Camera connected')
-        else:
-            logging.error('Camera not connected')
     
     def start(self):
         self.video = cv.VideoCapture(0)
         self.video.set(3, self.res[0])
         self.video.set(4, self.res[1])
         self.is_opened = self.video.isOpened()
+
+        if self.is_opened:
+            logging.info('Camera connected')
+        else:
+            logging.error('Camera not connected')
 
     def get_frame(self):
         ret, self.frame = self.video.read()

@@ -8,7 +8,7 @@ private:
   MCP2515 *mcp2515 = new MCP2515(10);
   struct can_frame canMsg;
   long ID[3] = {0x141, 0x142, 0x143};
-  float kp = 2, kd = 10000;
+  float kp = 2, kd = 1000;
   unsigned long long lst_tm = 0;
   float lst_err = 0;
 
@@ -18,7 +18,7 @@ public:
   void run(float, float, float);
   void stop();
   float speed_limit = 100;
-  float rotation_limit = 40;
+  float rotation_limit = 100;
 };
 
 void Motors::init()

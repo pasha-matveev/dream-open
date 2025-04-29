@@ -27,7 +27,7 @@ void Gyro::init()
   mpu.setDMPEnabled(true);
   mpu.setXAccelOffset(1518);
   mpu.setYAccelOffset(-3762);
-  mpu.setZAccelOffset(1776);
+  mpu.setZAccelOffset(-2238);
   mpu.setXGyroOffset(24);
   mpu.setYGyroOffset(-2);
   mpu.setZGyroOffset(-11);
@@ -39,6 +39,8 @@ void Gyro::read()
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
     angle = ypr[0] * 57.295779;
+    angle += 180;
+    angle *= -1;
     angle = trim(angle);
   }
 }

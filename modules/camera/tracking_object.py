@@ -96,7 +96,7 @@ class Ball(TrackingObject):
     def __init__(self, settings):
         super().__init__(settings, 'ball')
         self.radius = None
-        self.min_area = 100
+        self.min_area = 10
 
     def find(self, frame_HSV):
         self.frame_threshold = cv.inRange(

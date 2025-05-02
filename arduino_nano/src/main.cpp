@@ -21,8 +21,8 @@ void write_data(T var)
 
 void setup()
 {
-  // robot.init_kicker = false;
-  // robot.init_dribling = false;
+  robot.init_kicker = false;
+  robot.init_dribling = false;
   robot.init();
   Serial.begin(115200);
 }

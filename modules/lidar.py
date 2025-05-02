@@ -14,37 +14,38 @@ class Lidar:
         self.output_thread = None
         self.output_queue = Queue()
 
+        self.robot_data = None
+        self.obstacles_data = []
+
     def find_port(self):
         ports = serial.tools.list_ports.comports()
         for port, desc, hwid in ports:
             if desc == 'CP2102N USB to UART Bridge Controller':
-                print(port, desc, hwid)
+                logging.info(f'Lidar on port: {self.port}')
                 return port
+        logging.error('Cannot find Lidar')
         return None
 
     def start(self):
         self.port = self.find_port()
+        if self.port == None:
+            raise Exception('No Lidar found')
 
-        if self.port != None:
-            logging.info(f'Lidar on port: {self.port}')
+        command = [self.lidar_path, '1' if self.args.lidar else '0', self.port]
 
-            command = [self.lidar_path, '1' if self.args.lidar else '0', self.port]
+        self.proc = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,   # lines come back as strings
+            bufsize=1    # line-buffered on Python side
+        )
 
-            self.proc = subprocess.Popen(
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,   # lines come back as strings
-                bufsize=1    # line-buffered on Python side
-            )
+        self.output_thread = threading.Thread(
+            target=self._output_loop, args=(self.proc, self.output_queue), daemon=True)
+        self.output_thread.start()
 
-            self.output_thread = threading.Thread(
-                target=self.output_loop, args=(self.proc, self.output_queue), daemon=True)
-            self.output_thread.start()
-        else:
-            logging.error('Cannot find Lidar')
-
-    def output_loop(self, proc, output_queue):
+    def _output_loop(self, proc, output_queue):
         for line in iter(proc.stdout.readline, ''):
             line = line.rstrip('\n')
             data = line.split()
@@ -62,6 +63,14 @@ class Lidar:
             self.proc.wait()
         if self.output_thread != None:
             self.output_thread.join()
-    
+
+    def compute(self):
+        data = self.output_queue.get()
+        self.robot_data = (data[0], data[1])
+        self.obstacles_data = []
+        for i in range(2, len(data), 2):
+            self.obstacles_data.append((data[i], data[i+1]))
+
+    @property
     def new_data(self):
         return not self.output_queue.empty()

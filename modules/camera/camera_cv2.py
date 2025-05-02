@@ -3,10 +3,20 @@ from modules.camera.tracking_object import Ball, BlueGoal, YellowGoal
 import cv2 as cv
 import numpy as np
 import logging
+import time
+import threading
+import queue
 
 
 class CameraCV2:
     def __init__(self, args):
+        self.fps = 40
+        self.last_frame = 0
+        self.q = queue.Queue(maxsize=4)
+        self.stop_event = threading.Event()
+
+        self.video_format = 'RGB'
+
         self.args = args
         self.settings = JsonParser('modules/camera/calibration_data.json')
         self.res = self.settings['res']
@@ -31,24 +41,37 @@ class CameraCV2:
         if self.args.yellow:
             self.yellow_goal.start_preview_detection()
     
+    @property
+    def new_data(self):
+        return not self.q.empty()
+    
     def start(self):
         self.video = cv.VideoCapture(0)
         self.video.set(3, self.res[0])
         self.video.set(4, self.res[1])
-        self.is_opened = self.video.isOpened()
-
-        if self.is_opened:
+        self.video.set(cv.CAP_PROP_FPS, self.fps)
+        
+        if self.video.isOpened():
             logging.info('Camera connected')
         else:
-            logging.error('Camera not connected')
+            logging.error('Cannot connect to camera')
+            raise Exception('Connection error')
+        
+        threading.Thread(target=self._capture_loop, daemon=True).start()
+        
+    def _capture_loop(self):
+        while not self.stop_event.is_set():
+            ret, frame = self.video.read()
+            if ret:
+                try:
+                    self.q.put_nowait(frame)
+                except queue.Full:
+                    pass
 
-    def get_frame(self):
-        ret, self.frame = self.video.read()
-        self.is_opened = ret
-
-    def read(self):
-        self.get_frame()
-
+    def compute(self):
+        self.frame = self.q.get()
+        if self.video_format == 'BGR':
+            self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2RGB)
         self.frame = self.frame[max(self.center[1] - self.outer_radius, 0):min(self.center[1] + self.outer_radius, self.frame.shape[0]),
                                 max(self.center[0] - self.outer_radius, 0):min(self.center[0] + self.outer_radius, self.frame.shape[1])]        
         self.frame = cv.bitwise_and(self.frame, self.frame, mask=self.mask)
@@ -71,6 +94,11 @@ class CameraCV2:
         if self.args.yellow:
             self.yellow_goal.preview_detection()
 
+        if self.args.ball or self.args.blue or self.args.yellow or self.args.camera:
+            key = cv.pollKey()
+            if key == ord('s'):
+                self.save()
+
     def start_preview(self):
         self.preview_name = 'Camera'
         cv.namedWindow(self.preview_name)
@@ -79,3 +107,8 @@ class CameraCV2:
         self.ball.save()
         self.blue_goal.save()
         self.yellow_goal.save()
+    
+    def stop(self):
+        self.stop_event.set()
+        cv.destroyAllWindows()
+        self.video.release()

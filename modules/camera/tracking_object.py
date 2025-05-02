@@ -82,6 +82,11 @@ class TrackingObject:
     
     def get_dist(self):
         return math.sqrt((self.center[0] - self.mirror_center[0])**2 + (self.center[1] - self.mirror_center[1])**2)
+    
+    def get_pos(self, robot_pos, robot_angle):
+        x = math.cos(math.radians(self.angle + robot_angle)) * self.dist + robot_pos.x
+        y = math.sin(math.radians(self.angle + robot_angle)) * self.dist + robot_pos.y
+        return x, y
 
     def draw(self, frame):
         pass
@@ -106,7 +111,7 @@ class Ball(TrackingObject):
                 self.visible = True
                 self.center, self.radius = cv.minEnclosingCircle(cnt)
                 self.angle = self.get_angle()
-                self.dist = self.get_dist()
+                self.dist = self.get_cm()
 
     def draw(self, frame):
         if self.visible:
@@ -114,6 +119,9 @@ class Ball(TrackingObject):
             radius = int(self.radius)
             cv.circle(frame, center, radius, (0, 0, 255), 5)
             cv.line(frame, self.mirror_center, center, (0, 0, 255), 5)
+    
+    def get_cm(self):
+        return 7612.57165 / (392.22648 - self.get_dist()) - 17.45807
 
 
 class Goal(TrackingObject):

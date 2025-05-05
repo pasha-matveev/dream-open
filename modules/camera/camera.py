@@ -7,7 +7,6 @@ import queue
 class Camera(CameraCV2):
     def __init__(self, args):
         super().__init__(args)
-        self.video_format = 'BGR'
     
     def start(self):
         self.video = Picamera2()

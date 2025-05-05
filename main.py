@@ -15,16 +15,20 @@ except:
     camera = CameraCV2(args)
 from modules.uart import UART
 from modules.lidar import Lidar
+from path_planning.visualization import Visualization
 
 field = Field()
 robot = Robot(Point(0, -40))
 ball = Ball(Point(0, 0))
 obstacles = []
 
+vis = Visualization(field, ball, robot, fps=10)
+vis.start()
+
 uart = UART()
 lidar = Lidar(args)
 
-# camera.start()
+#camera.start()
 #uart.start()
 #lidar.start()
 
@@ -45,8 +49,7 @@ try:
 
             # update obstacles
         else:
-            # predict robot position and angle based on its velocity
-            pass
+            robot.predict_pos()
         
         if camera.new_data:
             camera.compute()
@@ -57,10 +60,11 @@ try:
             # update open goal space
 
         # strategy
+
+        if vis.update_tm:
+            vis.step()
         
-        # print(1/loop_fps - (time.time() - start_time))
         time.sleep(max(0, 1/loop_fps - (time.time() - start_time)))
-        # time.sleep(max(0, 1/loop_fps))
         print(1 / (time.time() - start_time))
 
 
@@ -70,4 +74,5 @@ finally:
     camera.stop()
     uart.stop()
     lidar.stop()
+    vis.stop()
     print("Main loop ended. Python script finished.")

@@ -21,7 +21,7 @@ class Lidar:
         ports = serial.tools.list_ports.comports()
         for port, desc, hwid in ports:
             if desc == 'CP2102N USB to UART Bridge Controller':
-                logging.info(f'Lidar on port: {self.port}')
+                logging.info(f'Lidar on port: {port}')
                 return port
         logging.error('Cannot find Lidar')
         return None

@@ -15,8 +15,6 @@ class CameraCV2:
         self.q = queue.Queue(maxsize=4)
         self.stop_event = threading.Event()
 
-        self.video_format = 'RGB'
-
         self.args = args
         self.settings = JsonParser('modules/camera/calibration_data.json')
         self.res = self.settings['res']
@@ -70,8 +68,6 @@ class CameraCV2:
 
     def compute(self):
         self.frame = self.q.get()
-        if self.video_format == 'BGR':
-            self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2RGB)
         self.frame = self.frame[max(self.center[1] - self.outer_radius, 0):min(self.center[1] + self.outer_radius, self.frame.shape[0]),
                                 max(self.center[0] - self.outer_radius, 0):min(self.center[0] + self.outer_radius, self.frame.shape[1])]        
         self.frame = cv.bitwise_and(self.frame, self.frame, mask=self.mask)
@@ -111,4 +107,3 @@ class CameraCV2:
     def stop(self):
         self.stop_event.set()
         cv.destroyAllWindows()
-        self.video.release()

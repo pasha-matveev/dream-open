@@ -61,8 +61,8 @@ void Dribling::run()
   // float sp1 = 0.00000010104 * pow(current_speed, 2) + 0.00574335 * current_speed + 1476.39431;
   // float sp2 = 0.00000209126 * pow(current_speed, 2) + 0.0120873 * current_speed + 1470.89056;
 
-  float sp1 = map(current_speed, 0, 100, 1470, 1500);
-  float sp2 = map(current_speed, 0, 100, 1466, 1545);
+  float sp2 = map(current_speed, 0, 100, 1470, 1500);
+  float sp1 = map(current_speed, 0, 100, 1466, 1545);
   ESC1->writeMicroseconds(sp1);
   ESC2->writeMicroseconds(sp2);
 }

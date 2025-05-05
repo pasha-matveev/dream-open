@@ -383,18 +383,17 @@ class Robot:
         self.kicker = uart_data[5]
 
     def update_pos(self, angle: float, dist: float):
-        self.pos.x = dist * np.cos(angle + self.gyro / 180 * np.pi + np.pi)
-        self.pos.y = dist * np.sin(angle + self.gyro / 180 * np.pi + np.pi)
+        self.pos.x = dist * np.cos(self.get_radians(angle + self.gyro) + np.pi)
+        self.pos.y = dist * np.sin(self.get_radians(angle + self.gyro) + np.pi)
         self.update_tm = time.time()
     
     def predict_pos(self):
-        if self.update_tm > 0:
-            self.pos.x = self.pox.x + self.vel.x * (time.time() - self.update_tm)
-            self.pos.y = self.pox.y + self.vel.y * (time.time() - self.update_tm)
-        return self.pos
+        self.pos.x = self.pos.x + self.vel.x * (time.time() - self.update_tm)
+        self.pos.y = self.pos.y + self.vel.y * (time.time() - self.update_tm)
+        self.update_tm = time.time()
     
     def get_radians(self, angle: float):
-        res = -angle / 180 * np.pi - np.pi / 2
+        res = -angle / 180 * np.pi + np.pi / 2
         while res < 0:
             res += 2 * np.pi
         return res
@@ -425,9 +424,24 @@ class Ball:
     
     def update_pos(self, robot, camera_ball):
         if camera_ball.visible:
-            self.pos.x = camera_ball.dist * np.cos(camera_ball.angle + np.radians(robot.gyro)) + robot.pos.x
-            self.pos.y = camera_ball.dist * np.sin(camera_ball.angle + np.radians(robot.gyro)) + robot.pos.y
+            self.pos.x = camera_ball.dist * np.cos(self.get_radians(camera_ball.angle + robot.gyro) + np.pi)
+            self.pos.y = camera_ball.dist * np.sin(self.get_radians(camera_ball.angle + robot.gyro) + np.pi)
             self.update_tm = time.time()
+    
+    def predict_pos(self):
+        self.pos.x = self.pox.x + self.vel.x * (time.time() - self.update_tm)
+        self.pos.y = self.pox.y + self.vel.y * (time.time() - self.update_tm)
+        self.update_tm = time.time()
+    
+    def get_radians(self, angle: float):
+        res = -angle / 180 * np.pi + np.pi / 2
+        while res < 0:
+            res += 2 * np.pi
+        return res
+    
+    def get_degrees(self, angle: float):
+        res = angle / np.pi * 180
+        return angle / np.pi * 180
     
     def draw(self, plot: pg.PlotItem):
         self.circle.draw(plot, color='orange', fill=True)

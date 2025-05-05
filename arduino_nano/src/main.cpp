@@ -3,7 +3,6 @@
 
 Robot robot;
 unsigned long long alive_tm;
-unsigned long long test_tm;
 
 template <typename T>
 T read_data()
@@ -24,6 +23,8 @@ void setup()
   robot.init_kicker = false;
   robot.init_dribling = false;
   robot.init();
+  delay(10000);
+  robot.gyro->generate_correction();
   Serial.begin(115200);
 }
 

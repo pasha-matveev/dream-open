@@ -8,7 +8,7 @@ private:
   MCP2515 *mcp2515 = new MCP2515(10);
   struct can_frame canMsg;
   long ID[3] = {0x141, 0x142, 0x143};
-  float kp = 2, kd = 1000;
+  float kp = 0.1, kd = 0;
   unsigned long long lst_tm = 0;
   float lst_err = 0;
 
@@ -32,7 +32,7 @@ void Motors::setpowers(int32_t power_arr[3])
 {
   for (byte i = 0; i < 3; i++)
   {
-    power_arr[i] *= 900;
+    power_arr[i] *= 2390;
 
     canMsg.can_id = ID[i];
     canMsg.can_dlc = 8;
@@ -75,6 +75,6 @@ void Motors::run(float angle, float speed, float rotation)
   lst_tm = micros();
   for (int i = 0; i < 3; i++)
     power_arr[i] = constrain(-speed * sin(radians(angles[i] - angle)), -speed_limit, speed_limit) +
-                   constrain(angular_speed, -rotation_limit, rotation_limit);
+                   constrain(angular_speed, -rotation_limit, rotation_limit) * 6.37;
   setpowers(power_arr);
 }

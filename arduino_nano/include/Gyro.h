@@ -15,8 +15,12 @@ class Gyro
   public:
     void init();
     void read();
+    void print_offsets();
     float relative(float);
+    void generate_correction();
     float angle;
+
+    float correction = 0;
 };
 
 void Gyro::init()
@@ -25,12 +29,19 @@ void Gyro::init()
   mpu.initialize();
   mpu.dmpInitialize();
   mpu.setDMPEnabled(true);
+
   mpu.setXAccelOffset(1518);
   mpu.setYAccelOffset(-3762);
   mpu.setZAccelOffset(-2238);
   mpu.setXGyroOffset(24);
   mpu.setYGyroOffset(-2);
   mpu.setZGyroOffset(-11);
+}
+
+void Gyro::generate_correction()
+{
+  read();
+  correction = angle;
 }
 
 void Gyro::read()
@@ -41,6 +52,9 @@ void Gyro::read()
     angle = ypr[0] * 57.295779;
     angle += 180;
     angle *= -1;
+
+    angle -= correction;
+
     angle = trim(angle);
   }
 }
@@ -61,4 +75,10 @@ float Gyro::relative(float abs_angle)
   res *= (abs(angle - abs_angle) < 180 ? 1 : -1);
   res *= (angle < abs_angle ? 1 : -1);
   return res;
+}
+
+void Gyro::print_offsets()
+{
+  Serial.println("offsets:");
+  mpu.PrintActiveOffsets();
 }

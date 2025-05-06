@@ -66,10 +66,10 @@ class Lidar:
 
     def compute(self):
         data = self.output_queue.get()
-        self.robot_data = (data[0], data[1])
-        self.obstacles_data = []
-        for i in range(2, len(data), 2):
-            self.obstacles_data.append((data[i], data[i+1]))
+        self.robot_data = (float(data[0]), float(data[1]))
+        # self.obstacles_data = []
+        # for i in range(2, len(data), 2):
+        #     self.obstacles_data.append((data[i], data[i+1]))
 
     @property
     def new_data(self):

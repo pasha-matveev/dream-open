@@ -31,4 +31,3 @@ class Camera(CameraCV2):
     def stop(self):
         self.stop_event.set()
         cv.destroyAllWindows()
-        self.video.stop()

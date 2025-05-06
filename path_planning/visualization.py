@@ -155,9 +155,6 @@ class Visualization:
             self._draw()
             self.app.processEvents()          # let Qt flush pending paints
         self.lst_update_tm = time.time()
-    
-    def stop(self):
-        self.win.destroy()
 
 
 # ─────────────────────────── standalone demo ───────────────────────────────

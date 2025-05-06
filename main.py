@@ -58,14 +58,33 @@ try:
             ball.update_pos(robot, camera.ball)
             
             # update open goal space
+        
+        robot.vel = Vector.from_points(robot.pos, ball.pos)
+        # ball.attract(robot, 0, 200 / loop_fps)
 
-        # strategy
+        nearest = field.nearest_border(robot.pos)
+
+        if field.is_inside(robot.pos):
+            nearest.constrain(robot, 1)
+            for border in field.borders:
+                if border.is_inside(robot.pos) and border != nearest:
+                    border.constrain(robot, 1)
+        else:
+            border_vec = Vector.from_points(robot.pos, nearest.nearest_point(robot.pos))
+            normal = robot.vel.normal(border_vec.angle)
+            tangent = robot.vel.tangent(border_vec.angle)
+            normal.angle = border_vec.angle
+            normal.length = max(border_vec.length * 2, normal.length)
+            robot.vel = normal + tangent
+        
+        ball.constrain(robot, 1)
+        robot.limit_speed()
 
         if vis.update_tm:
             vis.step()
         
         time.sleep(max(0, 1/loop_fps - (time.time() - start_time)))
-        print(1 / (time.time() - start_time))
+        # print(1 / (time.time() - start_time))
 
 
 except KeyboardInterrupt:
@@ -74,5 +93,4 @@ finally:
     camera.stop()
     uart.stop()
     lidar.stop()
-    vis.stop()
     print("Main loop ended. Python script finished.")

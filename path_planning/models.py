@@ -319,6 +319,7 @@ class FieldObject:
         self.pos = pos
         self.radius = radius
         self.vel = Vector(0, 0)
+        self.lst_vel = Vector(0, 0)
         self.update_tm = 0
         self.visible_tm = 0
     
@@ -358,6 +359,7 @@ class Robot(FieldObject):
         self.kicker = False
 
         self.max_speed = 100  # [cm / s]
+        self.max_acc = 200 # [cm / s^2]
 
     def update_state(self, uart_data):
         self.gyro = uart_data[3]
@@ -374,6 +376,14 @@ class Robot(FieldObject):
         if max_speed is None:
             max_speed = self.max_speed
         self.vel.length = min(self.vel.length, max_speed)
+        
+    def limit_acc(self, fps:int, max_acc: float|None = None):
+        if max_acc is None:
+            max_acc = self.max_acc
+        diff = self.vel - self.lst_vel
+        diff.length = min(max_acc * 1/fps, diff.length)
+        self.vel = self.lst_vel + diff
+        self.lst_vel = self.vel
 
     def draw(self, plot: pg.PlotItem):
         self.circle.draw(plot, color='black', fill=True)

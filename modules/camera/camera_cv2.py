@@ -91,7 +91,7 @@ class CameraCV2:
             self.yellow_goal.preview_detection()
 
         if self.args.ball or self.args.blue or self.args.yellow or self.args.camera:
-            key = cv.pollKey()
+            key = cv.waitKey(1)
             if key == ord('s'):
                 self.save()
 

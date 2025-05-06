@@ -18,19 +18,21 @@ from modules.lidar import Lidar
 from path_planning.visualization import Visualization
 
 field = Field()
-robot = Robot(Point(0, -40))
+robot = Robot(Point(0, 0))
 ball = Ball(Point(0, 0))
 obstacles = []
 
 vis = Visualization(field, ball, robot, fps=10)
-vis.start()
+#vis.start()
 
 uart = UART()
 lidar = Lidar(args)
 
-#camera.start()
-#uart.start()
-#lidar.start()
+camera.start()
+uart.start()
+lidar.start()
+
+time.sleep(15)
 
 lst = time.time()
 try:
@@ -41,10 +43,13 @@ try:
         if uart.new_data:
             uart.read()
             robot.update_state(uart.data)
+            
 
         if lidar.new_data:
             lidar.compute()
-
+            
+            print(int(robot.gyro), lidar.robot_data, robot.pos)
+        
             robot.update_pos(*lidar.robot_data)
 
             # update obstacles
@@ -82,6 +87,9 @@ try:
 
         if vis.update_tm:
             vis.step()
+            
+        uart.write('fffii', robot.get_degrees(robot.vel.angle), robot.vel.length, robot.gyro + camera.ball.angle, 0, 0)
+        #uart.write('fffii', 0, 0, 0, 0, 0)
         
         time.sleep(max(0, 1/loop_fps - (time.time() - start_time)))
         # print(1 / (time.time() - start_time))

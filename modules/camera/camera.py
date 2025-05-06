@@ -13,6 +13,8 @@ class Camera(CameraCV2):
         config = self.video.create_preview_configuration(main={"size": self.res})
         self.video.configure(config)
         self.video.post_callback = self._post_callback
+        self.video.controls.ExposureTime = 10000
+        self.video.controls.Contrast = 3
         self.video.start()
     
     def _post_callback(self, req):

@@ -16,6 +16,8 @@ class Lidar:
 
         self.robot_data = None
         self.obstacles_data = []
+        
+        self.data = []
 
     def find_port(self):
         ports = serial.tools.list_ports.comports()
@@ -65,8 +67,8 @@ class Lidar:
             self.output_thread.join()
 
     def compute(self):
-        data = self.output_queue.get()
-        self.robot_data = (float(data[0]), float(data[1]))
+        self.data = self.output_queue.get()
+        self.robot_data = (float(self.data[0]), float(self.data[1]))
         # self.obstacles_data = []
         # for i in range(2, len(data), 2):
         #     self.obstacles_data.append((data[i], data[i+1]))

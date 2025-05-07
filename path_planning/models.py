@@ -174,21 +174,24 @@ class Segment:
     def angle(self):
         return self.p1.angle(self.p2)
 
-    def is_inside(self, p: Point) -> bool:
-        """Does the projection of *p* fall onto the segment’s extent?"""
-        v1, v2 = Vector.from_points(p, self.p1), Vector.from_points(p, self.p2)
-        return v1.dot(v2) < 0
+    def is_inside(self, point: Point) -> bool:
+        if Vector.from_points(point, self.p1).dot(Vector.from_points(self.p2, self.p1)) > 0:
+            if Vector.from_points(point, self.p2).dot(Vector.from_points(self.p1, self.p2)) > 0:
+                return True
+        return False
 
-    def nearest_point(self, p: Point) -> Point:
-        if not self.is_inside(p):
-            return self.p1 if p.dist(self.p1) < p.dist(self.p2) else self.p2
-        # projection onto the infinite line ---------------------------------
-        k = math.tan(self.angle)
-        if abs(k) > 1e6:       # vertical-ish line
-            return Point(self.p1.x, p.y)
-        x = (k**2 * self.p1.x - k * self.p1.y + k * p.y + p.x) / (k**2 + 1)
-        y = k * (x - self.p1.x) + self.p1.y
-        return Point(x, y)
+    def nearest_point(self, point: Point) -> Point:
+        if self.is_inside(point):
+            if self.p1.x == self.p2.x:
+                return Point(self.p1.x, point.y)
+            if self.p1.y == self.p2.y:
+                return Point(point.x, self.p1.y)
+            k = (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x)
+            x1 = (k**2 * self.p1.x - k * self.p1.y +
+                    k * point.y + point.x) / (k**2 + 1)
+            y1 = k * (x1 - self.p1.x) + self.p1.y
+            return Point(x1, y1)
+        return self.p1 if point.dist(self.p1) < point.dist(self.p2) else self.p2
     
     def attract(self, robot: Robot, f: float = 1, const: float = 0):
         point = self.nearest_point(robot.pos)
@@ -250,9 +253,9 @@ class Field:
     """Official RoboCup Junior Soccer field (2024 rules). Units: *centimetres*."""
     def __init__(self):
         # 12‑sided border (cut corners)
-        b = [(-78, -108.5), (-55.4, -108.5), (-29, -82.1), (29, -82.1), (55.4, -108.5),
-             (78, -108.5), (78, 108.5), (55.4, 108.5), (29, 82.1), (-29, 82.1),
-             (-55.4, 108.5), (-78, 108.5)]
+        b = [(-73, -103.5), (-50.4, -103.5), (-29, -82.1), (29, -82.1), (50.4, -103.5),
+             (73, -103.5), (73, 103.5), (50.4, 103.5), (29, 82.1), (-29, 82.1),
+             (-50.4, 103.5), (-73, 103.5)]
         self.borders: List[Segment] = [Segment.from_tuple(b[i], b[(i+1) % len(b)]) for i in range(len(b))]
 
         self.dots   = [Point(-39, -64.5), Point(39, -64.5), Point(-39, 64.5), Point(39, 64.5), Point(0, 0)]
@@ -358,7 +361,7 @@ class Robot(FieldObject):
         self.emitter = False
         self.kicker = False
 
-        self.max_speed = 100  # [cm / s]
+        self.max_speed = 200  # [cm / s]
         self.max_acc = 200 # [cm / s^2]
 
     def update_state(self, uart_data):

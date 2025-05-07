@@ -22,21 +22,21 @@ robot = Robot(Point(0, 0))
 ball = Ball(Point(0, 0))
 obstacles = []
 
-vis = Visualization(field, ball, robot, fps=10)
-#vis.start()
+vis = Visualization(field, ball, robot, fps=30)
+vis.start()
 
 uart = UART()
 lidar = Lidar(args)
 
-camera.start()
-uart.start()
-lidar.start()
+# camera.start()
+# uart.start()
+# lidar.start()
 
-time.sleep(15)
+# time.sleep(15)
 
 lst = time.time()
 try:
-    loop_fps = 50
+    loop_fps = 30
     while True:
         start_time = time.time()
 
@@ -64,16 +64,22 @@ try:
             
             # update open goal space
         
+        vis._clear()
+        vis._draw()
+        
         robot.vel = Vector.from_points(robot.pos, ball.pos)
+        robot.vel.length *= 2
         # ball.attract(robot, 0, 200 / loop_fps)
 
         nearest = field.nearest_border(robot.pos)
 
         if field.is_inside(robot.pos):
             nearest.constrain(robot, 1)
+            nearest.draw(vis.view, color='red')
             for border in field.borders:
                 if border.is_inside(robot.pos) and border != nearest:
                     border.constrain(robot, 1)
+                    border.draw(vis.view, color='red')
         else:
             border_vec = Vector.from_points(robot.pos, nearest.nearest_point(robot.pos))
             normal = robot.vel.normal(border_vec.angle)
@@ -82,13 +88,15 @@ try:
             normal.length = max(border_vec.length * 2, normal.length)
             robot.vel = normal + tangent
         
-        ball.constrain(robot, 1)
+        ball.constrain(robot, 2)
         robot.limit_speed()
 
-        if vis.update_tm:
-            vis.step()
+        vis._update()
+
+        # if vis.update_tm:
+        #     vis.step()
             
-        uart.write('fffii', robot.get_degrees(robot.vel.angle), robot.vel.length, robot.gyro + camera.ball.angle, 0, 0)
+        # uart.write('fffii', robot.get_degrees(robot.vel.angle), robot.vel.length, robot.gyro + camera.ball.angle, 0, 0)
         #uart.write('fffii', 0, 0, 0, 0, 0)
         
         time.sleep(max(0, 1/loop_fps - (time.time() - start_time)))

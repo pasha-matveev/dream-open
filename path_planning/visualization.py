@@ -153,8 +153,11 @@ class Visualization:
         if self.is_alive:
             self._clear()
             self._draw()
-            self.app.processEvents()          # let Qt flush pending paints
+            self._update()
         self.lst_update_tm = time.time()
+    
+    def _update(self):
+        self.app.processEvents()          # let Qt flush pending paints
 
 
 # ─────────────────────────── standalone demo ───────────────────────────────

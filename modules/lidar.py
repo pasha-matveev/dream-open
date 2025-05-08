@@ -3,6 +3,34 @@ import threading
 import logging
 from queue import Queue
 import serial.tools.list_ports
+import math
+
+
+class LidarObject:
+    def __init(self):
+        self.angle = 0
+        self.dist = 0
+        self.rotation = 0
+        self.width = 0
+        self.height = 0
+    
+    def update(self, angle, dist, rotation, width, height):
+        self.angle = float(angle)
+        self.dist = float(dist)
+        self.rotation = float(rotation)
+        self.width = int(width)
+        self.height = int(height)
+        
+        if self.width < self.height:
+            self.width, self.height = self.height, self.width
+            self.rotation -= math.pi / 2
+        
+        self.rotation = -self.rotation + math.pi / 2
+        
+        while self.rotation < 0:
+            self.rotation += math.pi * 2
+        while self.rotation > math.pi:
+            self.rotation -= math.pi
 
 
 class Lidar:
@@ -14,7 +42,7 @@ class Lidar:
         self.output_thread = None
         self.output_queue = Queue()
 
-        self.robot_data = None
+        self.field = LidarObject()
         self.obstacles_data = []
         
         self.data = []
@@ -68,7 +96,8 @@ class Lidar:
 
     def compute(self):
         self.data = self.output_queue.get()
-        self.robot_data = (float(self.data[0]), float(self.data[1]))
+        self.field.update(*self.data[0:5])
+        print(self.field.width, self.field.height, round(self.field.rotation, 2))
         # self.obstacles_data = []
         # for i in range(2, len(data), 2):
         #     self.obstacles_data.append((data[i], data[i+1]))

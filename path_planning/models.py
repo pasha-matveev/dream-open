@@ -253,9 +253,9 @@ class Field:
     """Official RoboCup Junior Soccer field (2024 rules). Units: *centimetres*."""
     def __init__(self):
         # 12‑sided border (cut corners)
-        b = [(-73, -103.5), (-50.4, -103.5), (-29, -82.1), (29, -82.1), (50.4, -103.5),
-             (73, -103.5), (73, 103.5), (50.4, 103.5), (29, 82.1), (-29, 82.1),
-             (-50.4, 103.5), (-73, 103.5)]
+        b = [(-73, -103.5), (-55.4, -103.5), (-34, -82.1), (34, -82.1), (55.4, -103.5),
+             (73, -103.5), (73, 103.5), (55.4, 103.5), (34, 82.1), (-34, 82.1),
+             (-55.4, 103.5), (-73, 103.5)]
         self.borders: List[Segment] = [Segment.from_tuple(b[i], b[(i+1) % len(b)]) for i in range(len(b))]
 
         self.dots   = [Point(-39, -64.5), Point(39, -64.5), Point(-39, 64.5), Point(39, 64.5), Point(0, 0)]

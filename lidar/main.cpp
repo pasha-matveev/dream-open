@@ -649,8 +649,8 @@ int main(int argc, const char *argv[])
                 int quality = nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT;
                 if (quality && dist < 3000.f)
                 {
-                    double x = center.x + dist / 10.f * cos(angle * M_PI / 180.f);
-                    double y = center.y + dist / 10.f * sin(angle * M_PI / 180.f);
+                    double x = center.x + dist / 10.f * sin(angle * M_PI / 180.f);
+                    double y = center.y - dist / 10.f * cos(angle * M_PI / 180.f);
                     points.push_back(Point{x, y});
                 }
                 // printf("%s theta: %03.2f Dist: %08.2f Q: %d \n", (nodes[pos].flag & SL_LIDAR_RESP_HQ_FLAG_SYNCBIT) ? "S " : "  ", angle, dist, quality);
@@ -695,14 +695,14 @@ int main(int argc, const char *argv[])
         for (Rect &object : result_data)
         {
             Point object_center = computeRectCenter(object);
-            double angle = atan2(object_center.y - center.y, object_center.x - center.x) * 180.f / M_PI;
-            double dist = sqrt(pow(object_center.y - center.y, 2) + pow(object_center.x - center.x, 2));
-            double rotation = object.angle * 180.f / M_PI;
+            double angle = atan2(center.y - object_center.y, object_center.x - center.x);
+            double dist = sqrt(pow(center.y - object_center.y, 2) + pow(center.x - object_center.x, 2));
+            double rotation = object.angle;
             double width = object.width;
             double height = object.height;
-            cout << setprecision(4) << angle << ' ';
-            cout << setprecision(4) << dist << ' ';
-            cout << setprecision(4) << rotation << ' ';
+            cout << setprecision(5) << angle << ' ';
+            cout << setprecision(5) << dist << ' ';
+            cout << setprecision(5) << rotation << ' ';
             cout << (int)width << ' ';
             cout << (int)height << ' ';
             // printf(" %.2f %.2f %.2f %.2f %.2f", angle, dist, rotation, width, height);

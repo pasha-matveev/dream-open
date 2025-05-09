@@ -11,6 +11,7 @@ public:
   bool val = 0;
   bool first = 1;
   unsigned long long first_tm = 0;
+  unsigned long long last_tm = 0;
 };
 
 void Emitter::init()
@@ -22,6 +23,8 @@ void Emitter::read()
 {
   raw = analogRead(pin);
   val = raw < 950;
+  if (val)
+    last_tm = millis();
   if (val)
   {
     if (first)

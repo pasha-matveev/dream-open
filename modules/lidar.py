@@ -97,7 +97,6 @@ class Lidar:
     def compute(self):
         self.data = self.output_queue.get()
         self.field.update(*self.data[0:5])
-        print(self.field.width, self.field.height, round(self.field.rotation, 2))
         # self.obstacles_data = []
         # for i in range(2, len(data), 2):
         #     self.obstacles_data.append((data[i], data[i+1]))

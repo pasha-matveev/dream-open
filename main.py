@@ -23,16 +23,16 @@ ball = Ball(Point(0, 0))
 obstacles = []
 
 vis = Visualization(field, ball, robot, fps=10)
-#vis.start()
+vis.start()
 
 uart = UART()
 lidar = Lidar(args)
 
 #camera.start()
-#uart.start()
+uart.start()
 lidar.start()
 
-#time.sleep(15)
+time.sleep(7)
 
 lst = time.time()
 try:
@@ -47,8 +47,15 @@ try:
 
         if lidar.new_data:
             lidar.compute()
-        
-            # robot.update_pos(*lidar.robot_data)
+            
+            if math.cos(lidar.field.rotation - robot.gyro) < 0:
+                lidar.field.rotation += math.pi
+            
+            if abs(1 - lidar.field.width/242) < 0.2 and abs(1 - lidar.field.height/122) < 0.2:
+                robot.update_pos(lidar.field)
+                print(robot.pos, '\t', round(lidar.field.rotation, 2), '\t', round(robot.gyro, 2))
+            else:
+                print('rotation')
 
             # update obstacles
         else:
@@ -84,8 +91,11 @@ try:
         ball.constrain(robot, 2)
         robot.limit_speed()
             
-        #uart.write('fffii', robot.get_degrees(robot.vel.angle), robot.vel.length, robot.gyro + camera.ball.angle, 0, 0)
-        #uart.write('fffii', 0, 0, 0, 0, 0)
+        uart.write('fffii', robot.vel.angle, robot.vel.length, 0, 0, 0)
+        #uart.write('fffii', 0, 0, robot.gyro, 0, 0)
+        
+        if vis.update_tm:
+            vis.step()
         
         time.sleep(max(0, 1/loop_fps - (time.time() - start_time)))
         # print(1 / (time.time() - start_time))

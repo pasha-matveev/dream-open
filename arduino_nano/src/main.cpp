@@ -3,6 +3,8 @@
 
 Robot robot;
 unsigned long long alive_tm;
+unsigned long long test_tm = 10000;
+
 
 template <typename T>
 T read_data()
@@ -23,8 +25,8 @@ void setup()
   robot.init_kicker = false;
   robot.init_dribling = false;
   robot.init();
-  delay(10000);
-  robot.gyro->generate_correction();
+  delay(6000);
+  robot.gyro.generate_correction();
   Serial.begin(115200);
 }
 
@@ -37,18 +39,18 @@ void loop()
     robot.direction = read_data<float>();
     robot.speed = read_data<float>();
     robot.rotation = read_data<float>();
-    robot.dribling->set_speed(read_data<int32_t>());
-    robot.kicker->force = read_data<int32_t>();
+    robot.dribling.set_speed(read_data<int32_t>());
+    robot.kicker.force = read_data<int32_t>();
 
     write_data(robot.direction);
     write_data(robot.speed);
     write_data(robot.rotation);
 
-    write_data(robot.gyro->angle);
-    write_data(robot.emitter->val);
-    write_data(robot.kicker->is_ready());
+    write_data(robot.gyro.angle);
+    write_data((millis() - robot.emitter.last_tm) < 500);
+    write_data(robot.kicker.is_ready());
 
-    robot.kicker->kick(robot.kicker->force);
+    robot.kicker.kick(robot.kicker.force);
 
     alive_tm = millis() + 1000;
   }

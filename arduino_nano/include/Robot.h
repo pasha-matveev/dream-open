@@ -11,11 +11,11 @@ private:
   float rel_direction, rel_rotation;
 
 public:
-  Gyro *gyro = new Gyro;
-  Motors *motors = new Motors;
-  Kicker *kicker = new Kicker;
-  Dribling *dribling = new Dribling;
-  Emitter *emitter = new Emitter;
+  Gyro gyro;
+  Motors motors;
+  Kicker kicker;
+  Dribling dribling;
+  Emitter emitter;
 
   void init();
   void read();
@@ -33,40 +33,40 @@ public:
 void Robot::init()
 {
   if (init_gyro)
-    gyro->init();
+    gyro.init();
   if (init_motors)
-    motors->init();
+    motors.init();
   if (init_dribling)
-    dribling->init();
+    dribling.init();
   if (init_emitter)
-    emitter->init();
+    emitter.init();
   if (init_kicker)
-    kicker->init();
+    kicker.init();
 }
 
 void Robot::read()
 {
   if (init_gyro)
-    gyro->read();
+    gyro.read();
   if (init_emitter)
-    emitter->read();
+    emitter.read();
 }
 
 void Robot::run()
 {
-  rel_direction = gyro->relative(direction);
-  rel_rotation = gyro->relative(rotation);
-  motors->run(rel_direction, speed, rel_rotation);
+  rel_direction = gyro.relative(direction);
+  rel_rotation = gyro.relative(rotation);
+  motors.run(rel_direction, speed, rel_rotation);
   if (init_dribling)
-    dribling->run();
+    dribling.run();
 }
 
 void Robot::stop()
 {
-  motors->stop();
+  motors.run(0, 0, 0);
   if (init_dribling)
   {
-    dribling->set_speed(0);
-    dribling->run();
+    dribling.set_speed(0);
+    dribling.run();
   }
 }

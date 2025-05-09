@@ -6,11 +6,10 @@ class Dribling
 private:
   Servo *ESC1 = new Servo;
   Servo *ESC2 = new Servo;
-  float current_speed = 0, desired_speed = 0, lst_speed = 0;
-  
-  unsigned long long change_tm;
-  int change_limit = 0;
-  float change_k = 3000.0 / 20.0;
+  double current_speed = 0, desired_speed = 0;
+
+  unsigned long long lst_tm = 0;
+  double change_k = 20.0 / 5000000.0;
 
 public:
   void init();
@@ -38,31 +37,26 @@ void Dribling::init()
 
 void Dribling::set_speed(int rotation)
 {
-  desired_speed = (float)rotation;
-  lst_speed = current_speed;
-  change_tm = millis();
-  change_limit = abs(desired_speed - lst_speed) * change_k;
+  desired_speed = (double)rotation;
 }
 
 void Dribling::run()
 {
   if (current_speed != desired_speed)
   {
-    if (change_tm + change_limit < millis())
+    if ((micros() - lst_tm) * change_k < abs(desired_speed - current_speed))
     {
-      current_speed = desired_speed;
+      current_speed += (micros() - lst_tm) * change_k * (desired_speed - current_speed) / abs(desired_speed - current_speed);
+      lst_tm = micros();
     }
     else
     {
-      float k = float(millis() - change_tm) / float(change_limit);
-      current_speed = lst_speed * (1 - k) + desired_speed * k;
+      current_speed = desired_speed;
     }
   }
-  // float sp1 = 0.00000010104 * pow(current_speed, 2) + 0.00574335 * current_speed + 1476.39431;
-  // float sp2 = 0.00000209126 * pow(current_speed, 2) + 0.0120873 * current_speed + 1470.89056;
 
-  float sp2 = map(current_speed, 0, 100, 1470, 1500);
-  float sp1 = map(current_speed, 0, 100, 1466, 1545);
+  float sp1 = map(current_speed, 0, 100, 1470, 1500);
+  float sp2 = map(current_speed, 0, 100, 1466, 1545);
   ESC1->writeMicroseconds(sp1);
   ESC2->writeMicroseconds(sp2);
 }

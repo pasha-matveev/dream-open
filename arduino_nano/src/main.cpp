@@ -30,10 +30,12 @@ void setup()
   // delay(6000);
   robot.gyro.generate_correction();
   Serial.begin(115200);
+
+  robot.dribling.set_speed(50);
 }
 
 void loop()
-{ 
+{
   robot.read();
 
   if (Serial.available())
@@ -41,12 +43,9 @@ void loop()
     robot.direction = read_data<float>();
     robot.speed = read_data<float>();
     robot.rotation = read_data<float>();
+    robot.rotation_limit = read_data<float>();
     robot.dribling.set_speed(read_data<int32_t>());
     robot.kicker.force = read_data<int32_t>();
-
-    write_data(robot.direction);
-    write_data(robot.speed);
-    write_data(robot.rotation);
 
     write_data(robot.gyro.angle);
     write_data((millis() - robot.emitter.last_tm) < 500);

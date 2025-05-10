@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import math
+import time
 
 
 class TrackingObject:
@@ -18,6 +19,7 @@ class TrackingObject:
         self.high_V = self.threshold[5]
         self.frame_threshold = None
         self.visible = False
+        self.visible_tm = 0
         self.min_area = 0
 
         self.center = None
@@ -76,7 +78,7 @@ class TrackingObject:
         self.settings.save()
 
     def get_angle(self):
-        angle = math.atan2(self.center[1] - self.mirror_center[1], self.center[0] - self.mirror_center[0])
+        angle = math.atan2(self.center[1] - self.mirror_center[1], self.center[0] - self.mirror_center[0]) + math.pi
         return angle
     
     def get_dist(self):
@@ -136,6 +138,7 @@ class Goal(TrackingObject):
 
             if cv.contourArea(cnt) > self.min_area:
                 self.visible = True
+                self.visible_tm = time.time()
                 self.rect = cv.minAreaRect(cnt)
                 self.center, self.size, self.rotation = self.rect
                 self.angle = self.get_angle()

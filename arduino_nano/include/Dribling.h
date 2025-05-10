@@ -45,9 +45,9 @@ void Dribling::run()
   if (lst_tm + 100 < millis())
   {
     if (current_speed < desired_speed)
-      current_speed += 2;
+      current_speed += 5;
     else if (current_speed > desired_speed)
-      current_speed -= 2;
+      current_speed -= 5;
     lst_tm = millis();
   }
 
@@ -59,8 +59,8 @@ void Dribling::run()
   }
   else
   {
-    sp1 = map(current_speed, 0, 100, 1450, 1500);
-    sp2 = map(current_speed, 0, 100, 1450, 1500);
+    sp1 = map(current_speed, 0, 100, 1450, 1530);
+    sp2 = map(current_speed, 0, 100, 1450, 1530);
   }
 
   ESC1->writeMicroseconds(sp1);

@@ -4,10 +4,10 @@
     972
   ],
   "center": [
-    650,
-    474
+    645,
+    470
   ],
-  "outer_radius": 380,
+  "outer_radius": 370,
   "inner_radius": 10,
   "objects": {
     "ball": {

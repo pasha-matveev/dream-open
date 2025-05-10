@@ -24,6 +24,7 @@ public:
   float direction = 0;
   float speed = 0;
   float rotation = 0;
+  float rotation_limit = 0;
   int dribling_speed = 0;
   int kicker_force = 0;
 

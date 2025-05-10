@@ -359,9 +359,14 @@ class Robot(FieldObject):
         super().__init__(pos, 9)
         self.gyro = 0
         self.emitter = False
+        self.first_flag = True
+        self.first_tm = 0
+        
         self.kicker = False
 
         self.rotation = 0
+        self.dribbling = 0
+        self.kick = 0
         self.gyro_correction = 0
 
         self.max_speed = 200  # [cm / s]
@@ -373,6 +378,14 @@ class Robot(FieldObject):
         self.gyro = uart_data[3]
         self.emitter = uart_data[4]
         self.kicker = uart_data[5]
+        
+        if self.emitter:
+            if self.first_flag:
+                self.first_tm = time.time()
+            self.first_flag = 0
+        else:
+            self.first_tm = time.time()
+            self.first_flag = 1
 
     def update_pos(self, field):
         self.pos.x = field.dist * np.cos(field.angle - field.rotation + np.pi)

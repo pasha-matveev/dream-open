@@ -8,7 +8,7 @@ private:
   MCP2515 *mcp2515 = new MCP2515(10);
   struct can_frame canMsg;
   long ID[3] = {0x141, 0x142, 0x143};
-  float kp = 10, kd = 5;
+  float kp = 5, kd = 0;
   unsigned long long lst_tm = 0;
   float lst_err = 0;
 

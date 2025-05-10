@@ -4,6 +4,7 @@ import struct
 import threading
 import logging
 import queue
+import time
 
 class UART:
     def __init__(self, boudrate:int = 115200, input_format:str = 'ffff??'):
@@ -18,6 +19,9 @@ class UART:
         self.input_thread = None
 
         self.queue = queue.Queue(maxsize=10)
+
+        self.start_tm = 0
+        self.init_delay = 10
 
     def autodetect_port(self):
         for port, desc, hwid in serial.tools.list_ports.comports():
@@ -39,6 +43,7 @@ class UART:
             self.serial.reset_output_buffer()
             self.input_thread = threading.Thread(target=self._input_loop, daemon=True)
             self.input_thread.start()
+            self.start_tm = time.time()
             logging.info('Arduino connected')
         else:
             logging.error('Cannot connect to Arduino')
@@ -52,6 +57,12 @@ class UART:
         if self.serial == None:
             return False
         return self.serial.is_open
+    
+    @property
+    def writable(self):
+        if self.start_tm == 0:
+            return False
+        return self.start_tm + self.init_delay < time.time()
     
     def write(self, data_format:str, *args):
         if self.is_open:

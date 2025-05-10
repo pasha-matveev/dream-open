@@ -1,3 +1,5 @@
+#define ROBOT 0
+
 #include <Arduino.h>
 #include "Robot.h"
 
@@ -22,10 +24,10 @@ void write_data(T var)
 
 void setup()
 {
-  robot.init_kicker = false;
-  robot.init_dribling = false;
+  // robot.init_kicker = false;
+  // robot.init_dribling = false;
   robot.init();
-  delay(6000);
+  // delay(6000);
   robot.gyro.generate_correction();
   Serial.begin(115200);
 }
@@ -35,7 +37,7 @@ void loop()
   robot.read();
 
   if (Serial.available())
-  {    
+  {
     robot.direction = read_data<float>();
     robot.speed = read_data<float>();
     robot.rotation = read_data<float>();

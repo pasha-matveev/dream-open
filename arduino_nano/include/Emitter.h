@@ -22,7 +22,7 @@ void Emitter::init()
 void Emitter::read()
 {
   raw = analogRead(pin);
-  val = raw < 950;
+  val = ROBOT ? (raw < 950) : (raw < 800);
   if (val)
     last_tm = millis();
   if (val)

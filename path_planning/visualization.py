@@ -20,6 +20,7 @@ Vector = models.Vector
 Field = models.Field
 Robot = models.Robot
 Ball = models.Ball
+Obstacle = models.Obstacle
 
 # ────────────────────────── simulation constants ────────────────────────────
 INNER_K = 1
@@ -71,10 +72,11 @@ class Visualization:
     for ~10-20× faster redraws.
     """
 
-    def __init__(self, field: Field, ball: Ball, robot: Robot, fps: int = 30):
+    def __init__(self, field: Field, ball: Ball, robot: Robot, obstacles: list[Obstacle], fps: int = 30):
         self.field = field
         self.ball = ball
         self.robot = robot
+        self.obstacles = obstacles
 
         self.fps = fps
         self.lst_update_tm = 0

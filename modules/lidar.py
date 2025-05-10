@@ -7,7 +7,7 @@ import math
 
 
 class LidarObject:
-    def __init(self):
+    def __init__(self):
         self.angle = 0
         self.dist = 0
         self.rotation = 0
@@ -98,8 +98,8 @@ class Lidar:
         self.data = self.output_queue.get()
         self.field.update(*self.data[0:5])
         # self.obstacles_data = []
-        # for i in range(2, len(data), 2):
-        #     self.obstacles_data.append((data[i], data[i+1]))
+        # for i in range(5, len(self.data), 5):
+        #     self.obstacles_data.append(LidarObject(*self.data[i:i+5]))
 
     @property
     def new_data(self):

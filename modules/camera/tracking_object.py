@@ -77,16 +77,10 @@ class TrackingObject:
 
     def get_angle(self):
         angle = math.atan2(self.center[1] - self.mirror_center[1], self.center[0] - self.mirror_center[0])
-        angle = (270 - math.degrees(angle) + 360) % 360
         return angle
     
     def get_dist(self):
         return math.sqrt((self.center[0] - self.mirror_center[0])**2 + (self.center[1] - self.mirror_center[1])**2)
-    
-    def get_pos(self, robot_pos, robot_angle):
-        x = math.cos(math.radians(self.angle + robot_angle)) * self.dist + robot_pos.x
-        y = math.sin(math.radians(self.angle + robot_angle)) * self.dist + robot_pos.y
-        return x, y
 
     def draw(self, frame):
         pass

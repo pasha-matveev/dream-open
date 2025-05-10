@@ -42,21 +42,27 @@ void Dribling::set_speed(int rotation)
 
 void Dribling::run()
 {
-  if (current_speed != desired_speed)
+  if (lst_tm + 100 < millis())
   {
-    if ((micros() - lst_tm) * change_k < abs(desired_speed - current_speed))
-    {
-      current_speed += (micros() - lst_tm) * change_k * (desired_speed - current_speed) / abs(desired_speed - current_speed);
-      lst_tm = micros();
-    }
-    else
-    {
-      current_speed = desired_speed;
-    }
+    if (current_speed < desired_speed)
+      current_speed += 2;
+    else if (current_speed > desired_speed)
+      current_speed -= 2;
+    lst_tm = millis();
   }
 
-  float sp1 = map(current_speed, 0, 100, 1470, 1500);
-  float sp2 = map(current_speed, 0, 100, 1466, 1545);
+  float sp1, sp2;
+  if (ROBOT)
+  {
+    sp1 = map(current_speed, 0, 100, 1470, 1500);
+    sp2 = map(current_speed, 0, 100, 1466, 1545);
+  }
+  else
+  {
+    sp1 = map(current_speed, 0, 100, 1450, 1500);
+    sp2 = map(current_speed, 0, 100, 1450, 1500);
+  }
+
   ESC1->writeMicroseconds(sp1);
   ESC2->writeMicroseconds(sp2);
 }

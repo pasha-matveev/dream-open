@@ -25,9 +25,9 @@ void write_data(T var)
 void setup()
 {
   // robot.init_kicker = false;
-  // robot.init_dribling = false;
+  robot.init_dribling = false;
   robot.init();
-  // delay(6000);
+  delay(6000);
   robot.gyro.generate_correction();
   Serial.begin(115200);
 

@@ -216,6 +216,10 @@ class Circle:
     def __init__(self, center: Point, radius: float):
         self.center, self.radius = center, radius
 
+    @classmethod
+    def from_angle(cls, point: Point, angle: float, radius: float):
+        return cls(Point(point.x + radius * np.cos(angle), point.y + radius * np.sin(angle)), radius)
+
     def dist(self, p: Point):
         return self.center.dist(p) - self.radius
 
@@ -231,9 +235,9 @@ class Circle:
         a1 = point.angle(self.center)
         a2 = np.asin(self.radius / point.dist(self.center))
         l = np.sqrt(point.dist(self.center)**2 - self.radius**2)
-        s1 = Segment.from_list([point.x, point.y], [
+        s1 = Segment.from_tuple([point.x, point.y], [
                                point.x + np.cos(a1 + a2) * l, point.y + np.sin(a1 + a2) * l])
-        s2 = Segment.from_list([point.x, point.y], [
+        s2 = Segment.from_tuple([point.x, point.y], [
                                point.x + np.cos(a1 - a2) * l, point.y + np.sin(a1 - a2) * l])
         return [s1, s2]
 
@@ -365,6 +369,7 @@ class Robot(FieldObject):
         self.kicker = False
 
         self.rotation = 0
+        self.rot_limit = 30
         self.dribbling = 0
         self.kick = 0
         self.gyro_correction = 0
@@ -375,9 +380,9 @@ class Robot(FieldObject):
         self.is_attacker = is_attacker
 
     def update_state(self, uart_data):
-        self.gyro = uart_data[3]
-        self.emitter = uart_data[4]
-        self.kicker = uart_data[5]
+        self.gyro = uart_data[0]
+        self.emitter = uart_data[1]
+        self.kicker = uart_data[2]
         
         if self.emitter:
             if self.first_flag:

@@ -24,7 +24,7 @@ public:
   float direction = 0;
   float speed = 0;
   float rotation = 0;
-  float rotation_limit = 0;
+  float rotation_limit = -1;
   int dribling_speed = 0;
   int kicker_force = 0;
 
@@ -57,7 +57,7 @@ void Robot::run()
 {
   rel_direction = gyro.relative(direction);
   rel_rotation = gyro.relative(rotation);
-  motors.run(rel_direction, speed, rel_rotation);
+  motors.run(rel_direction, speed, rel_rotation, rotation_limit);
   if (init_dribling)
     dribling.run();
 }

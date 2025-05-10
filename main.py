@@ -16,29 +16,32 @@ except:
 from modules.uart import UART
 from modules.lidar import Lidar
 from path_planning.visualization import Visualization
+from path_planning.algorithms import dubins_path
 
 field = Field()
-robot = Robot(Point(0, 0), True)
+robot = Robot(Point(40, 40), True)
 ball = Ball(Point(0, 0))
 obstacles = []
 
-vis = Visualization(field, ball, robot, obstacles, fps=1)
-#vis.start()
+vis = Visualization(field, ball, robot, obstacles, fps=30)
+vis.start()
 
 uart = UART()
 lidar = Lidar(args)
 
-camera.start()
-uart.start()
-lidar.start()
+#camera.start()
+#uart.start()
+#lidar.start()
 
 gyro_correction = 0
 
 lst = time.time()
 try:
-    loop_fps = 50
+    loop_fps = 30
     while True:
         start_time = time.time()
+        vis._clear()
+        vis._draw()
 
         if uart.new_data:
             uart.read()
@@ -69,18 +72,26 @@ try:
         
         robot.kick = 0
         if robot.is_attacker:
-            if robot.emitter:
-                robot.vel = Vector(0, 0)
-                robot.dribbling = 90
-                if time.time() - robot.first_tm > 1:
-                    robot.rotation = camera.yellow_goal.angle - robot.gyro
-                # if math.cos(camera.yellow_goal.angle - robot.gyro) > 0.99:
-                    # robot.kick = 20
-            else:
-                robot.vel = Vector.from_points(robot.pos, ball.pos)
-                robot.vel.length *= 2
-                robot.dribbling = 70
-                robot.rotation = robot.pos.angle(ball.pos)
+            angle = math.pi/2
+            dubins_point = ball.pos.move(Vector.from_angle(angle + math.pi, 7))
+            vector = dubins_path(vis.view, robot, dubins_point, angle, 20)
+            vector.length *= 2
+            robot.vel = vector
+            robot.rot_limit = 30
+            # if robot.emitter:
+            #     robot.vel = Vector(0, 0)
+            #     robot.dribbling = 90
+            #     if time.time() - robot.first_tm > 1:
+            #         robot.rotation = camera.yellow_goal.angle - robot.gyro
+            #         robot.rot_limit = 10
+            #     # if math.cos(camera.yellow_goal.angle - robot.gyro) > 0.99:
+            #         # robot.kick = 20
+            # else:
+            #     robot.vel = Vector.from_points(robot.pos, ball.pos)
+            #     robot.vel.length = robot.vel.length * 1 + 20
+            #     robot.dribbling = 70
+            #     robot.rotation = robot.pos.angle(ball.pos)
+            #     robot.rot_limit = 30
         else:
             if time.time() - ball.visible_tm < 1:
                 robot.vel = Vector.from_points(robot.pos, ball.pos)
@@ -105,13 +116,14 @@ try:
                 
         # send data to arduino
         if uart.writable:
-            uart.write('fffii', -robot.vel.angle + math.pi / 2 + gyro_correction, robot.vel.length, -robot.rotation + math.pi / 2, robot.dribbling, robot.kick)
+            uart.write('ffffii', -robot.vel.angle + math.pi / 2 + gyro_correction, robot.vel.length, -robot.rotation + math.pi / 2, robot.rot_limit, robot.dribbling, robot.kick)
             #uart.write('fffii', 0, 0, robot.gyro, 70, 0)
         
         # update visualization
-        if vis.update_tm:
-            vis.step()
+        # if vis.update_tm:
+        #     vis.step()
         
+        vis._update()
         # maintain loop rate
         time.sleep(max(0, 1/loop_fps - (time.time() - start_time)))
         #print(1 / (time.time() - start_time))

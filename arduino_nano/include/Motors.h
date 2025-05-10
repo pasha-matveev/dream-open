@@ -15,10 +15,9 @@ private:
 public:
   void init();
   void setpowers(int32_t *);
-  void run(float, float, float, float, float);
+  void run(float, float, float, float);
   void stop();
   float speed_limit = 200;
-  float rotation_limit = 30;
 };
 
 void Motors::init()
@@ -66,10 +65,9 @@ void Motors::stop()
   }
 }
 
-void Motors::run(float angle, float speed, float rotation, float sp_limit = -1, float rot_limit = -1)
+void Motors::run(float angle, float speed, float rotation, float rot_limit = -1)
 {
-  sp_limit = sp_limit == -1 ? speed_limit : sp_limit;
-  rot_limit = rot_limit == -1 ? rotation_limit : rot_limit;
+  rot_limit = rot_limit == -1 ? 30 : rot_limit;
   double angles[3] = {M_PI / 3.0, M_PI, M_PI * 5.0 / 3.0};
   int32_t power_arr[3];
   float angular_speed = rotation * kp + (rotation - lst_err) / float(micros() - lst_tm) * kd;
@@ -77,6 +75,6 @@ void Motors::run(float angle, float speed, float rotation, float sp_limit = -1, 
   lst_tm = micros();
   for (int i = 0; i < 3; i++)
     power_arr[i] = constrain(-speed * sin(angles[i] - angle), -speed_limit, speed_limit) +
-                   constrain(angular_speed * 6.37, -rotation_limit, rotation_limit);
+                   constrain(angular_speed * 6.37, -rot_limit, rot_limit);
   setpowers(power_arr);
 }

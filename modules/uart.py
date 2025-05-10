@@ -7,7 +7,7 @@ import queue
 import time
 
 class UART:
-    def __init__(self, boudrate:int = 115200, input_format:str = 'ffff??'):
+    def __init__(self, boudrate:int = 115200, input_format:str = 'f??'):
         self.port = None
         self.baudrate = boudrate
         self.timeout = 1

@@ -105,6 +105,7 @@ class Ball(TrackingObject):
 
             if cv.contourArea(cnt) > self.min_area:
                 self.visible = True
+                self.visible_tm = time.time()
                 self.center, self.radius = cv.minEnclosingCircle(cnt)
                 self.angle = self.get_angle()
                 self.dist = self.get_cm()

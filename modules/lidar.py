@@ -104,8 +104,11 @@ class Lidar:
         self.field.update(*self.data[0:5])
         self.field.rotate()
         self.obstacles_data = []
-        for i in range(len(self.data) / 5 - 1):
-            self.obstacles_data.append(LidarObject(*self.data[i*5:(i+1)*5]))
+        for i in range(int(len(self.data) / 5 - 1)):
+            obstacle = LidarObject()
+            obstacle.update(*self.data[(i+1)*5:(i+2)*5])
+            self.obstacles_data.append(obstacle)
+            print(obstacle.angle, obstacle.dist, obstacle.get_radius())
 
     @property
     def new_data(self):

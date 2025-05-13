@@ -331,20 +331,20 @@ class Field:
         plot.addItem(img)
 
 
-    def applay_constraints(self, robot: Robot):
+    def applay_constraints(self, robot: Robot, inner_k: float = 1, outer_k: float = 2):
         nearest = self.nearest_border(robot.pos)
         if self.is_inside(robot.pos):
-            nearest.constrain(robot, 2)
+            nearest.constrain(robot, inner_k)
             for border in self.borders:
                 if border.is_inside(robot.pos) and border != nearest:
-                    border.constrain(robot, 2)
+                    border.constrain(robot, inner_k)
         else:
             border_vec = Vector.from_points(
                 robot.pos, nearest.nearest_point(robot.pos))
             normal = robot.vel.normal(border_vec.angle)
             tangent = robot.vel.tangent(border_vec.angle)
             normal.angle = border_vec.angle
-            normal.length = max(border_vec.length * 2, normal.length)
+            normal.length = max(border_vec.length * outer_k, normal.length)
             robot.vel = normal + tangent
 
 
@@ -478,8 +478,9 @@ class Goal:
 
     def update_free_space(self, robot):
         angle = self.camera_object.angle - robot.gyro
-        self.free_space.x = (self.center_line - self.robot.pos.y) * \
-            np.cos(angle) + self.robot.pos.x
+        self.free_space.x = abs(self.center_line - robot.pos.y) * np.cos(angle) + robot.pos.x
+        self.free_space.x = min(self.free_space.x, 30)
+        self.free_space.x = max(self.free_space.x, -30)
         self.free_space.y = self.center_line
 
     def draw(self, plot):

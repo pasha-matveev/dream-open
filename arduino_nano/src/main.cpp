@@ -22,7 +22,7 @@ void write_data(T var)
 
 void setup()
 {
-  robot.init_kicker = false;
+  // robot.init_kicker = false;
   // robot.init_dribling = false;
   robot.init();
   // delay(6000);
@@ -48,7 +48,7 @@ void loop()
     robot.dribling.set_speed(read_data<int32_t>());
     robot.kicker_force = read_data<int32_t>();
 
-    if (robot.emitter.val)
+    if (millis() - robot.emitter.first_tm > 100)
     {
       robot.emitter.reset();
       robot.kicker.set_force(robot.kicker_force);

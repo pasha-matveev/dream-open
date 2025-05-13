@@ -1,12 +1,10 @@
-#define ROBOT 0
+#define ROBOT 0 // 0 - black robot, 1 - green robot
 
 #include <Arduino.h>
 #include "Robot.h"
 
 Robot robot;
 unsigned long long alive_tm;
-unsigned long long test_tm = 10000;
-
 
 template <typename T>
 T read_data()
@@ -25,9 +23,9 @@ void write_data(T var)
 void setup()
 {
   // robot.init_kicker = false;
-  robot.init_dribling = false;
+  // robot.init_dribling = false;
   robot.init();
-  delay(6000);
+  // delay(6000);
   robot.gyro.generate_correction();
   Serial.begin(115200);
 
@@ -56,8 +54,13 @@ void loop()
     alive_tm = millis() + 1000;
   }
 
-  if (alive_tm > millis())
+  if (alive_tm > millis() && robot.button.state())
     robot.run();
   else
     robot.stop();
+
+  if (alive_tm > millis() && robot.init_kicker)
+    robot.kicker.charge();
+  else
+    robot.kicker.charge(false);
 }

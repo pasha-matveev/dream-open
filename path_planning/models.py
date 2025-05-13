@@ -233,7 +233,7 @@ class Circle:
 
     def tangent_segments(self, point: Point):
         a1 = point.angle(self.center)
-        a2 = np.asin(self.radius / point.dist(self.center))
+        a2 = np.arcsin(self.radius / point.dist(self.center))
         l = np.sqrt(point.dist(self.center)**2 - self.radius**2)
         s1 = Segment.from_tuple([point.x, point.y], [
                                point.x + np.cos(a1 + a2) * l, point.y + np.sin(a1 + a2) * l])

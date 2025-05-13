@@ -19,8 +19,8 @@ public:
 
 void Dribling::init()
 {
-  ESC1->attach(5);
-  ESC2->attach(6);
+  ESC1->attach(6);
+  ESC2->attach(5);
   delay(1000);
   ESC1->writeMicroseconds(800);
   ESC2->writeMicroseconds(800);
@@ -54,13 +54,13 @@ void Dribling::run()
   float sp1, sp2;
   if (ROBOT)
   {
-    sp1 = map(current_speed, 0, 100, 1470, 1500);
-    sp2 = map(current_speed, 0, 100, 1466, 1545);
+    sp1 = current_speed ? map(current_speed, 0, 100, 1466, 1545) : 1450;
+    sp2 = current_speed ? map(current_speed, 0, 100, 1470, 1500) : 1450;
   }
   else
   {
-    sp1 = map(current_speed, 0, 100, 1450, 1530);
-    sp2 = map(current_speed, 0, 100, 1450, 1530);
+    sp1 = current_speed ? map(current_speed, 0, 100, 1457, 1500) : 1450;
+    sp2 = current_speed ? map(current_speed, 0, 100, 1460, 1500) : 1450;
   }
 
   ESC1->writeMicroseconds(sp1);

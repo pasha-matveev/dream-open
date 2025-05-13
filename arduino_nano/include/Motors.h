@@ -78,3 +78,24 @@ void Motors::run(float angle, float speed, float rotation, float rot_limit = -1)
                    constrain(angular_speed * 6.37, -rot_limit, rot_limit);
   setpowers(power_arr);
 }
+
+// void requestVoltageData() {
+//   // Формируем запрос напряжения (команда 0x9A)
+//   requestMsg.can_id = MOTOR_ID;
+//   requestMsg.can_dlc = 8;
+//   requestMsg.data[0] = 0x9A;
+//   requestMsg.data[1] = 0x00;
+//   requestMsg.data[2] = 0x00;
+//   requestMsg.data[3] = 0x00;
+//   requestMsg.data[4] = 0x00;
+//   requestMsg.data[5] = 0x00;
+//   requestMsg.data[6] = 0x00;
+//   requestMsg.data[7] = 0x00;
+
+//   mcp2515.sendMessage(&requestMsg);
+// }
+
+// float parseMotorVoltage() {
+//   uint16_t voltageRaw = (canMsg.data[3] << 8) | canMsg.data[2];
+//   return voltageRaw * 0.01f;
+// }

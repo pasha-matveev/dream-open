@@ -21,6 +21,7 @@ Field = models.Field
 Robot = models.Robot
 Ball = models.Ball
 Obstacle = models.Obstacle
+Goal = models.Goal
 
 # ────────────────────────── simulation constants ────────────────────────────
 INNER_K = 1
@@ -72,11 +73,13 @@ class Visualization:
     for ~10-20× faster redraws.
     """
 
-    def __init__(self, field: Field, ball: Ball, robot: Robot, obstacles: list[Obstacle], fps: int = 30):
+    def __init__(self, field: Field, ball: Ball, robot: Robot, obstacles: list[Obstacle], front_goal: Goal, back_goal: Goal, fps: int = 30):
         self.field = field
         self.ball = ball
         self.robot = robot
         self.obstacles = obstacles
+        self.front_goal = front_goal
+        self.back_goal = back_goal
 
         self.fps = fps
         self.lst_update_tm = 0
@@ -137,6 +140,11 @@ class Visualization:
         self.field.draw(self.view)
         self.ball.draw(self.view)
         self.robot.draw(self.view)
+        self.robot.vel.draw(self.view, self.robot.pos, color='green')
+        self.front_goal.draw(self.view)
+        self.back_goal.draw(self.view)
+        for obstacle in self.obstacles:
+            obstacle.draw(self.view)
         # self.robot.vel.draw(self.view, self.robot.pos, color='green')
         # Qt redraws automatically; no explicit canvas.draw_idle() needed
 

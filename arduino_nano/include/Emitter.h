@@ -7,6 +7,7 @@ private:
 public:
   void read();
   void init();
+  void reset();
   int raw = 0;
   bool val = 0;
   bool first = 1;
@@ -22,7 +23,7 @@ void Emitter::init()
 void Emitter::read()
 {
   raw = analogRead(pin);
-  val = ROBOT ? (raw < 950) : (raw < 450);
+  val = ROBOT ? (raw < 180) : (raw < 450);
   if (val)
     last_tm = millis();
   if (val)
@@ -36,4 +37,12 @@ void Emitter::read()
     first_tm = millis();
     first = 1;
   }
+}
+
+void Emitter::reset()
+{
+  first = 1;
+  first_tm = millis();
+  val = 0;
+  raw = 0;
 }

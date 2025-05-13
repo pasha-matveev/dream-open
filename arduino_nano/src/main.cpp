@@ -22,7 +22,7 @@ void write_data(T var)
 
 void setup()
 {
-  // robot.init_kicker = false;
+  robot.init_kicker = false;
   // robot.init_dribling = false;
   robot.init();
   // delay(6000);
@@ -32,6 +32,11 @@ void setup()
 
 void loop()
 {
+  // robot.dribling.set_speed(60);
+  // robot.dribling.run();
+  // Serial.println(analogRead(A0));
+  // delay(1);
+
   robot.read();
 
   if (Serial.available())
@@ -41,7 +46,13 @@ void loop()
     robot.rotation = read_data<float>();
     robot.rotation_limit = read_data<float>();
     robot.dribling.set_speed(read_data<int32_t>());
-    robot.kicker.set_force(read_data<int32_t>());
+    robot.kicker_force = read_data<int32_t>();
+
+    if (robot.emitter.val)
+    {
+      robot.emitter.reset();
+      robot.kicker.set_force(robot.kicker_force);
+    }
 
     write_data(robot.gyro.angle);
     write_data((millis() - robot.emitter.last_tm) < 500);
@@ -53,10 +64,8 @@ void loop()
   if (alive_tm > millis() && robot.init_kicker)
   {
     robot.kicker.charge();
-    if (robot.emitter.val && robot.kicker.force)
-    {
+    if (robot.button.state())
       robot.kicker.kick();
-    }
   }
   else
   {

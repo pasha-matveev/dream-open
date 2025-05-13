@@ -1,3 +1,7 @@
+from path_planning.algorithms import dubins_path
+from path_planning.visualization import Visualization
+from modules.lidar import Lidar
+from modules.uart import UART
 import logging
 import time
 from path_planning.models import *
@@ -12,131 +16,172 @@ try:
 except:
     from modules.camera.camera_cv2 import CameraCV2
     camera = CameraCV2(args)
-from modules.uart import UART
-from modules.lidar import Lidar
-from path_planning.visualization import Visualization
-from path_planning.algorithms import dubins_path
-
-field = Field()
-robot = Robot(Point(40, 40), True)
-ball = Ball(Point(0, 0))
-obstacles = []
-
-vis = Visualization(field, ball, robot, obstacles, fps=30)
-#vis.start()
-
-uart = UART()
-lidar = Lidar(args)
-
-camera.start()
-uart.start()
-lidar.start()
 
 gyro_correction = 0
 active_deff = False
+straight_path = False
+front_color = 'blue'
+
+robot = Robot(Point(40, 40), False)
+field = Field([(-78, -108.5), (-55.4, -108.5), (-29, -82.1), (29, -82.1), (55.4, -108.5),
+               (78, -108.5), (78, 108.5), (55.4, 108.5), (29, 82.1), (-29, 82.1),
+               (-55.4, 108.5), (-78, 108.5)])
+attacker_field = Field([(78, -40), (78, 108.5), (55.4, 108.5), (29, 82.1), (-29, 82.1),
+                        (-55.4, 108.5), (-78, 108.5), (-78, -40)])
+defender_field = Field([(-78, -108.5), (-55.4, -108.5), (-29, -82.1), (29, -82.1), (55.4, -108.5),
+                        (78, -108.5), (78, -40), (-78, -40)])
+ball = Ball(Point(0, 0))
+obstacles = []
+front_goal = Goal(117, camera.yellow_goal if front_color ==
+                  'yellow' else camera.blue_goal, front_color)
+back_goal = Goal(-117, camera.blue_goal if front_color ==
+                 'yellow' else camera.yellow_goal, 'blue' if front_color == 'yellow' else 'yellow')
+
+vis = Visualization(defender_field, ball, robot, obstacles,
+                    front_goal, back_goal, fps=30)
+uart = UART()
+lidar = Lidar(args)
+
+vis.start()
+# camera.start()
+# uart.start()
+# lidar.start()
+
 
 lst = time.time()
 try:
     loop_fps = 50
     while True:
         start_time = time.time()
-        # vis._clear()
-        # vis._draw()
+        robot.kick = 0
 
-        if uart.new_data:
+        if uart.new_data:  # interpret data from uart
             uart.read()
             robot.update_state(uart.data)
-            
 
-        if lidar.new_data:
+        if lidar.new_data:  # interpret data from lidar
             lidar.compute()
-            
+
             if math.cos(lidar.field.rotation - robot.gyro) < 0:
                 lidar.field.rotation += math.pi
-                        
+
             if abs(1 - lidar.field.width/250) < 0.2 and abs(1 - lidar.field.height/186) < 0.2:
                 robot.update_pos(lidar.field)
                 gyro_correction = robot.gyro - lidar.field.rotation
 
+            obstacles = []
+            for obstacle in lidar.obstacles_data:
+                obstacles.append(Obstacle.from_lidar(robot, obstacle))
+
             # update obstacles
         else:
             robot.predict_pos()
-        
-        if camera.new_data:
+
+        if camera.new_data:  # interpret data from camera
             camera.compute()
             camera.preview()
-            
-            ball.update_pos(robot, camera.ball)
-            
-            # update open goal space
-        
-        robot.kick = 0
-        if robot.is_attacker:
-            angle = ball.pos.angle(Point(0, 150))
-            robot.rotation = robot.pos.angle(Point(0, 150))
-            robot.rot_limit = 30
-            dubins_point = ball.pos.move(Vector.from_angle(angle + math.pi, 5))
-            dubins_path(robot, dubins_point, angle, 10, field)
-            robot.dribbling = 50
-            if robot.emitter:
-                robot.kick = 20
-        else:
-            if time.time() - ball.visible_tm < 5:
-                
+
+            if camera.ball.visible:
+                ball.update_pos(robot, camera.ball)
+
+            if front_goal.camera_object.visible:
+                front_goal.update_free_space(robot)
+
+            if back_goal.camera_object.visible:
+                back_goal.update_free_space(robot)
+
+        if robot.is_attacker:  # attacker ------------------------------------------------------------------------
+
+            if not attacker_field.is_inside(ball.pos) and robot.pos.dist(ball.pos) < 30:
+                straight_path = True
+
+            if attacker_field.is_inside(ball.pos) and robot.pos.dist(ball.pos) > 40:
+                straight_path = False
+
+            if straight_path:  # straight path stratagy
+                if robot.emitter:
+                    robot.rotation = ball.pos.angle(front_goal.free_space)
+                    robot.rot_limit = 10
+                    robot.vel = Vector.from_angle(-robot.gyro +
+                                                  math.pi / 2, 10)
+                    if math.cos(angle - robot.pos.angle(ball.pos)) > 0.98:
+                        robot.kick = 20
+                else:
+                    robot.vel = Vector.from_points(robot.pos, ball.pos)
+                    robot.vel.length *= 2
+                    robot.dribbling = 50
+                    robot.rotation = robot.pos.angle(ball.pos)
+                    robot.rot_limit = 30
+                    print('straight movement')
+
+            else:  # dubnis path
+                angle = ball.pos.angle(front_goal.free_space)
+                robot.rotation = angle
+                robot.rot_limit = 30
+                if math.cos(angle - robot.pos.angle(ball.pos)) > 0.98:
+                    robot.vel = Vector.from_points(robot.pos, ball.pos)
+                    print('dubins straight')
+                else:
+                    dubins_point = ball.pos.move(
+                        Vector.from_angle(angle + math.pi, 7))
+                    dubins_path(robot, dubins_point, angle, 10, attacker_field)
+                    print('dubins curve')
+
+                robot.dribbling = 50
+                if robot.emitter:
+                    robot.kick = 20
+
+            robot.limit_speed(attacker_field.border_dist(robot.pos) * 5 + 50)
+            attacker_field.applay_constraints(robot)
+
+        else:  # defender ----------------------------------------------------------------------------------------
+            ball.visible_tm = time.time()
+
+            if time.time() - ball.visible_tm < 1:
+
                 if ball.pos.y < -40:
                     active_deff = True
                 if ball.pos.y > -30:
                     active_deff = False
-            
+
                 if active_deff:
                     robot.vel = Vector.from_points(robot.pos, ball.pos)
-                    robot.vel.length *= 3
+                    robot.vel.length = robot.vel.length * 3 + 50
                     robot.dribbling = 50
-                    #if robot.emitter:
-                        #robot.kick = 20
+                    # if robot.emitter:
+                    # robot.kick = 20
                 else:
-                    target = Point(ball.pos.x / (ball.pos.y + 100) * (-80 + 100), -80)
+                    target = Point(
+                        ball.pos.x / (ball.pos.y + 100) * (-80 + 100), -80)
                     robot.vel = Vector.from_points(robot.pos, target)
                     robot.vel.length *= 5
                     robot.dribbling = 0
                 robot.rotation = robot.pos.angle(ball.pos)
-                
+
             else:
                 robot.vel = Vector.from_points(robot.pos, Point(0, -80))
                 robot.rotation = math.pi / 2
                 robot.dribbling = 0
 
             robot.rot_limit = 30
+            robot.limit_speed()
+            defender_field.applay_constraints(robot)
 
-        # limit robot speed based on field borders
-        nearest = field.nearest_border(robot.pos)
-        if field.is_inside(robot.pos):
-            nearest.constrain(robot, 2)
-            for border in field.borders:
-                if border.is_inside(robot.pos) and border != nearest:
-                    border.constrain(robot, 2)
-        else:
-            border_vec = Vector.from_points(robot.pos, nearest.nearest_point(robot.pos))
-            normal = robot.vel.normal(border_vec.angle)
-            tangent = robot.vel.tangent(border_vec.angle)
-            normal.angle = border_vec.angle
-            normal.length = max(border_vec.length * 2, normal.length)
-            robot.vel = normal + tangent      
-        robot.limit_speed()
-        
+
+
         # send data to arduino
         if uart.writable:
-            uart.write('ffffii', -robot.vel.angle + math.pi / 2 + gyro_correction, robot.vel.length, -robot.rotation + math.pi / 2, robot.rot_limit, robot.dribbling, robot.kick)
-            #uart.write('fffii', 0, 0, robot.gyro, 70, 0)
-        
+            uart.write('ffffii', -robot.vel.angle + math.pi / 2 + gyro_correction, robot.vel.length, -
+                       robot.rotation + math.pi / 2, robot.rot_limit, robot.dribbling, robot.kick)
+            # uart.write('fffii', 0, 0, robot.gyro, 70, 0)
+
         # update visualization
-        # if vis.update_tm:
-        #     vis.step()
-        
-        # vis._update()
+        if vis.update_tm:
+            vis.step()
+
         # maintain loop rate
         time.sleep(max(0, 1/loop_fps - (time.time() - start_time)))
-        #print(1 / (time.time() - start_time))
+        # print(1 / (time.time() - start_time))
 
 
 except KeyboardInterrupt:

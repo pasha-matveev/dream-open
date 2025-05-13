@@ -665,7 +665,7 @@ int main(int argc, const char *argv[])
         Rect inner = padRectangle(field, -20);
         vector<Point> inside, outside;
         partitionPointsInsideOutside(points, inner, inside, outside);
-        vector<vector<Point>> clusters = clusterPoints(inside, 10);
+        vector<vector<Point>> clusters = clusterPoints(inside, 50);
         for (auto &cluster : clusters)
             if (cluster.size() > 20)
                 result_data.push_back(minimalAreaBoundingRectangle(cluster));

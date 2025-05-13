@@ -13,6 +13,7 @@ class LidarObject:
         self.rotation = 0
         self.width = 0
         self.height = 0
+        self.radius = 0
     
     def update(self, angle, dist, rotation, width, height):
         self.angle = float(angle)
@@ -20,7 +21,8 @@ class LidarObject:
         self.rotation = float(rotation)
         self.width = int(width)
         self.height = int(height)
-        
+    
+    def rotate(self):
         if self.width < self.height:
             self.width, self.height = self.height, self.width
             self.rotation -= math.pi / 2
@@ -31,6 +33,9 @@ class LidarObject:
             self.rotation += math.pi * 2
         while self.rotation > math.pi:
             self.rotation -= math.pi
+    
+    def get_radius(self):
+        return math.sqrt(self.width**2 + self.height**2) / 2
 
 
 class Lidar:
@@ -97,9 +102,10 @@ class Lidar:
     def compute(self):
         self.data = self.output_queue.get()
         self.field.update(*self.data[0:5])
-        # self.obstacles_data = []
-        # for i in range(5, len(self.data), 5):
-        #     self.obstacles_data.append(LidarObject(*self.data[i:i+5]))
+        self.field.rotate()
+        self.obstacles_data = []
+        for i in range(len(self.data) / 5 - 1):
+            self.obstacles_data.append(LidarObject(*self.data[i*5:(i+1)*5]))
 
     @property
     def new_data(self):

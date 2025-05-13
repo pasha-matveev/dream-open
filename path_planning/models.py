@@ -16,6 +16,8 @@ import numpy as np
 
 # ----------------------------------------------------------------------------
 # Basic 2‑D primitives --------------------------------------------------------
+
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -236,9 +238,9 @@ class Circle:
         a2 = np.arcsin(self.radius / point.dist(self.center))
         l = np.sqrt(point.dist(self.center)**2 - self.radius**2)
         s1 = Segment.from_tuple([point.x, point.y], [
-                               point.x + np.cos(a1 + a2) * l, point.y + np.sin(a1 + a2) * l])
+            point.x + np.cos(a1 + a2) * l, point.y + np.sin(a1 + a2) * l])
         s2 = Segment.from_tuple([point.x, point.y], [
-                               point.x + np.cos(a1 - a2) * l, point.y + np.sin(a1 - a2) * l])
+            point.x + np.cos(a1 - a2) * l, point.y + np.sin(a1 - a2) * l])
         return [s1, s2]
 
     def draw(self, plot: pg.PlotItem, fill=False,
@@ -259,11 +261,9 @@ class Circle:
 class Field:
     """Official RoboCup Junior Soccer field (2024 rules). Units: *centimetres*."""
 
-    def __init__(self):
+    def __init__(self, b):
         # 12‑sided border (cut corners)
-        b = [(-78, -108.5), (-55.4, -108.5), (-29, -82.1), (29, -82.1), (55.4, -108.5),
-             (78, -108.5), (78, 108.5), (55.4, 108.5), (29, 82.1), (-29, 82.1),
-             (-55.4, 108.5), (-78, 108.5)]
+
         self.borders: List[Segment] = [Segment.from_tuple(
             b[i], b[(i+1) % len(b)]) for i in range(len(b))]
 
@@ -331,6 +331,23 @@ class Field:
         plot.addItem(img)
 
 
+    def applay_constraints(self, robot: Robot):
+        nearest = self.nearest_border(robot.pos)
+        if self.is_inside(robot.pos):
+            nearest.constrain(robot, 2)
+            for border in self.borders:
+                if border.is_inside(robot.pos) and border != nearest:
+                    border.constrain(robot, 2)
+        else:
+            border_vec = Vector.from_points(
+                robot.pos, nearest.nearest_point(robot.pos))
+            normal = robot.vel.normal(border_vec.angle)
+            tangent = robot.vel.tangent(border_vec.angle)
+            normal.angle = border_vec.angle
+            normal.length = max(border_vec.length * 2, normal.length)
+            robot.vel = normal + tangent
+
+
 # ----------------------------------------------------------------------------
 # Field Objects --------------------------------------------------------------
 class FieldObject:
@@ -365,7 +382,7 @@ class Robot(FieldObject):
         self.emitter = False
         self.first_flag = True
         self.first_tm = 0
-        
+
         self.kicker = False
 
         self.rotation = 0
@@ -383,7 +400,7 @@ class Robot(FieldObject):
         self.gyro = uart_data[0]
         self.emitter = uart_data[1]
         self.kicker = uart_data[2]
-        
+
         if self.emitter:
             if self.first_flag:
                 self.first_tm = time.time()
@@ -400,7 +417,7 @@ class Robot(FieldObject):
 
     def set_robot_rotation(self, rotation):
         self.rotation = -rotation + math.pi / 2 + self.gyro
-    
+
     def update_gyro_correction(self, correction):
         self.gyro_correction = self.gyro - correction
 
@@ -427,8 +444,10 @@ class Ball(FieldObject):
 
     def update_pos(self, robot, camera_ball):
         if camera_ball.visible:
-            self.pos.x = camera_ball.dist * np.cos(camera_ball.angle - robot.gyro) + robot.pos.x
-            self.pos.y = camera_ball.dist * np.sin(camera_ball.angle - robot.gyro) + robot.pos.y
+            self.pos.x = camera_ball.dist * \
+                np.cos(camera_ball.angle - robot.gyro) + robot.pos.x
+            self.pos.y = camera_ball.dist * \
+                np.sin(camera_ball.angle - robot.gyro) + robot.pos.y
             self.update_tm = time.time()
             self.visible_tm = time.time()
 
@@ -440,21 +459,33 @@ class Obstacle(FieldObject):
     def __init__(self, pos: Point, radius: float):
         super().__init__(pos, radius)
 
-    def update_pos(self, robot, lidar_data):
-        self.pos.x = lidar_data.dist * np.cos(lidar_data.angle - robot.gyro) + robot.pos.x
-        self.pos.y = lidar_data.dist * np.sin(lidar_data.angle - robot.gyro) + robot.pos.y
-    
+    @classmethod
+    def from_lidar(cls, robot, data):
+        return cls(Point(data.dist * np.cos(data.angle - robot.gyro) + robot.pos.x,
+                         data.dist * np.sin(data.angle - robot.gyro) + robot.pos.y), data.get_radius())
+
     def draw(self, plot: pg.PlotItem):
         self.circle.draw(plot, color='red', fill=True)
 
+
 class Goal:
-    def __init__(self, center_line: int):
+    def __init__(self, center_line: int, camera_object, color):
         self.center_line = center_line
+        self.camera_object = camera_object
+        self.color = color
         self.center = Point(0, center_line)
         self.free_space = self.center
-    
-    def update_free_space(self, robot, camera_data):
-        pass
+
+    def update_free_space(self, robot):
+        angle = self.camera_object.angle - robot.gyro
+        self.free_space.x = (self.center_line - self.robot.pos.y) * \
+            np.cos(angle) + self.robot.pos.x
+        self.free_space.y = self.center_line
+
+    def draw(self, plot):
+        Segment(Point(-30, self.center_line), Point(30, self.center_line)
+                ).draw(plot, color=self.color, width=2)
+        Circle(self.free_space, 5).draw(plot, color=self.color, fill=True)
 
 
 if __name__ == "__main__":

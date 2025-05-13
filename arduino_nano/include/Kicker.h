@@ -4,6 +4,8 @@ class Kicker
 {
 private:
   unsigned long long charge_tm = 0;
+  unsigned long long kick_tm = 0;
+  int min_kick_delay = 1000;
   int min_delay = 500;
   int max_delay = 10000;
   int kick_pin = 7;
@@ -38,13 +40,17 @@ void Kicker::set_force(int force)
 void Kicker::kick(int power = -1)
 {
   power = power == -1 ? force : power;
-  if (power)
+  if (power && kick_tm < millis())
   {
+    digitalWrite(charge_pin, 0);
+    delay(1);
     digitalWrite(kick_pin, 1);
     power = constrain(power, 1, 100);
     delayMicroseconds(map(power, 1, 100, min_delay, max_delay));
     digitalWrite(kick_pin, 0);
+    delay(1);
     charge_tm = millis() + (float)power * 31.38 * 3 + 1000;
+    kick_tm = millis() + min_kick_delay;
     force = 0;
   }
 }

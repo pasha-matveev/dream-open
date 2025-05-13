@@ -29,7 +29,6 @@ public:
   float rotation = 0;
   float rotation_limit = -1;
   int dribling_speed = 0;
-  int kicker_force = 0;
 
   bool init_gyro = true, init_motors = true, init_kicker = true, init_dribling = true, init_emitter = true, init_button = true;
 };
@@ -70,6 +69,7 @@ void Robot::run()
 
 void Robot::stop()
 {
+  kicker.force = 0;
   if (first_motors_stop)
   {
     motors.run(0, 0, 0);

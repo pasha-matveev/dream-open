@@ -10,3 +10,6 @@
 [submodule "arduino_nano/lib/arduino-mcp2515"]
 	path = arduino_nano/lib/arduino-mcp2515
 	url = https://github.com/autowp/arduino-mcp2515.git
+[submodule "arduino_nano/lib/Adafruit_NeoPixel"]
+	path = arduino_nano/lib/Adafruit_NeoPixel
+	url = https://github.com/adafruit/Adafruit_NeoPixel.git

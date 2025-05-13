@@ -261,9 +261,9 @@ class Field:
 
     def __init__(self):
         # 12‑sided border (cut corners)
-        b = [(-73, -103.5), (-55.4, -103.5), (-34, -82.1), (34, -82.1), (55.4, -103.5),
-             (73, -103.5), (73, 103.5), (55.4, 103.5), (34, 82.1), (-34, 82.1),
-             (-55.4, 103.5), (-73, 103.5)]
+        b = [(-78, -108.5), (-55.4, -108.5), (-29, -82.1), (29, -82.1), (55.4, -108.5),
+             (78, -108.5), (78, 108.5), (55.4, 108.5), (29, 82.1), (-29, 82.1),
+             (-55.4, 108.5), (-78, 108.5)]
         self.borders: List[Segment] = [Segment.from_tuple(
             b[i], b[(i+1) % len(b)]) for i in range(len(b))]
 
@@ -446,6 +446,15 @@ class Obstacle(FieldObject):
     
     def draw(self, plot: pg.PlotItem):
         self.circle.draw(plot, color='red', fill=True)
+
+class Goal:
+    def __init__(self, center_line: int):
+        self.center_line = center_line
+        self.center = Point(0, center_line)
+        self.free_space = self.center
+    
+    def update_free_space(self, robot, camera_data):
+        pass
 
 
 if __name__ == "__main__":

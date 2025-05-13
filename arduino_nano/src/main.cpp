@@ -28,8 +28,6 @@ void setup()
   // delay(6000);
   robot.gyro.generate_correction();
   Serial.begin(115200);
-
-  robot.dribling.set_speed(50);
 }
 
 void loop()
@@ -43,24 +41,30 @@ void loop()
     robot.rotation = read_data<float>();
     robot.rotation_limit = read_data<float>();
     robot.dribling.set_speed(read_data<int32_t>());
-    robot.kicker.force = read_data<int32_t>();
+    robot.kicker.set_force(read_data<int32_t>());
 
     write_data(robot.gyro.angle);
     write_data((millis() - robot.emitter.last_tm) < 500);
-    write_data(robot.kicker.is_ready());
-
-    robot.kicker.kick(robot.kicker.force);
+    write_data(robot.kicker.is_charged());
 
     alive_tm = millis() + 1000;
+  }
+
+  if (alive_tm > millis() && robot.init_kicker)
+  {
+    robot.kicker.charge();
+    if (robot.emitter.val && robot.kicker.force)
+    {
+      robot.kicker.kick();
+    }
+  }
+  else
+  {
+    robot.kicker.charge(false);
   }
 
   if (alive_tm > millis() && robot.button.state())
     robot.run();
   else
     robot.stop();
-
-  if (alive_tm > millis() && robot.init_kicker)
-    robot.kicker.charge();
-  else
-    robot.kicker.charge(false);
 }

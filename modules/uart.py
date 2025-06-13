@@ -21,7 +21,7 @@ class UART:
         self.queue = queue.Queue(maxsize=10)
 
         self.start_tm = 0
-        self.init_delay = 10
+        self.init_delay = 12
 
     def autodetect_port(self):
         for port, desc, hwid in serial.tools.list_ports.comports():

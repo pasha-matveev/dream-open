@@ -13,3 +13,9 @@
 [submodule "arduino_nano/lib/Adafruit_NeoPixel"]
 	path = arduino_nano/lib/Adafruit_NeoPixel
 	url = https://github.com/adafruit/Adafruit_NeoPixel.git
+[submodule "arduino_nano/lib/Adafruit_Sensor"]
+	path = arduino_nano/lib/Adafruit_Sensor
+	url = https://github.com/adafruit/Adafruit_Sensor.git
+[submodule "arduino_nano/lib/Adafruit_BNO055"]
+	path = arduino_nano/lib/Adafruit_BNO055
+	url = https://github.com/adafruit/Adafruit_BNO055.git

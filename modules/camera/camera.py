@@ -14,7 +14,7 @@ class Camera(CameraCV2):
         self.video.configure(config)
         self.video.post_callback = self._post_callback
         self.video.controls.ExposureTime = 20000
-        self.video.controls.Contrast = 2
+        self.video.controls.Contrast = 3
         self.video.start()
     
     def _post_callback(self, req):

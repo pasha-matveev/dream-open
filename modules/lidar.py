@@ -108,7 +108,6 @@ class Lidar:
             obstacle = LidarObject()
             obstacle.update(*self.data[(i+1)*5:(i+2)*5])
             self.obstacles_data.append(obstacle)
-            print(obstacle.angle, obstacle.dist, obstacle.get_radius())
 
     @property
     def new_data(self):

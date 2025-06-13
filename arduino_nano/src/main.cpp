@@ -1,10 +1,13 @@
 #define ROBOT 0 // 0 - black robot, 1 - green robot
 
+#include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 #include "Robot.h"
 
 Robot robot;
+Adafruit_NeoPixel pixels(2, 9, NEO_GRB + NEO_KHZ800);
 unsigned long long alive_tm;
+unsigned long long test_tm;
 
 template <typename T>
 T read_data()
@@ -24,7 +27,14 @@ void setup()
 {
   // robot.init_kicker = false;
   // robot.init_dribling = false;
+  pixels.begin();
+  pixels.setPixelColor(0, pixels.Color(0, 255, 0));
+  pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+  pixels.show();
   robot.init();
+  pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+  pixels.show();
+
   // delay(6000);
   robot.gyro.generate_correction();
   Serial.begin(115200);
@@ -32,10 +42,28 @@ void setup()
 
 void loop()
 {
-  // robot.dribling.set_speed(60);
+  // robot.dribling.set_speed(100);
   // robot.dribling.run();
   // Serial.println(analogRead(A0));
   // delay(1);
+
+
+
+  // if (test_tm < millis())
+  // {
+  //   robot.direction += M_PI / 2;
+  //   test_tm = millis() + 500;
+  // }
+
+  // robot.read();
+
+  // robot.rotation = 0;
+  // robot.speed = 50;
+  // robot.rotation_limit = 30;
+
+  // robot.run();
+
+
 
   robot.read();
 

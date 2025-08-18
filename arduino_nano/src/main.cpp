@@ -1,4 +1,4 @@
-#define ROBOT 0 // 0 - black robot, 1 - green robot
+
 
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>

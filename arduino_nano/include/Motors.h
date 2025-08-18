@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "SPI.h"
-#include "mcp2515.h"
+#include <SPI.h>
+#include <mcp2515.h>
 
 #define MOTOR_ID 0x141
 

@@ -1,25 +1,18 @@
-#include <Arduino.h>
 #include "Button.h"
 
-void Button::init()
-{
-  pinMode(pin, INPUT);
-}
+#include <Arduino.h>
 
-bool Button::state()
-{
-  if (digitalRead(pin))
-  {
-    if (flag)
-    {
-      flag = false;
-      but = true;
+void Button::init() { pinMode(pin, INPUT); }
+
+bool Button::state() {
+    if (digitalRead(pin)) {
+        if (flag) {
+            flag = false;
+            but = true;
+        }
+    } else {
+        flag = false;
     }
-  }
-  else
-  {
-    flag = false;
-  }
 
-  return but;
+    return but;
 }

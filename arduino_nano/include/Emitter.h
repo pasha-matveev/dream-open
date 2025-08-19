@@ -4,14 +4,14 @@
 class Emitter
 {
 private:
-  int pin = A0;
+  const int pin = A0;
 public:
   void read();
   void init();
   void reset();
   int raw = 0;
-  bool val = 0;
-  bool first = 1;
+  bool val = false;
+  bool first = true;
   unsigned long long first_tm = 0;
   unsigned long long last_tm = 0;
 };

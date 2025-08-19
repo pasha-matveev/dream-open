@@ -11,11 +11,15 @@ void Emitter::read()
   raw = analogRead(pin);
   val = ROBOT ? (raw < 400) : (raw < 25);
   if (val)
+  {
     last_tm = millis();
+  }
   if (val)
   {
     if (first)
+    {
       first_tm = millis();
+    }
     first = 0;
   }
   else
@@ -27,8 +31,8 @@ void Emitter::read()
 
 void Emitter::reset()
 {
-  first = 1;
+  first = true;
   first_tm = millis();
-  val = 0;
+  val = false;
   raw = 0;
 }

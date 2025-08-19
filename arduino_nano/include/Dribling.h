@@ -1,12 +1,15 @@
 #pragma once
-#include <Arduino.h>
 #include <Servo.h>
 
 class Dribling
 {
 private:
-  Servo *ESC1 = new Servo;
-  Servo *ESC2 = new Servo;
+  Servo ESC1;
+  Servo ESC2;
+
+  const int ESC1_pin = 6;
+  const int ESC2_pin = 5;
+
   double current_speed = 0, desired_speed = 0;
 
   unsigned long long lst_tm = 0;

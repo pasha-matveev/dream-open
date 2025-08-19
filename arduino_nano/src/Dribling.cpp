@@ -1,19 +1,20 @@
+#include <Arduino.h>
 #include "Dribling.h"
 #include "Robot.h"
 
 void Dribling::init()
 {
-  ESC1->attach(6);
-  ESC2->attach(5);
+  ESC1.attach(ESC1_pin);
+  ESC2.attach(ESC2_pin);
   delay(1000);
-  ESC1->writeMicroseconds(800);
-  ESC2->writeMicroseconds(800);
+  ESC1.writeMicroseconds(800);
+  ESC2.writeMicroseconds(800);
   delay(2000);
-  ESC1->writeMicroseconds(2200);
-  ESC2->writeMicroseconds(2200);
+  ESC1.writeMicroseconds(2200);
+  ESC2.writeMicroseconds(2200);
   delay(2000);
-  ESC1->writeMicroseconds(1450);
-  ESC2->writeMicroseconds(1450);
+  ESC1.writeMicroseconds(1450);
+  ESC2.writeMicroseconds(1450);
   delay(3000);
 
   set_speed(0);
@@ -50,6 +51,6 @@ void Dribling::run()
     sp2 = current_speed ? map(current_speed, 0, 100, 1450, 1600) : 1450;
   }
 
-  ESC1->writeMicroseconds(sp1);
-  ESC2->writeMicroseconds(sp2);
+  ESC1.writeMicroseconds(sp1);
+  ESC2.writeMicroseconds(sp2);
 }

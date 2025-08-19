@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "Button.h"
 
 void Button::init()
@@ -11,11 +12,14 @@ bool Button::state()
   {
     if (flag)
     {
-      flag = !flag;
-      but = !but;
+      flag = false;
+      but = true;
     }
   }
   else
-    flag = 1;
+  {
+    flag = false;
+  }
+
   return but;
 }

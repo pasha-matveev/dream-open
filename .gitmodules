@@ -1,21 +1,3 @@
 [submodule "lidar/rplidar_sdk"]
 	path = lidar/rplidar_sdk
 	url = https://github.com/Slamtec/rplidar_sdk.git
-[submodule "arduino_nano/lib/Servo"]
-	path = arduino_nano/lib/Servo
-	url = https://github.com/arduino-libraries/Servo.git
-[submodule "arduino_nano/lib/MPU6050"]
-	path = arduino_nano/lib/MPU6050
-	url = https://github.com/ElectronicCats/mpu6050.git
-[submodule "arduino_nano/lib/arduino-mcp2515"]
-	path = arduino_nano/lib/arduino-mcp2515
-	url = https://github.com/autowp/arduino-mcp2515.git
-[submodule "arduino_nano/lib/Adafruit_NeoPixel"]
-	path = arduino_nano/lib/Adafruit_NeoPixel
-	url = https://github.com/adafruit/Adafruit_NeoPixel.git
-[submodule "arduino_nano/lib/Adafruit_Sensor"]
-	path = arduino_nano/lib/Adafruit_Sensor
-	url = https://github.com/adafruit/Adafruit_Sensor.git
-[submodule "arduino_nano/lib/Adafruit_BNO055"]
-	path = arduino_nano/lib/Adafruit_BNO055
-	url = https://github.com/adafruit/Adafruit_BNO055.git

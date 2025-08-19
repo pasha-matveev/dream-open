@@ -44,7 +44,7 @@ void Motors::stop() {
 
 void Motors::run(float angle, float speed, float rotation, float rot_limit) {
     rot_limit = rot_limit == -1 ? 30 : rot_limit;
-    double angles[3] = {M_PI / 3.0, M_PI, M_PI * 5.0 / 3.0};
+    float angles[3] = {M_PI / 3.0, M_PI, M_PI * 5.0 / 3.0};
     int32_t power_arr[3];
     // float angular_speed = rotation * kp + (rotation - lst_err) /
     // float(micros() - lst_tm) * kd;

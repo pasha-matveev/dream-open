@@ -9,10 +9,10 @@ class Dribling {
     const int ESC1_pin = 6;
     const int ESC2_pin = 5;
 
-    double current_speed = 0, desired_speed = 0;
+    float current_speed = 0, desired_speed = 0;
 
     unsigned long long lst_tm = 0;
-    double change_k = 20.0 / 5000000.0;
+    float change_k = 20.0 / 5000000.0;
 
    public:
     void init();

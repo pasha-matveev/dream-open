@@ -21,7 +21,7 @@ void Dribling::init() {
     set_speed(0);
 }
 
-void Dribling::set_speed(int rotation) { desired_speed = (double)rotation; }
+void Dribling::set_speed(int rotation) { desired_speed = (float)rotation; }
 
 void Dribling::run() {
     if (lst_tm + 100 < millis()) {

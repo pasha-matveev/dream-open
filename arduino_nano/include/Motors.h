@@ -3,13 +3,12 @@
 #include <SPI.h>
 #include <mcp2515.h>
 
-#define MOTOR_ID 0x141
-
 class Motors {
    private:
-    MCP2515 *mcp2515 = new MCP2515(10);
-    struct can_frame canMsg;
-    struct can_frame requestMsg;
+    const int MOTOR_ID = 0x141;
+    MCP2515 mcp2515 = MCP2515(10);
+    can_frame canMsg;
+    can_frame requestMsg;
     long ID[3] = {0x141, 0x142, 0x143};
     float kp = 7, kd = 10;
     unsigned long long lst_tm = 0;

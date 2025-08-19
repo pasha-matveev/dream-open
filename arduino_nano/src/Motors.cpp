@@ -1,9 +1,9 @@
 #include "Motors.h"
 
 void Motors::init() {
-    mcp2515->reset();
-    mcp2515->setBitrate(CAN_1000KBPS, MCP_8MHZ);
-    mcp2515->setNormalMode();
+    mcp2515.reset();
+    mcp2515.setBitrate(CAN_1000KBPS, MCP_8MHZ);
+    mcp2515.setNormalMode();
     run(0, 0, 0);
     stop();
 }
@@ -22,7 +22,7 @@ void Motors::setpowers(int32_t power_arr[3]) {
         canMsg.data[5] = *((uint8_t *)(&power_arr[i]) + 1);
         canMsg.data[6] = *((uint8_t *)(&power_arr[i]) + 2);
         canMsg.data[7] = *((uint8_t *)(&power_arr[i]) + 3);
-        mcp2515->sendMessage(&canMsg);
+        mcp2515.sendMessage(&canMsg);
     }
 }
 
@@ -38,7 +38,7 @@ void Motors::stop() {
         canMsg.data[5] = 0x00;
         canMsg.data[6] = 0x00;
         canMsg.data[7] = 0x00;
-        mcp2515->sendMessage(&canMsg);
+        mcp2515.sendMessage(&canMsg);
     }
 }
 
@@ -71,7 +71,7 @@ void Motors::requestVoltageData() {
     requestMsg.data[6] = 0x00;
     requestMsg.data[7] = 0x00;
 
-    mcp2515->sendMessage(&requestMsg);
+    mcp2515.sendMessage(&requestMsg);
 }
 
 float Motors::parseMotorVoltage() {

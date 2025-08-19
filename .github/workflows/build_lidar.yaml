@@ -20,7 +20,7 @@ jobs:
       - name: Fetch submodule
         run: git submodule update --init
       - name: Install X11
-        run: sudo apt update && sudo apt install -y libx11-dev libxrandr-dev libxcursor-dev libxi-dev
+        run: sudo apt update && sudo apt install -y libx11-dev libxrandr-dev libxcursor-dev libxi-dev libgl1-mesa-dev
       - name: Build rplidar_sdk
         working-directory: ./lidar/rplidar_sdk
         run: make

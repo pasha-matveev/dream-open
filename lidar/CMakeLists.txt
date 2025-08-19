@@ -27,7 +27,7 @@ set(RPLIDAR_INCLUDE_DIR "${RPLIDAR_ROOT}/sdk/include")
 
 if(APPLE)
     message(STATUS "Detected macOS (Darwin).")
-    set(RPLIDAR_LIB_DIR "${RPLIDAR_ROOT}/output/Darwin/Release/")
+    set(RPLIDAR_LIB_DIR "${RPLIDAR_ROOT}/output/Darwin/Release")
 elseif(UNIX)
     message(STATUS "Detected Linux.")
     set(RPLIDAR_LIB_DIR "${RPLIDAR_ROOT}/output/Linux/Release")

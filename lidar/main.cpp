@@ -1,8 +1,8 @@
 // ./main --channel --serial /dev/cu.usbserial-110 460800
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <string.h>
 
 #include "sl_lidar.h"
@@ -12,27 +12,24 @@
 #endif
 
 #include <unistd.h>
-static inline void delay(sl_word_size_t ms)
-{
-    while (ms >= 1000)
-    {
+static inline void delay(sl_word_size_t ms) {
+    while (ms >= 1000) {
         usleep(1000 * 1000);
         ms -= 1000;
     };
-    if (ms != 0)
-        usleep(ms * 1000);
+    if (ms != 0) usleep(ms * 1000);
 }
 
 #include <SFML/Graphics.hpp>
-#include <vector>
-#include <chrono>
-#include <thread>
 #include <algorithm>
-#include <queue>
+#include <atomic>
+#include <chrono>
 #include <cmath>
 #include <csignal>
-#include <atomic>
 #include <iostream>
+#include <queue>
+#include <thread>
+#include <vector>
 
 using namespace sl;
 using namespace std;
@@ -40,111 +37,97 @@ using namespace std;
 std::atomic<bool> keepRunning(true);
 
 // Signal handler for SIGTERM
-void handle_sigterm(int signum)
-{
-    cout << "\nCaught SIGTERM (signal " << signum << "), preparing to exit gracefully.\n"
+void handle_sigterm(int signum) {
+    cout << "\nCaught SIGTERM (signal " << signum
+         << "), preparing to exit gracefully.\n"
          << flush;
     keepRunning.store(false);
 }
 
-bool checkSLAMTECLIDARHealth(ILidarDriver *drv)
-{
+bool checkSLAMTECLIDARHealth(ILidarDriver *drv) {
     sl_result op_result;
     sl_lidar_response_device_health_t healthinfo;
 
     op_result = drv->getHealth(healthinfo);
-    if (SL_IS_OK(op_result))
-    {
+    if (SL_IS_OK(op_result)) {
         cout << "SLAMTEC Lidar health status : " << healthinfo.status << "\n\n"
              << flush;
-        if (healthinfo.status == SL_LIDAR_STATUS_ERROR)
-        {
-            cout << "Error, slamtec lidar internal error detected. Please reboot the device to retry.\n"
+        if (healthinfo.status == SL_LIDAR_STATUS_ERROR) {
+            cout << "Error, slamtec lidar internal error detected. Please "
+                    "reboot the device to retry.\n"
                  << flush;
             return false;
-        }
-        else
-        {
+        } else {
             return true;
         }
-    }
-    else
-    {
-        cout << "Error, cannot retrieve the lidar health code: " << op_result << "\n"
+    } else {
+        cout << "Error, cannot retrieve the lidar health code: " << op_result
+             << "\n"
              << flush;
         return false;
     }
 }
 
 bool ctrl_c_pressed;
-void ctrlc(int)
-{
-    ctrl_c_pressed = true;
-}
+void ctrlc(int) { ctrl_c_pressed = true; }
 
 // 2D point struct
-struct Point
-{
+struct Point {
     double x, y;
 };
 
 // Struct to hold the resulting minimal bounding rectangle
-struct Rect
-{
+struct Rect {
     // The four corners of the rectangle in rotation order
     vector<Point> corners;
-    double width;  // The rectangle width
-    double height; // The rectangle height
-    double angle;  // Rotation angle in radians
+    double width;   // The rectangle width
+    double height;  // The rectangle height
+    double angle;   // Rotation angle in radians
 };
 
 // Cross product of OA and OB vectors, i.e. z-component of (OA x OB).
-static double cross(const Point &O, const Point &A, const Point &B)
-{
+static double cross(const Point &O, const Point &A, const Point &B) {
     return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
 }
 
-// Computes the convex hull of a set of points using Andrew's monotone chain algorithm.
-// Returns the convex hull as a vector of points in counter-clockwise order.
-static vector<Point> computeConvexHull(vector<Point> pts)
-{
+// Computes the convex hull of a set of points using Andrew's monotone chain
+// algorithm. Returns the convex hull as a vector of points in counter-clockwise
+// order.
+static vector<Point> computeConvexHull(vector<Point> pts) {
     // Sort the points primarily by x, then by y
-    sort(pts.begin(), pts.end(), [](const Point &a, const Point &b)
-         {
+    sort(pts.begin(), pts.end(), [](const Point &a, const Point &b) {
         if (fabs(a.x - b.x) < 1e-12) return a.y < b.y;
-        return a.x < b.x; });
+        return a.x < b.x;
+    });
 
     // Build lower hull
     vector<Point> hull;
-    for (int i = 0; i < (int)pts.size(); i++)
-    {
-        while (hull.size() >= 2 && cross(hull[hull.size() - 2], hull[hull.size() - 1], pts[i]) <= 0)
-        {
+    for (int i = 0; i < (int)pts.size(); i++) {
+        while (hull.size() >= 2 && cross(hull[hull.size() - 2],
+                                         hull[hull.size() - 1], pts[i]) <= 0) {
             hull.pop_back();
         }
         hull.push_back(pts[i]);
     }
 
     // Build upper hull
-    for (int i = (int)pts.size() - 2, t = (int)hull.size() + 1; i >= 0; i--)
-    {
-        while ((int)hull.size() >= t && cross(hull[hull.size() - 2], hull[hull.size() - 1], pts[i]) <= 0)
-        {
+    for (int i = (int)pts.size() - 2, t = (int)hull.size() + 1; i >= 0; i--) {
+        while ((int)hull.size() >= t &&
+               cross(hull[hull.size() - 2], hull[hull.size() - 1], pts[i]) <=
+                   0) {
             hull.pop_back();
         }
         hull.push_back(pts[i]);
     }
 
-    hull.pop_back(); // remove the duplicate last point
+    hull.pop_back();  // remove the duplicate last point
     return hull;
 }
 
 // Compute the average of the rectangle's four corners, i.e. its center.
-static Point computeRectCenter(const Rect &rect)
-{
+static Point computeRectCenter(const Rect &rect) {
     double cx = 0.0, cy = 0.0;
-    for (auto &corner : rect.corners)
-    {
+    for (auto &corner : rect.corners) {
         cx += corner.x;
         cy += corner.y;
     }
@@ -155,8 +138,7 @@ static Point computeRectCenter(const Rect &rect)
 }
 
 // Rotate a point (px, py) by 'theta' around origin (0, 0)
-static Point rotatePoint(double px, double py, double theta)
-{
+static Point rotatePoint(double px, double py, double theta) {
     double cosT = cos(theta);
     double sinT = sin(theta);
     Point result;
@@ -167,24 +149,21 @@ static Point rotatePoint(double px, double py, double theta)
 
 // Given a set of 2D points, returns the minimal-area bounding rectangle
 // corners, width, height, and rotation angle (in radians).
-Rect minimalAreaBoundingRectangle(const vector<Point> &points)
-{
+Rect minimalAreaBoundingRectangle(const vector<Point> &points) {
     // Special case: if no points, return empty result
     Rect bestRect;
     bestRect.width = 0;
     bestRect.height = 0;
     bestRect.angle = 0;
 
-    if (points.size() < 1)
-    {
-        return bestRect; // no rectangle
+    if (points.size() < 1) {
+        return bestRect;  // no rectangle
     }
 
     // Compute convex hull
     vector<Point> hull = computeConvexHull(points);
     int n = (int)hull.size();
-    if (n < 2)
-    {
+    if (n < 2) {
         // All points are the same or there's only one point.
         bestRect.corners = hull;
         return bestRect;
@@ -200,8 +179,7 @@ Rect minimalAreaBoundingRectangle(const vector<Point> &points)
     vector<Point> bestCorners(4);
 
     // For each edge i of the hull
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
         // next index
         int i2 = (i + 1) % n;
 
@@ -213,14 +191,15 @@ Rect minimalAreaBoundingRectangle(const vector<Point> &points)
 
         // Move k while area side is increasing
         // We'll do a rotating calipers approach.
-        // But we primarily only need to track the opposite side, leftmost, rightmost etc.
+        // But we primarily only need to track the opposite side, leftmost,
+        // rightmost etc.
 
-        // Let's find the leftmost, rightmost, topmost points relative to this edge.
-        // We'll keep track using the existing indices k, l, m.
+        // Let's find the leftmost, rightmost, topmost points relative to this
+        // edge. We'll keep track using the existing indices k, l, m.
 
         // Move k while cross(...) is positive
-        while (fabs(cross(hull[i], hull[i2], hull[(k + 1) % n])) > fabs(cross(hull[i], hull[i2], hull[k])))
-        {
+        while (fabs(cross(hull[i], hull[i2], hull[(k + 1) % n])) >
+               fabs(cross(hull[i], hull[i2], hull[k]))) {
             k = (k + 1) % n;
         }
         // Move l while the dot(...) is increasing for leftmost
@@ -228,8 +207,8 @@ Rect minimalAreaBoundingRectangle(const vector<Point> &points)
         // We can approximate with the standard rotating calipers method.
 
         // But let's do a simpler bounding box approach:
-        // For each point in hull, rotate it so that the edge is aligned with x-axis,
-        // then track min_x, max_x, min_y, max_y.
+        // For each point in hull, rotate it so that the edge is aligned with
+        // x-axis, then track min_x, max_x, min_y, max_y.
 
         double cosA = cos(-edgeAngle);
         double sinA = sin(-edgeAngle);
@@ -240,27 +219,21 @@ Rect minimalAreaBoundingRectangle(const vector<Point> &points)
         double maxY = -numeric_limits<double>::infinity();
 
         // Rotate all hull points, find bounding box in that coordinate frame
-        for (int h = 0; h < n; h++)
-        {
+        for (int h = 0; h < n; h++) {
             // rotate hull[h] by -edgeAngle
             double rx = hull[h].x * cosA - hull[h].y * sinA;
             double ry = hull[h].x * sinA + hull[h].y * cosA;
-            if (rx < minX)
-                minX = rx;
-            if (rx > maxX)
-                maxX = rx;
-            if (ry < minY)
-                minY = ry;
-            if (ry > maxY)
-                maxY = ry;
+            if (rx < minX) minX = rx;
+            if (rx > maxX) maxX = rx;
+            if (ry < minY) minY = ry;
+            if (ry > maxY) maxY = ry;
         }
 
         double width = maxX - minX;
         double height = maxY - minY;
         double area = width * height;
 
-        if (area < minArea)
-        {
+        if (area < minArea) {
             minArea = area;
             bestAngle = edgeAngle;
 
@@ -275,8 +248,7 @@ Rect minimalAreaBoundingRectangle(const vector<Point> &points)
             Point tl{minX, maxY};
 
             // rotate them back
-            auto rotateBack = [&](const Point &p)
-            {
+            auto rotateBack = [&](const Point &p) {
                 double xx = p.x * cos(edgeAngle) - p.y * sin(edgeAngle);
                 double yy = p.x * sin(edgeAngle) + p.y * cos(edgeAngle);
                 return Point{xx, yy};
@@ -297,32 +269,30 @@ Rect minimalAreaBoundingRectangle(const vector<Point> &points)
     return bestRect;
 }
 
-vector<Point> generate_points(int n)
-{
+vector<Point> generate_points(int n) {
     vector<Point> v;
 
     for (int i = 0; i < n; i++)
         v.push_back(Point{100.f + (rand() % 301), 100.f + (rand() % 301)});
 
-    for (int i = 0; i < 2; i++)
-    {
-        Point cluster_center = Point{100.f + (rand() % 301), 100.f + (rand() % 301)};
+    for (int i = 0; i < 2; i++) {
+        Point cluster_center =
+            Point{100.f + (rand() % 301), 100.f + (rand() % 301)};
         v.push_back(cluster_center);
 
         for (int i = 0; i < 20; i++)
-            v.push_back(Point{cluster_center.x - 25.f + (rand() % 51), cluster_center.y - 25.f + (rand() % 51)});
+            v.push_back(Point{cluster_center.x - 25.f + (rand() % 51),
+                              cluster_center.y - 25.f + (rand() % 51)});
     }
 
     return v;
 }
 
 // Pads a rectangle by `padding` units on all sides, preserving its angle.
-Rect padRectangle(const Rect &rect, double padding)
-{
+Rect padRectangle(const Rect &rect, double padding) {
     // 1. Compute the center of the existing rectangle.
     double cx = 0.0, cy = 0.0;
-    for (auto &corner : rect.corners)
-    {
+    for (auto &corner : rect.corners) {
         cx += corner.x;
         cy += corner.y;
     }
@@ -341,17 +311,15 @@ Rect padRectangle(const Rect &rect, double padding)
 
     // Bottom-left, bottom-right, top-right, top-left (in local space).
     vector<Point> localCorners = {
-        {-halfW, -halfH},
-        {halfW, -halfH},
-        {halfW, halfH},
-        {-halfW, halfH}};
+        {-halfW, -halfH}, {halfW, -halfH}, {halfW, halfH}, {-halfW, halfH}};
 
-    // 4. Rotate and translate each corner to the global (original) coordinate system.
+    // 4. Rotate and translate each corner to the global (original) coordinate
+    // system.
     //    The final rectangle keeps the original rotation and center.
     vector<Point> globalCorners(4);
-    for (int i = 0; i < 4; i++)
-    {
-        Point rotated = rotatePoint(localCorners[i].x, localCorners[i].y, rect.angle);
+    for (int i = 0; i < 4; i++) {
+        Point rotated =
+            rotatePoint(localCorners[i].x, localCorners[i].y, rect.angle);
         globalCorners[i] = {rotated.x + cx, rotated.y + cy};
     }
 
@@ -360,18 +328,15 @@ Rect padRectangle(const Rect &rect, double padding)
     paddedRect.corners = globalCorners;
     paddedRect.width = newWidth;
     paddedRect.height = newHeight;
-    paddedRect.angle = rect.angle; // unchanged
+    paddedRect.angle = rect.angle;  // unchanged
     return paddedRect;
 }
 
 // This function partitions 'points' into two sets: 'inside' and 'outside'
 // relative to the given rotated rectangle 'rect'.
-void partitionPointsInsideOutside(
-    const vector<Point> &points,
-    const Rect &rect,
-    vector<Point> &inside,
-    vector<Point> &outside)
-{
+void partitionPointsInsideOutside(const vector<Point> &points, const Rect &rect,
+                                  vector<Point> &inside,
+                                  vector<Point> &outside) {
     // 1) Compute the rectangle's center.
     //    We'll rotate points about this center so that the rectangle
     //    aligns with the axes.
@@ -381,10 +346,10 @@ void partitionPointsInsideOutside(
     double halfW = rect.width / 2.0;
     double halfH = rect.height / 2.0;
 
-    // 3) For each point, translate it so center is at origin, then rotate by -angle
+    // 3) For each point, translate it so center is at origin, then rotate by
+    // -angle
     double negativeAngle = -rect.angle;
-    for (const auto &p : points)
-    {
+    for (const auto &p : points) {
         // translate
         double tx = p.x - center.x;
         double ty = p.y - center.y;
@@ -393,27 +358,22 @@ void partitionPointsInsideOutside(
 
         // 4) Check if the rotated point is within the bounding box
         if ((rotated.x >= -halfW && rotated.x <= halfW) &&
-            (rotated.y >= -halfH && rotated.y <= halfH))
-        {
+            (rotated.y >= -halfH && rotated.y <= halfH)) {
             inside.push_back(p);
-        }
-        else
-        {
+        } else {
             outside.push_back(p);
         }
     }
 }
 
 // Euclidean distance helper
-static double distance2D(const Point &a, const Point &b)
-{
+static double distance2D(const Point &a, const Point &b) {
     double dx = a.x - b.x;
     double dy = a.y - b.y;
     return sqrt(dx * dx + dy * dy);
 }
 
-static double angle2D(const Point &a, const Point &b)
-{
+static double angle2D(const Point &a, const Point &b) {
     double dx = a.x - b.x;
     double dy = a.y - b.y;
     return atan2(dy, dx);
@@ -426,20 +386,18 @@ static double angle2D(const Point &a, const Point &b)
   Returns:
     A vector of clusters, where each cluster is itself a vector of Points.
 */
-vector<vector<Point>> clusterPoints(const vector<Point> &points, double distThreshold)
-{
+vector<vector<Point>> clusterPoints(const vector<Point> &points,
+                                    double distThreshold) {
     vector<vector<Point>> clusters;
-    if (points.empty())
-        return clusters;
+    if (points.empty()) return clusters;
 
     int n = (int)points.size();
     vector<bool> visited(n, false);
 
-    // For each unvisited point, perform a BFS (or DFS) to find all connected neighbors
-    for (int i = 0; i < n; i++)
-    {
-        if (!visited[i])
-        {
+    // For each unvisited point, perform a BFS (or DFS) to find all connected
+    // neighbors
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) {
             visited[i] = true;
             // Start a new cluster
             vector<Point> cluster;
@@ -447,19 +405,17 @@ vector<vector<Point>> clusterPoints(const vector<Point> &points, double distThre
             q.push(i);
 
             // BFS: gather all points within distThreshold
-            while (!q.empty())
-            {
+            while (!q.empty()) {
                 int curIdx = q.front();
                 q.pop();
                 cluster.push_back(points[curIdx]);
 
-                // Check all unvisited points to see if they belong to this cluster
-                for (int j = 0; j < n; j++)
-                {
-                    if (!visited[j])
-                    {
-                        if (distance2D(points[curIdx], points[j]) < distThreshold)
-                        {
+                // Check all unvisited points to see if they belong to this
+                // cluster
+                for (int j = 0; j < n; j++) {
+                    if (!visited[j]) {
+                        if (distance2D(points[curIdx], points[j]) <
+                            distThreshold) {
                             visited[j] = true;
                             q.push(j);
                         }
@@ -473,22 +429,23 @@ vector<vector<Point>> clusterPoints(const vector<Point> &points, double distThre
     return clusters;
 }
 
-void draw_dot(sf::RenderWindow &window, Point pos, sf::Color color, float radius = 1.f)
-{
+void draw_dot(sf::RenderWindow &window, Point pos, sf::Color color,
+              float radius = 1.f) {
     sf::CircleShape dot(radius);
     dot.setFillColor(color);
     dot.move(sf::Vector2f(pos.x - radius, pos.y - radius));
     window.draw(dot);
 }
 
-void draw_dots(sf::RenderWindow &window, vector<Point> points, sf::Color color, float radius = 1.f)
-{
-    for (Point pos : points)
-        draw_dot(window, pos, color, radius);
+void draw_dots(sf::RenderWindow &window, vector<Point> points, sf::Color color,
+               float radius = 1.f) {
+    for (Point pos : points) draw_dot(window, pos, color, radius);
 }
 
-void draw_convex(sf::RenderWindow &window, vector<Point> points, sf::Color outline_color, sf::Color fill_color = sf::Color::Transparent, float thickness = 1.f)
-{
+void draw_convex(sf::RenderWindow &window, vector<Point> points,
+                 sf::Color outline_color,
+                 sf::Color fill_color = sf::Color::Transparent,
+                 float thickness = 1.f) {
     sf::ConvexShape convex;
     convex.setPointCount(points.size());
     for (int i = 0; i < points.size(); i++)
@@ -499,8 +456,8 @@ void draw_convex(sf::RenderWindow &window, vector<Point> points, sf::Color outli
     window.draw(convex);
 }
 
-void draw_line(sf::RenderWindow &window, const Point &p1, const Point &p2, const sf::Color &color, float thickness = 1.f)
-{
+void draw_line(sf::RenderWindow &window, const Point &p1, const Point &p2,
+               const sf::Color &color, float thickness = 1.f) {
     sf::RectangleShape line;
     line.setSize(sf::Vector2f(distance2D(p1, p2), thickness));
     line.setFillColor(color);
@@ -509,8 +466,10 @@ void draw_line(sf::RenderWindow &window, const Point &p1, const Point &p2, const
     window.draw(line);
 }
 
-void draw_circle(sf::RenderWindow &window, Point pos, float radius, sf::Color outline_color, sf::Color fill_color = sf::Color::Transparent, float thickness = 1.f)
-{
+void draw_circle(sf::RenderWindow &window, Point pos, float radius,
+                 sf::Color outline_color,
+                 sf::Color fill_color = sf::Color::Transparent,
+                 float thickness = 1.f) {
     sf::CircleShape circle(radius);
     circle.setPosition(sf::Vector2f(pos.x - radius, pos.y - radius));
     circle.setOutlineThickness(thickness);
@@ -519,8 +478,7 @@ void draw_circle(sf::RenderWindow &window, Point pos, float radius, sf::Color ou
     window.draw(circle);
 }
 
-int main(int argc, const char *argv[])
-{
+int main(int argc, const char *argv[]) {
     const char *port;
     int baudrate = 460800;
     bool preview;
@@ -531,13 +489,10 @@ int main(int argc, const char *argv[])
     vector<LidarScanMode> scanModes;
     LidarMotorInfo motorInfo;
 
-    if (argc > 1)
-    {
+    if (argc > 1) {
         preview = atoi(argv[1]);
         port = argv[2];
-    }
-    else
-    {
+    } else {
         preview = 1;
         port = "/dev/cu.usbserial-110";
     }
@@ -547,10 +502,8 @@ int main(int argc, const char *argv[])
     if (preview)
         window = sf::RenderWindow(sf::VideoMode({800, 800}), "Lidar Preview");
 
-    if (!drv)
-    {
-        cout << "insufficent memory, exit\n"
-             << flush;
+    if (!drv) {
+        cout << "insufficent memory, exit\n" << flush;
         exit(-2);
     }
 
@@ -559,25 +512,21 @@ int main(int argc, const char *argv[])
 
     // Connect to the lidar
     _channel = (*createSerialPortChannel(port, baudrate));
-    if (SL_IS_OK((drv)->connect(_channel)))
-    {
+    if (SL_IS_OK((drv)->connect(_channel))) {
         op_result = drv->getDeviceInfo(devinfo);
 
-        if (SL_IS_OK(op_result))
-        {
+        if (SL_IS_OK(op_result)) {
             connectSuccess = true;
-        }
-        else
-        {
+        } else {
             delete drv;
             drv = NULL;
         }
     }
 
     // Failed to connect
-    if (!connectSuccess)
-    {
-        cout << "Error, cannot bind to the specified serial port " << port << ".\n"
+    if (!connectSuccess) {
+        cout << "Error, cannot bind to the specified serial port " << port
+             << ".\n"
              << flush;
         goto on_finished;
     }
@@ -614,46 +563,43 @@ int main(int argc, const char *argv[])
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
 
-    if (sigaction(SIGTERM, &action, nullptr) < 0)
-    {
-        cout << "Error setting up SIGTERM handler.\n"
-             << flush;
+    if (sigaction(SIGTERM, &action, nullptr) < 0) {
+        cout << "Error setting up SIGTERM handler.\n" << flush;
         return 1;
     }
 
-    cout << "C++ program started. PID: " << getpid() << "\n"
-         << flush;
-    cout << "Waiting for SIGTERM.\n"
-         << flush;
+    cout << "C++ program started. PID: " << getpid() << "\n" << flush;
+    cout << "Waiting for SIGTERM.\n" << flush;
 
     signal(SIGINT, ctrlc);
 
     drv->setMotorSpeed();
     drv->startScan(0, 1);
 
-    while (!ctrl_c_pressed && keepRunning.load() && running)
-    {
+    while (!ctrl_c_pressed && keepRunning.load() && running) {
         sl_lidar_response_measurement_node_hq_t nodes[8192];
         size_t count = _countof(nodes);
         vector<Point> points;
         vector<Rect> result_data;
 
         op_result = drv->grabScanDataHq(nodes, count);
-        if (SL_IS_OK(op_result))
-        {
+        if (SL_IS_OK(op_result)) {
             drv->ascendScanData(nodes, count);
-            for (int pos = 0; pos < (int)count; ++pos)
-            {
+            for (int pos = 0; pos < (int)count; ++pos) {
                 float angle = (nodes[pos].angle_z_q14 * 90.f) / 16384.f;
                 float dist = nodes[pos].dist_mm_q2 / 4.0f;
-                int quality = nodes[pos].quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT;
-                if (quality && dist < 3000.f)
-                {
-                    double x = center.x + dist / 10.f * sin(angle * M_PI / 180.f);
-                    double y = center.y - dist / 10.f * cos(angle * M_PI / 180.f);
+                int quality = nodes[pos].quality >>
+                              SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT;
+                if (quality && dist < 3000.f) {
+                    double x =
+                        center.x + dist / 10.f * sin(angle * M_PI / 180.f);
+                    double y =
+                        center.y - dist / 10.f * cos(angle * M_PI / 180.f);
                     points.push_back(Point{x, y});
                 }
-                // printf("%s theta: %03.2f Dist: %08.2f Q: %d \n", (nodes[pos].flag & SL_LIDAR_RESP_HQ_FLAG_SYNCBIT) ? "S " : "  ", angle, dist, quality);
+                // printf("%s theta: %03.2f Dist: %08.2f Q: %d \n",
+                // (nodes[pos].flag & SL_LIDAR_RESP_HQ_FLAG_SYNCBIT) ? "S " : "
+                // ", angle, dist, quality);
             }
             // float frequency;
             // drv->getFrequency(scanModes[0], nodes, count, frequency);
@@ -670,13 +616,10 @@ int main(int argc, const char *argv[])
             if (cluster.size() > 5)
                 result_data.push_back(minimalAreaBoundingRectangle(cluster));
 
-        if (preview)
-        {
+        if (preview) {
             running = window.isOpen();
-            while (const optional event = window.pollEvent())
-            {
-                if (event->is<sf::Event::Closed>())
-                {
+            while (const optional event = window.pollEvent()) {
+                if (event->is<sf::Event::Closed>()) {
                     window.close();
                 }
             }
@@ -684,7 +627,8 @@ int main(int argc, const char *argv[])
             draw_circle(window, center, 300, sf::Color::White);
             draw_dot(window, center, sf::Color::Green, 2);
             for (int i = 0; i < result_data.size(); i++)
-                draw_convex(window, result_data[i].corners, i ? sf::Color::Red : sf::Color::Green);
+                draw_convex(window, result_data[i].corners,
+                            i ? sf::Color::Red : sf::Color::Green);
             draw_convex(window, inner.corners, sf::Color::White);
             draw_dots(window, outside, sf::Color::Green);
             draw_dots(window, inside, sf::Color::White);
@@ -692,11 +636,12 @@ int main(int argc, const char *argv[])
         }
 
         cout << "Data ";
-        for (Rect &object : result_data)
-        {
+        for (Rect &object : result_data) {
             Point object_center = computeRectCenter(object);
-            double angle = atan2(center.y - object_center.y, object_center.x - center.x);
-            double dist = sqrt(pow(center.y - object_center.y, 2) + pow(center.x - object_center.x, 2));
+            double angle =
+                atan2(center.y - object_center.y, object_center.x - center.x);
+            double dist = sqrt(pow(center.y - object_center.y, 2) +
+                               pow(center.x - object_center.x, 2));
             double rotation = object.angle;
             double width = object.width;
             double height = object.height;
@@ -705,23 +650,21 @@ int main(int argc, const char *argv[])
             cout << setprecision(5) << rotation << ' ';
             cout << (int)width << ' ';
             cout << (int)height << ' ';
-            // printf(" %.2f %.2f %.2f %.2f %.2f", angle, dist, rotation, width, height);
+            // printf(" %.2f %.2f %.2f %.2f %.2f", angle, dist, rotation, width,
+            // height);
         }
         // printf("\n");
-        cout << '\n'
-             << flush;
+        cout << '\n' << flush;
     }
 
     drv->stop();
     delay(200);
     drv->setMotorSpeed(0);
 
-    cout << "Exiting.\n"
-         << flush;
+    cout << "Exiting.\n" << flush;
 
 on_finished:
-    if (drv)
-    {
+    if (drv) {
         delete drv;
         drv = NULL;
     }

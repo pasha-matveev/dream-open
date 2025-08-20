@@ -90,10 +90,10 @@ vis = Visualization(
 uart = UART()
 lidar = Lidar(args)
 
-# vis.start()
+vis.start()
 camera.start()
-uart.start()
-lidar.start()
+# uart.start()
+# lidar.start()
 
 
 lst = time.time()

@@ -1,4 +1,6 @@
-from path_planning.models import *
+from path_planning.models import Vector, Circle
+import numpy as np
+
 
 def dubins_path(robot, point, angle, radius, field):
     result = Vector(0, 0)
@@ -22,7 +24,7 @@ def dubins_path(robot, point, angle, radius, field):
         robot.vel = result
         best_circle.center.attract(robot, 0, best_circle.dist(robot.pos) * 2)
         # result = Vector.from_points(robot.pos, point)
-    
+
     # circles[0].draw(plot, color='r', width=2)
     # circles[1].draw(plot, color='r', width=2)
     # best_circle.draw(plot, color='g', width=2)

@@ -4,10 +4,11 @@ Replaces the original PyQtGraph‑based draw() helpers with pure data logic so i
 can plug into **any** renderer (Pi3D, Arcade, …). All numeric behaviour is
 unchanged.
 """
+
 from __future__ import annotations
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtWidgets, QtCore
+from pyqtgraph.Qt import QtWidgets
 import math
 import time
 from typing import List
@@ -61,10 +62,15 @@ class Point:
             normal.length = min(normal.length, k * vector.length + const)
             robot.vel = normal + tangent
 
-    def draw(self, plot: pg.PlotItem, symbol='o', size=5, color='k', **kw):
-        item = pg.ScatterPlotItem([self.x], [self.y],
-                                  symbol=symbol, size=size,
-                                  brush=pg.mkBrush(color), pen=pg.mkPen(None))
+    def draw(self, plot: pg.PlotItem, symbol="o", size=5, color="k", **kw):
+        item = pg.ScatterPlotItem(
+            [self.x],
+            [self.y],
+            symbol=symbol,
+            size=size,
+            brush=pg.mkBrush(color),
+            pen=pg.mkPen(None),
+        )
         plot.addItem(item)
 
 
@@ -125,10 +131,14 @@ class Vector:
     # normal & tangent relative to an axis -----------------------------------
     def normal(self, axis_ang: float) -> "Vector":
         """Component along *axis_ang* (projection)."""
-        return Vector.from_angle(axis_ang, math.cos(self.angle - axis_ang) * self.length)
+        return Vector.from_angle(
+            axis_ang, math.cos(self.angle - axis_ang) * self.length
+        )
 
     def tangent(self, axis_ang: float) -> "Vector":
-        return Vector.from_angle(axis_ang + math.pi / 2, math.sin(self.angle - axis_ang) * self.length)
+        return Vector.from_angle(
+            axis_ang + math.pi / 2, math.sin(self.angle - axis_ang) * self.length
+        )
 
     # collinearity test -------------------------------------------------------
     def collinear(self, other: "Vector") -> int:
@@ -143,16 +153,29 @@ class Vector:
     def __repr__(self):
         return f"Vector({self.x:.2f}, {self.y:.2f})"
 
-    def draw(self, plot: pg.PlotItem, origin: Point,
-             color='k', width=4, head_len=12, length_scale=1, **kw):
-        end_x, end_y = origin.x + self.x * length_scale, origin.y + self.y * length_scale
+    def draw(
+        self,
+        plot: pg.PlotItem,
+        origin: Point,
+        color="k",
+        width=4,
+        head_len=12,
+        length_scale=1,
+        **kw,
+    ):
+        end_x, end_y = (
+            origin.x + self.x * length_scale,
+            origin.y + self.y * length_scale,
+        )
         pen = pg.mkPen(color, width=width)
-        plot.addItem(pg.PlotDataItem([origin.x, end_x],
-                                     [origin.y, end_y], pen=pen))
+        plot.addItem(pg.PlotDataItem([origin.x, end_x], [origin.y, end_y], pen=pen))
 
-        arrow = pg.ArrowItem(angle=180 - np.degrees(self.angle),
-                             tipAngle=30, headLen=head_len,
-                             brush=pg.mkBrush(color))
+        arrow = pg.ArrowItem(
+            angle=180 - np.degrees(self.angle),
+            tipAngle=30,
+            headLen=head_len,
+            brush=pg.mkBrush(color),
+        )
         arrow.setPos(end_x, end_y)
         plot.addItem(arrow)
 
@@ -177,8 +200,16 @@ class Segment:
         return self.p1.angle(self.p2)
 
     def is_inside(self, point: Point) -> bool:
-        if Vector.from_points(point, self.p1).dot(Vector.from_points(self.p2, self.p1)) > 0:
-            if Vector.from_points(point, self.p2).dot(Vector.from_points(self.p1, self.p2)) > 0:
+        if (
+            Vector.from_points(point, self.p1).dot(Vector.from_points(self.p2, self.p1))
+            > 0
+        ):
+            if (
+                Vector.from_points(point, self.p2).dot(
+                    Vector.from_points(self.p1, self.p2)
+                )
+                > 0
+            ):
                 return True
         return False
 
@@ -189,8 +220,7 @@ class Segment:
             if self.p1.y == self.p2.y:
                 return Point(point.x, self.p1.y)
             k = (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x)
-            x1 = (k**2 * self.p1.x - k * self.p1.y +
-                  k * point.y + point.x) / (k**2 + 1)
+            x1 = (k**2 * self.p1.x - k * self.p1.y + k * point.y + point.x) / (k**2 + 1)
             y1 = k * (x1 - self.p1.x) + self.p1.y
             return Point(x1, y1)
         return self.p1 if point.dist(self.p1) < point.dist(self.p2) else self.p2
@@ -207,11 +237,11 @@ class Segment:
     def dist(self, p: Point):
         return p.dist(self.nearest_point(p))
 
-    def draw(self, plot: pg.PlotItem, color='k', width=3, **kw):
+    def draw(self, plot: pg.PlotItem, color="k", width=3, **kw):
         pen = pg.mkPen(color, width=width)
-        plot.addItem(pg.PlotDataItem([self.p1.x, self.p2.x],
-                                     [self.p1.y, self.p2.y],
-                                     pen=pen))
+        plot.addItem(
+            pg.PlotDataItem([self.p1.x, self.p2.x], [self.p1.y, self.p2.y], pen=pen)
+        )
 
 
 class Circle:
@@ -220,7 +250,10 @@ class Circle:
 
     @classmethod
     def from_angle(cls, point: Point, angle: float, radius: float):
-        return cls(Point(point.x + radius * np.cos(angle), point.y + radius * np.sin(angle)), radius)
+        return cls(
+            Point(point.x + radius * np.cos(angle), point.y + radius * np.sin(angle)),
+            radius,
+        )
 
     def dist(self, p: Point):
         return self.center.dist(p) - self.radius
@@ -236,20 +269,24 @@ class Circle:
     def tangent_segments(self, point: Point):
         a1 = point.angle(self.center)
         a2 = np.arcsin(self.radius / point.dist(self.center))
-        l = np.sqrt(point.dist(self.center)**2 - self.radius**2)
-        s1 = Segment.from_tuple([point.x, point.y], [
-            point.x + np.cos(a1 + a2) * l, point.y + np.sin(a1 + a2) * l])
-        s2 = Segment.from_tuple([point.x, point.y], [
-            point.x + np.cos(a1 - a2) * l, point.y + np.sin(a1 - a2) * l])
+        l = np.sqrt(point.dist(self.center) ** 2 - self.radius**2)
+        s1 = Segment.from_tuple(
+            [point.x, point.y],
+            [point.x + np.cos(a1 + a2) * l, point.y + np.sin(a1 + a2) * l],
+        )
+        s2 = Segment.from_tuple(
+            [point.x, point.y],
+            [point.x + np.cos(a1 - a2) * l, point.y + np.sin(a1 - a2) * l],
+        )
         return [s1, s2]
 
-    def draw(self, plot: pg.PlotItem, fill=False,
-             color='k', width=3, **kw):
+    def draw(self, plot: pg.PlotItem, fill=False, color="k", width=3, **kw):
         pen = pg.mkPen(color, width=width)
         brush = pg.mkBrush(color) if fill else pg.mkBrush(None)
 
-        item = QtWidgets.QGraphicsEllipseItem(-self.radius, -self.radius,
-                                              2*self.radius, 2*self.radius)
+        item = QtWidgets.QGraphicsEllipseItem(
+            -self.radius, -self.radius, 2 * self.radius, 2 * self.radius
+        )
         item.setPen(pen)
         item.setBrush(brush)
         item.setPos(self.center.x, self.center.y)
@@ -264,18 +301,26 @@ class Field:
     def __init__(self, b):
         # 12‑sided border (cut corners)
 
-        self.borders: List[Segment] = [Segment.from_tuple(
-            b[i], b[(i+1) % len(b)]) for i in range(len(b))]
+        self.borders: List[Segment] = [
+            Segment.from_tuple(b[i], b[(i + 1) % len(b)]) for i in range(len(b))
+        ]
 
-        self.dots = [Point(-39, -64.5), Point(39, -64.5),
-                     Point(-39, 64.5), Point(39, 64.5), Point(0, 0)]
+        self.dots = [
+            Point(-39, -64.5),
+            Point(39, -64.5),
+            Point(-39, 64.5),
+            Point(39, 64.5),
+            Point(0, 0),
+        ]
         self.center_circle = Circle(Point(0, 0), 30)
         # e.g. goal area posts
         self.obstacles = [Circle(Point(0, 64.5), 9)]
         self.size = [182, 243]
         outer = [(-91, -121.5), (-91, 121.5), (91, 121.5), (91, -121.5)]
-        self.outer: List[Segment] = [Segment.from_tuple(
-            outer[i], outer[(i+1) % len(outer)]) for i in range(len(outer))]
+        self.outer: List[Segment] = [
+            Segment.from_tuple(outer[i], outer[(i + 1) % len(outer)])
+            for i in range(len(outer))
+        ]
 
     # ---------------- point‑in‑polygon via ray casting ----------------------
     def is_inside(self, p: Point) -> bool:
@@ -283,8 +328,7 @@ class Field:
         for s in self.borders:
             cond = (p.y < s.p1.y) != (p.y < s.p2.y)
             if cond:
-                x_int = s.p1.x + (p.y - s.p1.y) / (s.p2.y -
-                                                   s.p1.y) * (s.p2.x - s.p1.x)
+                x_int = s.p1.x + (p.y - s.p1.y) / (s.p2.y - s.p1.y) * (s.p2.x - s.p1.x)
                 if p.x < x_int:
                     crossings += 1
         return crossings % 2 == 1
@@ -312,8 +356,10 @@ class Field:
         grid = np.zeros((61, 46))
         for i in range(grid.shape[0]):
             for j in range(grid.shape[1]):
-                point = Point((j - grid.shape[1] / 2 + 0.5) * (
-                    182 / grid.shape[1]), (i - grid.shape[0] / 2 + 0.5) * (243 / grid.shape[0]))
+                point = Point(
+                    (j - grid.shape[1] / 2 + 0.5) * (182 / grid.shape[1]),
+                    (i - grid.shape[0] / 2 + 0.5) * (243 / grid.shape[0]),
+                )
                 if self.is_inside(point):
                     dist = self.border_dist(point)
                     dist = dist if dist < 20 else 20
@@ -323,13 +369,13 @@ class Field:
                 grid[i, j] = dist
         # transpose = correct orientation
         img = pg.ImageItem(grid.T)
-        lut = pg.colormap.get(
-            'RdYlGn', source='matplotlib').getLookupTable(0.0, 1.0, 256)
+        colormap = pg.colormap.get("RdYlGn", source="matplotlib")
+        assert colormap, "Failed to get colormap"
+        lut = colormap.getLookupTable(0.0, 1.0, 256)
         img.setLookupTable(lut)
         img.setOpacity(0.75)
         img.setRect(pg.QtCore.QRectF(-91, -121.5, 182, 243))
         plot.addItem(img)
-
 
     def applay_constraints(self, robot: Robot, inner_k: float = 1, outer_k: float = 2):
         nearest = self.nearest_border(robot.pos)
@@ -339,8 +385,7 @@ class Field:
                 if border.is_inside(robot.pos) and border != nearest:
                     border.constrain(robot, inner_k)
         else:
-            border_vec = Vector.from_points(
-                robot.pos, nearest.nearest_point(robot.pos))
+            border_vec = Vector.from_points(robot.pos, nearest.nearest_point(robot.pos))
             normal = robot.vel.normal(border_vec.angle)
             tangent = robot.vel.tangent(border_vec.angle)
             normal.angle = border_vec.angle
@@ -430,12 +475,12 @@ class Robot(FieldObject):
         if max_acc is None:
             max_acc = self.max_acc
         diff = self.vel - self.lst_vel
-        diff.length = min(max_acc * 1/fps, diff.length)
+        diff.length = min(max_acc * 1 / fps, diff.length)
         self.vel = self.lst_vel + diff
         self.lst_vel = self.vel
 
     def draw(self, plot: pg.PlotItem):
-        self.circle.draw(plot, color='black', fill=True)
+        self.circle.draw(plot, color="black", fill=True)
 
 
 class Ball(FieldObject):
@@ -444,15 +489,17 @@ class Ball(FieldObject):
 
     def update_pos(self, robot, camera_ball):
         if camera_ball.visible:
-            self.pos.x = camera_ball.dist * \
-                np.cos(camera_ball.angle - robot.gyro) + robot.pos.x
-            self.pos.y = camera_ball.dist * \
-                np.sin(camera_ball.angle - robot.gyro) + robot.pos.y
+            self.pos.x = (
+                camera_ball.dist * np.cos(camera_ball.angle - robot.gyro) + robot.pos.x
+            )
+            self.pos.y = (
+                camera_ball.dist * np.sin(camera_ball.angle - robot.gyro) + robot.pos.y
+            )
             self.update_tm = time.time()
             self.visible_tm = time.time()
 
     def draw(self, plot: pg.PlotItem):
-        self.circle.draw(plot, color='orange', fill=True)
+        self.circle.draw(plot, color="orange", fill=True)
 
 
 class Obstacle(FieldObject):
@@ -461,11 +508,16 @@ class Obstacle(FieldObject):
 
     @classmethod
     def from_lidar(cls, robot, data):
-        return cls(Point(data.dist * np.cos(data.angle - robot.gyro) + robot.pos.x,
-                         data.dist * np.sin(data.angle - robot.gyro) + robot.pos.y), data.get_radius())
+        return cls(
+            Point(
+                data.dist * np.cos(data.angle - robot.gyro) + robot.pos.x,
+                data.dist * np.sin(data.angle - robot.gyro) + robot.pos.y,
+            ),
+            data.get_radius(),
+        )
 
     def draw(self, plot: pg.PlotItem):
-        self.circle.draw(plot, color='red', fill=True)
+        self.circle.draw(plot, color="red", fill=True)
 
 
 class Goal:
@@ -478,14 +530,17 @@ class Goal:
 
     def update_free_space(self, robot):
         angle = self.camera_object.angle - robot.gyro
-        self.free_space.x = abs(self.center_line - robot.pos.y) * np.cos(angle) + robot.pos.x
+        self.free_space.x = (
+            abs(self.center_line - robot.pos.y) * np.cos(angle) + robot.pos.x
+        )
         self.free_space.x = min(self.free_space.x, 30)
         self.free_space.x = max(self.free_space.x, -30)
         self.free_space.y = self.center_line
 
     def draw(self, plot):
-        Segment(Point(-30, self.center_line), Point(30, self.center_line)
-                ).draw(plot, color=self.color, width=2)
+        Segment(Point(-30, self.center_line), Point(30, self.center_line)).draw(
+            plot, color=self.color, width=2
+        )
         Circle(self.free_space, 5).draw(plot, color=self.color, fill=True)
 
 
@@ -493,22 +548,24 @@ if __name__ == "__main__":
     import sys
     import numpy as np
     import time
-    pg.setConfigOption('background', 'w')          # white canvas
-    pg.setConfigOption('foreground', 'k')          # black axes / text
-    pg.setConfigOption('antialias', False)          # prettier curves
-    app = pg.mkQApp("Robot visualiser")            # cross-binding helper
+
+    pg.setConfigOption("background", "w")  # white canvas
+    pg.setConfigOption("foreground", "k")  # black axes / text
+    pg.setConfigOption("antialias", False)  # prettier curves
+    app = pg.mkQApp("Robot visualiser")  # cross-binding helper
 
     # 2. Window / plot item ----------------------------------------------------------------
     win = pg.GraphicsLayoutWidget(title="Robot visualiser")
     win.show()
-    plot: pg.PlotItem = win.addPlot()
+    plot: pg.PlotItem = win.addPlot()  # pyright: ignore
     # keep x & y in the same scale
-    plot.setAspectLocked(True)
-    plot.setXRange(-91, 91)                        # matches your figure
-    plot.setYRange(-121.5, 121.5)
+    plot.setAspectLocked(True)  # pyright: ignore
+    # matches your figure
+    plot.setXRange(-91, 91)  # pyright: ignore
+    plot.setYRange(-121.5, 121.5)  # pyright: ignore
 
-    field = Field()
-    robot = Robot(Point(85, -60))
+    field = Field([])  # TODO: check if correct
+    robot = Robot(Point(85, -60), False)
     ball = Ball(Point(10, 10))
 
     # robot.vel = Vector(20, 20)
@@ -516,7 +573,7 @@ if __name__ == "__main__":
     field.draw(plot)
     robot.draw(plot)
 
-    robot.vel.draw(plot, robot.pos, color='black')
+    robot.vel.draw(plot, robot.pos, color="black")
     nearest = field.nearest_border(robot.pos)
 
     if field.is_inside(robot.pos):
@@ -525,8 +582,7 @@ if __name__ == "__main__":
             if border.is_inside(robot.pos) and border != nearest:
                 border.constrain(robot, 1)
     else:
-        border_vec = Vector.from_points(
-            robot.pos, nearest.nearest_point(robot.pos))
+        border_vec = Vector.from_points(robot.pos, nearest.nearest_point(robot.pos))
         normal = robot.vel.normal(border_vec.angle)
         tangent = robot.vel.tangent(border_vec.angle)
         normal.angle = border_vec.angle
@@ -534,7 +590,9 @@ if __name__ == "__main__":
         robot.vel = normal + tangent
 
     ball.draw(plot)
-    robot.vel.draw(plot, robot.pos, color='green')
+    robot.vel.draw(plot, robot.pos, color="green")
 
     if sys.flags.interactive != 1:
-        QtWidgets.QApplication.instance().exec()
+        instance = QtWidgets.QApplication.instance()
+        assert instance, "No instance running"
+        instance.exec()

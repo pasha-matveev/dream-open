@@ -1,21 +1,18 @@
 #include <stdio.h>
-#include <unistd.h>
-
-#include <chrono>
-#include <thread>
 
 #include "camera.h"
+#include "tracking/ball.h"
 
-using namespace cv;
 using namespace std;
 
 int main() {
-    Camera camera;
+    Ball ball;
+    Camera camera(ball);
     camera.start();
     while (true) {
         camera.capture();
         camera.preview();
-        if (cv::waitKey(1000 / VIDEO_FPS / 2) == 27) {  // 27 = ESC
+        if (cv::waitKey(1000 / VIDEO_FPS / 2) == 27) {
             break;
         }
     }

@@ -2,6 +2,8 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
+#include "tracking/ball.h"
+
 constexpr int VIDEO_FPS = 30;
 constexpr int VIDEO_WIDTH = 670 * 2;   // 1296;
 constexpr int VIDEO_HEIGHT = 670 * 2;  // 972;
@@ -14,11 +16,13 @@ const std::string WINDOW_NAME = "Camera";
 class Camera {
    private:
     cv::Mat mask;
-    cv::Mat image;
+    cv::Mat frame;
+    cv::Mat hsv_frame;
     cv::VideoCapture video;
+    Ball &ball;
 
    public:
-    Camera();
+    Camera(Ball &);
     void start();
     void start_preview();
     void capture();

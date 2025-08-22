@@ -1,0 +1,23 @@
+name: Build Core
+
+run-name: Build Core ${{github.sha}}
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./core
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install OpenCV
+        run: sudo apt update && sudo apt install -y libopencv-dev
+      - name: Build core
+        run: mkdir build && cd build && cmake .. && make

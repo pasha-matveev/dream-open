@@ -4,8 +4,8 @@
 
 using namespace std;
 
-const vector<int> cl = {40, 100, 50};
-const vector<int> ch = {55, 255, 200};
+const vector<int> cl = {80, 40, 40};
+const vector<int> ch = {90, 255, 255};
 
 Ball::Ball() : Object(cl, ch) {}
 Ball::~Ball() {};

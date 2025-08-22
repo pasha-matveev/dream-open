@@ -5,23 +5,19 @@
 #include <thread>
 
 #include "camera.h"
-#include "json.hpp"
+#include "config.h"
 #include "tracking/ball.h"
 
 using namespace std;
-using nlohmann::json;
 
 int main() {
-    ifstream config_file("./config.json");
-    json config = json::parse(config_file);
-    config_file.close();
-
-    Ball ball;
-    Camera camera(ball, config["preview"]);
+    load_config();
+    Ball ball(config["tracking"]["ball"]["hsv_min"], config["tracking"]["ball"]["hsv_max"]);
+    Camera camera(ball, config["preview"]["enabled"]);
     camera.start();
     int delay = 1000 / VIDEO_FPS / 2;
     while (true) {
-        if (config["preview"]) {
+        if (config["preview"]["enabled"]) {
             camera.show_preview();
             if (cv::waitKey(delay) == 27) {
                 break;

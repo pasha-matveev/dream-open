@@ -5,7 +5,7 @@ project(core)
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-add_executable(core src/main.cpp src/camera.cpp src/tracking/object.cpp src/vec.cpp src/tracking/ball.cpp)
+add_executable(core src/main.cpp src/camera.cpp src/tracking/object.cpp src/vec.cpp src/tracking/ball.cpp src/config.cpp)
 
 target_include_directories(core PRIVATE include)
 target_link_libraries(core PRIVATE ${OpenCV_LIBS})

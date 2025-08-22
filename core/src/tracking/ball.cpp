@@ -4,10 +4,8 @@
 
 using namespace std;
 
-const vector<int> cl = {80, 40, 40};
-const vector<int> ch = {90, 255, 255};
-
-Ball::Ball() : Object(cl, ch) {}
+Ball::Ball(vector<int> hsv_min, vector<int> hsv_max)
+    : Object(hsv_min, hsv_max) {}
 Ball::~Ball() {};
 
 void Ball::find(cv::Mat frame) {

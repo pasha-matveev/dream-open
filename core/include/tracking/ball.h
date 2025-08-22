@@ -1,5 +1,6 @@
 #pragma once
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 #include "tracking/object.h"
 
@@ -10,7 +11,7 @@ class Ball : Object {
     bool visible = false;
     double radius;
 
-    Ball();
+    Ball(std::vector<int>, std::vector<int>);
     virtual ~Ball();
     void find(cv::Mat frame);
     void draw(cv::Mat frame);

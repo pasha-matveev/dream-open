@@ -1,6 +1,5 @@
 {
-  "files.associations": {
-    "stdexcept": "cpp",
-    "tuple": "cpp"
-  }
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}"
+    }
 }

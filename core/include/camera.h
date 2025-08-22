@@ -18,13 +18,21 @@ class Camera {
     cv::Mat mask;
     cv::Mat frame;
     cv::Mat hsv_frame;
+    cv::Mat preview_image;
     cv::VideoCapture video;
     Ball &ball;
+    bool has_preview;
+
+    void capture();
+    void analyze();
+    void draw();
+    void cycle();
 
    public:
-    Camera(Ball &);
+    Camera(Ball &, bool);
+
     void start();
-    void start_preview();
-    void capture();
-    void preview();
+    void show_preview();
+
+    friend void start_camera_cycle(Camera *);
 };

@@ -19,7 +19,6 @@ Camera::Camera(Ball &b, bool preview) : ball(b), has_preview(preview) {
 }
 
 void Camera::capture() {
-    cv::Mat temp;
     auto grabbed = video.read(temp);
     if (!grabbed) {
         return;
@@ -31,12 +30,9 @@ void Camera::capture() {
     const int height = config["tracking"]["height"];
     int x1 = center_x - radius;
     int y1 = center_y - radius;
-    if (temp.size[0] != width) {
-        cout << "Wrong frame width: " << temp.size[0] << '\n';
-        exit(-1);
-    }
-    if (temp.size[1] != height) {
-        cout << "Wrong frame height: " << temp.size[1] << '\n';
+    if (temp.size[0] != width || temp.size[1] != height) {
+        cout << "Wrong frame dimensions: " << temp.size[0] << "x"
+             << temp.size[1] << '\n';
         exit(-1);
     }
     temp = temp(cv::Rect(x1, y1, radius * 2, radius * 2));
@@ -53,14 +49,17 @@ void Camera::draw() {
 }
 
 void Camera::show_preview() {
-    if (preview_image.empty()) return;
+    if (preview_image.empty()) {
+        return;
+    }
     imshow(config["tracking"]["window_name"], preview_image);
 }
 
 void Camera::cycle() {
     int delay = 1000 / (int)config["tracking"]["fps"] / 2;
     while (true) {
-        cout << "Run camera cycle\n";
+        long long cycle_start =
+            chrono::steady_clock::now().time_since_epoch().count();
         capture();
         if (!frame.empty()) {
             analyze();
@@ -68,7 +67,12 @@ void Camera::cycle() {
                 draw();
             }
         }
-        this_thread::sleep_for(chrono::milliseconds(delay));
+        long long cycle_finish =
+            chrono::steady_clock::now().time_since_epoch().count();
+        long long required_sleep = delay - (cycle_finish - cycle_start);
+        if (required_sleep > 0) {
+            this_thread::sleep_for(chrono::milliseconds(required_sleep));
+        }
     }
 }
 

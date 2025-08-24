@@ -6,6 +6,7 @@
 
 #include "camera.h"
 #include "config.h"
+#include "robot.h"
 #include "tracking/ball.h"
 
 using namespace std;
@@ -15,7 +16,11 @@ int main() {
     Ball ball(config["tracking"]["ball"]["hsv_min"],
               config["tracking"]["ball"]["hsv_max"]);
     Camera camera(ball, config["preview"]["enabled"]);
+    Robot robot;
+
     camera.start();
+    robot.start_arduino_reading();
+
     int delay = 1000 / (int)config["tracking"]["fps"] / 2;
     while (true) {
         if (config["preview"]["enabled"]) {

@@ -1,12 +1,20 @@
-#include <libserial/SerialStream.h>
+#pragma once
+
+#include "uart.h"
 
 using namespace LibSerial;
 
 class Robot {
    private:
-    SerialStream serial;
+    UART uart;
+    float angle = 0;
+    bool emitter = false;
+    bool kicker_charged = false;
+
+    void read_from_arduino();
+    void cycle();
+    friend void start_cycle(Robot *);
 
    public:
-    Robot();
-    void update_from_arduino() ;
+    void start_arduino_reading();
 };

@@ -3,6 +3,12 @@
         "cwd": "${workspaceFolder}"
     },
     "files.associations": {
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "tuple": "cpp",
+        "array": "cpp",
+        "span": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "vector": "cpp"
     }
 }

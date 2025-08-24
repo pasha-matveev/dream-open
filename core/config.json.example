@@ -3,15 +3,15 @@
     "enabled": true
   },
   "tracking": {
-    "camera_id": 1,
+    "camera_id": 0,
     "fps": 30,
-    "width": 1552,
-    "height": 1552,
-    "radius": 700,
+    "width": 1080,
+    "height": 1920,
+    "radius": 500,
     "disabled_radius": 10,
     "center": {
-      "x": 776,
-      "y": 776
+      "x": 540,
+      "y": 540
     },
     "window_name": "Camera",
     "ball": {
@@ -19,8 +19,8 @@
       "hsv_max": [90, 255, 255]
     }
   },
-  "communication": {
-    "rate": 115200,
-    "device": "/dev/ttyACM0"
+  "serial": {
+    "device": "/dev/ttyACM0",
+    "rate": 115200
   }
 }

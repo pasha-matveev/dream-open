@@ -14,6 +14,11 @@ void Robot::read_from_arduino() {
     kicker_charged = get<2>(data);
 }
 
+void Robot::write_to_arduino() {
+    uart.write_data(direction, speed, rotation, rotation_limit, dribling,
+                    kicked_force);
+}
+
 void Robot::cycle() {
     cout << "Cycle method\n";
     while (true) {

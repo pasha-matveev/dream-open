@@ -5,7 +5,7 @@
 #include <iostream>
 #include <thread>
 
-#include "config.h"
+#include "utils/config.h"
 
 void Robot::read_from_arduino() {
     auto data = uart.read_data();

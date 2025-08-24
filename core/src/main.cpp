@@ -4,10 +4,10 @@
 #include <fstream>
 #include <thread>
 
-#include "camera.h"
-#include "config.h"
 #include "robot.h"
 #include "tracking/ball.h"
+#include "tracking/camera.h"
+#include "utils/config.h"
 
 using namespace std;
 

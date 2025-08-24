@@ -1,13 +1,13 @@
-#include "camera.h"
+#include "tracking/camera.h"
 
 #include <assert.h>
 
 #include <chrono>
+#include <iostream>
 #include <opencv2/opencv.hpp>
 #include <thread>
-#include <iostream>
 
-#include "config.h"
+#include "utils/config.h"
 
 using namespace std;
 

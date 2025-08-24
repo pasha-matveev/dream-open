@@ -1,6 +1,6 @@
-#include "uart.h"
+#include "utils/uart.h"
 
-#include "config.h"
+#include "utils/config.h"
 
 void UART::connect() {
     serial.Open(config["serial"]["device"]);

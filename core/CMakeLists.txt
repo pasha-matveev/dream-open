@@ -4,7 +4,7 @@ project(core)
 
 find_package( OpenCV REQUIRED )
 
-find_library(LibSerial_LIBRARY Serial)
+find_library(LibSerial_LIBRARY serial REQUIRED)
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 

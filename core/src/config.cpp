@@ -2,8 +2,6 @@
 
 #include <fstream>
 
-#include "json.hpp"
-
 using namespace std;
 
 nlohmann::json config;

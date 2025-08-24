@@ -15,16 +15,12 @@
     },
     "window_name": "Camera",
     "ball": {
-      "hsv_min": [
-        80,
-        40,
-        40
-      ],
-      "hsv_max": [
-        90,
-        255,
-        255
-      ]
+      "hsv_min": [80, 40, 40],
+      "hsv_max": [90, 255, 255]
     }
+  },
+  "communication": {
+    "rate": 115200,
+    "device": "/dev/ttyACM0"
   }
 }

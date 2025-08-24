@@ -1,5 +1,8 @@
 {
     "cmake.debugConfig": {
         "cwd": "${workspaceFolder}"
+    },
+    "files.associations": {
+        "iostream": "cpp"
     }
 }

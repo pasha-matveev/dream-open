@@ -7,6 +7,7 @@
 class Camera {
    private:
     cv::Mat mask;
+    cv::Mat temp;
     cv::Mat frame;
     cv::Mat hsv_frame;
     cv::Mat preview_image;

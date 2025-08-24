@@ -10,7 +10,7 @@ Ball::~Ball() {};
 
 void Ball::find(cv::Mat frame) {
     cv::Mat range;
-    cv::inRange(frame, color_low, color_high, range);
+    cv::inRange(frame, hsv_min, hsv_max, range);
     vector<cv::Mat> contours;
     cv::findContours(range, contours, 1, 2);
     if (contours.empty()) {

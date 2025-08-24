@@ -12,10 +12,11 @@ using namespace std;
 
 int main() {
     load_config();
-    Ball ball(config["tracking"]["ball"]["hsv_min"], config["tracking"]["ball"]["hsv_max"]);
+    Ball ball(config["tracking"]["ball"]["hsv_min"],
+              config["tracking"]["ball"]["hsv_max"]);
     Camera camera(ball, config["preview"]["enabled"]);
     camera.start();
-    int delay = 1000 / VIDEO_FPS / 2;
+    int delay = 1000 / (int)config["tracking"]["fps"] / 2;
     while (true) {
         if (config["preview"]["enabled"]) {
             camera.show_preview();

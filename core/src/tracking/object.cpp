@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Object::Object(vector<int> color_low, vector<int> color_high)
-    : color_low(color_low), color_high(color_high) {}
+Object::Object(vector<int> hsv_min, vector<int> hsv_max)
+    : hsv_min(hsv_min), hsv_max(hsv_max) {}
 
 Object::~Object() {};

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <json.hpp>
+#include "json.h"
 
 extern nlohmann::json config;
 

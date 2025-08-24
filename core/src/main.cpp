@@ -19,7 +19,9 @@ int main() {
     Robot robot;
 
     camera.start();
-    robot.start_arduino_reading();
+    if (config["serial"]["enabled"]) {
+        robot.start_arduino_reading();
+    }
 
     int delay = 1000 / (int)config["tracking"]["fps"] / 2;
     while (true) {

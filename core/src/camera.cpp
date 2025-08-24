@@ -5,6 +5,7 @@
 #include <chrono>
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <iostream>
 
 #include "config.h"
 

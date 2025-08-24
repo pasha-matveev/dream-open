@@ -8,7 +8,11 @@ find_library(LibSerial_LIBRARY serial REQUIRED)
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-add_executable(core src/main.cpp src/camera.cpp src/tracking/object.cpp src/vec.cpp src/tracking/ball.cpp src/config.cpp src/robot.cpp src/uart.cpp)
+aux_source_directory(src SRC_FILES)
+aux_source_directory(src/tracking TRACKING_FILES)
+aux_source_directory(src/utils UTILS_FILES)
+
+add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES})
 
 target_include_directories(core PRIVATE include)
 target_link_libraries(core PRIVATE ${OpenCV_LIBS} ${LibSerial_LIBRARY})

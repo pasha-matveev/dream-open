@@ -3,10 +3,28 @@
     "enabled": true
   },
   "tracking": {
-    "cameraId": 0,
+    "camera_id": 1,
+    "fps": 30,
+    "width": 1552,
+    "height": 1552,
+    "radius": 700,
+    "disabled_radius": 10,
+    "center": {
+      "x": 776,
+      "y": 776
+    },
+    "window_name": "Camera",
     "ball": {
-      "hsv_min": [80, 40, 40],
-      "hsv_max": [90, 255, 255]
+      "hsv_min": [
+        80,
+        40,
+        40
+      ],
+      "hsv_max": [
+        90,
+        255,
+        255
+      ]
     }
   }
 }

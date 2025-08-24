@@ -1,5 +1,7 @@
 #include "camera.h"
 
+#include <assert.h>
+
 #include <chrono>
 #include <opencv2/opencv.hpp>
 #include <thread>
@@ -23,7 +25,21 @@ void Camera::capture() {
         return;
     }
     const int radius = config["tracking"]["radius"];
-    resize(temp, temp, cv::Size(radius * 2, radius * 2));
+    const int center_x = config["tracking"]["center"]["x"];
+    const int center_y = config["tracking"]["center"]["y"];
+    const int width = config["tracking"]["width"];
+    const int height = config["tracking"]["height"];
+    int x1 = center_x - radius;
+    int y1 = center_y - radius;
+    if (temp.size[0] != width) {
+        cout << "Wrong frame width: " << temp.size[0] << '\n';
+        exit(-1);
+    }
+    if (temp.size[1] != height) {
+        cout << "Wrong frame height: " << temp.size[1] << '\n';
+        exit(-1);
+    }
+    temp = temp(cv::Rect(x1, y1, radius * 2, radius * 2));
     frame = cv::Mat();
     bitwise_and(temp, temp, frame, mask);
     cv::cvtColor(frame, hsv_frame, cv::COLOR_RGB2HSV);

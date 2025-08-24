@@ -12,13 +12,26 @@ void UART::connect() {
 }
 
 tuple<float, bool, bool> UART::read_data() {
-    char bytes[6];  // float + bool + bool = 4 + 1 + 1 = 6
-    serial.read(bytes, 6);
+    char buffer[6];  // float + bool + bool = 4 + 1 + 1 = 6
+    serial.read(buffer, 6);
 
     float angle;
-    memcpy(&angle, bytes, 4);
-    bool emitter = bytes[4];
-    bool kicker = bytes[5];
+    memcpy(&angle, buffer, 4);
+    bool emitter = buffer[4];
+    bool kicker = buffer[5];
 
     return {angle, emitter, kicker};
+}
+
+void UART::write_data(float direction, float speed, float rotation,
+                      float rotation_limit, int dribling, int kicked_force) {
+    char buffer[24];  // float + float + float float + int + int = 4 * 6 = 24
+    memcpy(buffer, &direction, 4);
+    memcpy(buffer + 4, &speed, 4);
+    memcpy(buffer + 8, &rotation, 4);
+    memcpy(buffer + 12, &rotation_limit, 4);
+    memcpy(buffer + 16, &dribling, 4);
+    memcpy(buffer + 20, &kicked_force, 4);
+
+    serial.write(buffer, 24);
 }

@@ -14,4 +14,5 @@ class UART {
    public:
     void connect();
     tuple<float, bool, bool> read_data();
+    void write_data(float, float, float, float, int, int);
 };

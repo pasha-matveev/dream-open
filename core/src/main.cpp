@@ -12,6 +12,7 @@
 using namespace std;
 
 int main() {
+    exit(0);
     load_config();
     Ball ball(config["tracking"]["ball"]["hsv_min"],
               config["tracking"]["ball"]["hsv_max"]);
@@ -32,6 +33,9 @@ int main() {
             }
         } else {
             this_thread::sleep_for(chrono::milliseconds(delay));
+        }
+        if (config["serial"]["enabled"]) {
+            robot.write_to_arduino();
         }
     }
 }

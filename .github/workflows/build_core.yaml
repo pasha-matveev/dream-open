@@ -18,6 +18,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Install OpenCV
-        run: sudo apt update && sudo apt install -y libopencv-dev
+        run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev
       - name: Build core
         run: mkdir build && cd build && cmake .. && make

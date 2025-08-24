@@ -5,8 +5,8 @@
 
 class Object {
    public:
-    std::vector<int> color_low;
-    std::vector<int> color_high;
+    std::vector<int> hsv_min;
+    std::vector<int> hsv_max;
     Vec center;
     double angle;
     double dist;

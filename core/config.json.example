@@ -1,0 +1,12 @@
+{
+  "preview": {
+    "enabled": true
+  },
+  "tracking": {
+    "cameraId": 0,
+    "ball": {
+      "hsv_min": [80, 40, 40],
+      "hsv_max": [90, 255, 255]
+    }
+  }
+}

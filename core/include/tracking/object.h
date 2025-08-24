@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "vec.h"
+#include "utils/vec.h"
 
 class Object {
    public:

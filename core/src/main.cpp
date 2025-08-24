@@ -12,7 +12,6 @@
 using namespace std;
 
 int main() {
-    exit(0);
     load_config();
     Ball ball(config["tracking"]["ball"]["hsv_min"],
               config["tracking"]["ball"]["hsv_max"]);

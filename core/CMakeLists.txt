@@ -16,3 +16,5 @@ add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES})
 
 target_include_directories(core PRIVATE include)
 target_link_libraries(core PRIVATE ${OpenCV_LIBS} ${LibSerial_LIBRARY})
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

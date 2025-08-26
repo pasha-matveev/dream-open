@@ -4,6 +4,7 @@
 #include <libserial/SerialStream.h>
 
 #include <chrono>
+#include <cstring>
 #include <iostream>
 #include <thread>
 #include <tuple>
@@ -30,7 +31,7 @@ class UART {
         serial.read(buffer, SZ);
         assert(serial.good());
         T res;
-        memcpy((byte *)&res, buffer, SZ);
+        memcpy(&res, buffer, SZ);
         return res;
     };
 
@@ -39,7 +40,7 @@ class UART {
         assert(serial.good());
         const int SZ = sizeof(T);
         char buffer[SZ];
-        memcpy(buffer, (byte *)&val, SZ);
+        memcpy(buffer, &val, SZ);
         serial.write(buffer, SZ);
         assert(serial.good());
         serial.flush();

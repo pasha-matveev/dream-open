@@ -17,14 +17,22 @@ int main() {
               config["tracking"]["ball"]["hsv_max"]);
     Camera camera(ball, config["preview"]["enabled"]);
     Robot robot;
+    if (config["serial"]["enabled"]) {
+        robot.init_uart();
+    }
 
     camera.start();
-    if (config["serial"]["enabled"]) {
-        robot.start_arduino_reading();
-    }
 
     int delay = 1000 / (int)config["tracking"]["fps"] / 2;
     while (true) {
+        if (config["serial"]["enabled"]) {
+            robot.read_from_arduino();
+        }
+        // ... strategy ...
+        if (config["serial"]["enabled"]) {
+            robot.write_to_arduino();
+        }
+        // delay
         if (config["preview"]["enabled"]) {
             camera.show_preview();
             if (cv::waitKey(delay) == 27) {
@@ -32,9 +40,6 @@ int main() {
             }
         } else {
             this_thread::sleep_for(chrono::milliseconds(delay));
-        }
-        if (config["serial"]["enabled"]) {
-            robot.write_to_arduino();
         }
     }
 }

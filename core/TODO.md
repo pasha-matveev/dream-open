@@ -1,0 +1,4 @@
+- [ ] Baud rate from config
+- [ ] Non-header JSON library (to speed up build)
+- [ ] Global endl or char
+- [ ] Is UART wait for data required?

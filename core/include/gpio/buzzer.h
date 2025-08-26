@@ -1,9 +1,5 @@
 #pragma once
 
-#include <wiringPi.h>
-
-using namespace std;
-
 class Buzzer {
    private:
     const int pin;
@@ -17,5 +13,3 @@ class Buzzer {
     bool music_running = false;
     bool stop_music = false;
 };
-
-void toggle_music(WPIWfiStatus status, void *p);

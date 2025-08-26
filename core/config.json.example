@@ -23,5 +23,12 @@
     "enabled": true,
     "device": "/dev/ttyACM0",
     "rate": 115200
+  },
+  "gpio": {
+    "enabled": true,
+    "buzzer": {
+        "pin": 23
+    },
+    "buttons": [11, 9, 10]
   }
 }

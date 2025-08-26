@@ -5,6 +5,7 @@
 #include <fstream>
 #include <thread>
 
+#include "gpio/buttons.h"
 #include "gpio/buzzer.h"
 #include "robot.h"
 #include "tracking/ball.h"
@@ -27,8 +28,10 @@ int main() {
             cout << "Failed to setup wiringPi\n";
             exit(-1);
         }
+        Buzzer buzzer(config["gpio"]["buzzer"]["pin"]);
+        setup_buttons(&buzzer);
     }
-    Buzzer buzzer(config["gpio"]["buzzer"]["pin"]);
+    std::this_thread::sleep_for(chrono::seconds(1000));
 
     camera.start();
 

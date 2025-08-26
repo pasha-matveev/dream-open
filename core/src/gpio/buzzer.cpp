@@ -3,6 +3,7 @@
 #include <softTone.h>
 #include <wiringPi.h>
 
+#include <chrono>
 #include <iostream>
 #include <thread>
 
@@ -367,17 +368,4 @@ void Buzzer::beep() {
     softToneWrite(pin, 500);
     delay(200);
     softToneWrite(pin, 0);
-}
-
-void run_music(Buzzer *b) { b->megalovania(); }
-
-void toggle_music(WPIWfiStatus status, void *p) {
-    Buzzer *b = (Buzzer *)p;
-    cout << "Pressed\n";
-    if (b->music_running) {
-        b->stop_music = !b->stop_music;
-    } else {
-        thread th(run_music, b);
-        th.detach();
-    }
 }

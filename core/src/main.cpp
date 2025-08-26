@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <wiringPi.h>
 
 #include <chrono>
 #include <fstream>
 #include <thread>
 
+#include "gpio/buzzer.h"
 #include "robot.h"
 #include "tracking/ball.h"
 #include "tracking/camera.h"
@@ -20,6 +22,13 @@ int main() {
     if (config["serial"]["enabled"]) {
         robot.init_uart();
     }
+    if (config["gpio"]["enabled"]) {
+        if (wiringPiSetupPinType(WPI_PIN_BCM) == -1) {
+            cout << "Failed to setup wiringPi\n";
+            exit(-1);
+        }
+    }
+    Buzzer buzzer(config["gpio"]["buzzer"]["pin"]);
 
     camera.start();
 

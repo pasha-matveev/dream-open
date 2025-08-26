@@ -34,6 +34,6 @@ class Robot {
     int dribling_speed = 0;
     int kicker_force = 0;
 
-    bool init_gyro = true, init_motors = true, init_kicker = true,
-         init_dribling = true, init_emitter = true, init_button = true;
+    const bool init_gyro = true, init_motors = true, init_kicker = true,
+               init_dribling = true, init_emitter = true, init_button = true;
 };

@@ -3,8 +3,7 @@
 class Button {
    private:
     const int pin = 8;
-    bool flag = 0;
-    bool but = 0;
+    bool was_pressed = false;
 
    public:
     void init();

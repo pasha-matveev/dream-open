@@ -26,7 +26,7 @@ void setup() {
     // robot.init_kicker = false;
     // robot.init_dribling = false;
     pixels.begin();
-    pixels.setPixelColor(0, pixels.Color(0, 255, 0));
+    pixels.setPixelColor(0, pixels.Color(0, 50, 0));
     pixels.setPixelColor(1, pixels.Color(0, 0, 0));
     pixels.show();
     robot.init();
@@ -35,7 +35,9 @@ void setup() {
 
     // delay(6000);
     robot.gyro.generate_correction();
+
     Serial.begin(115200);
+    write_data<char>('X');
 }
 
 void loop() {
@@ -61,21 +63,24 @@ void loop() {
     robot.read();
 
     if (Serial.available()) {
-        robot.direction = read_data<float>();
-        robot.speed = read_data<float>();
-        robot.rotation = read_data<float>();
-        robot.rotation_limit = read_data<float>();
-        robot.dribling.set_speed(read_data<int32_t>());
-        robot.kicker_force = read_data<int32_t>();
+        char c = read_data<char>();
+        if (c == 'R') {
+            write_data<float>(robot.gyro.angle);
+            write_data<bool>((millis() - robot.emitter.last_tm) < 500);
+            write_data<bool>(robot.kicker.is_charged());
+        } else if (c == 'W') {
+            robot.direction = read_data<float>();
+            robot.speed = read_data<float>();
+            robot.rotation = read_data<float>();
+            robot.rotation_limit = read_data<float>();
+            robot.dribling.set_speed(read_data<int32_t>());
+            robot.kicker_force = read_data<int32_t>();
+        }
 
         if (millis() - robot.emitter.first_tm > 100) {
             robot.emitter.reset();
             robot.kicker.set_force(robot.kicker_force);
         }
-
-        write_data(robot.gyro.angle);
-        write_data((millis() - robot.emitter.last_tm) < 500);
-        write_data(robot.kicker.is_charged());
 
         alive_tm = millis() + 1000;
     }

@@ -8,31 +8,23 @@
 #include "utils/config.h"
 
 void Robot::read_from_arduino() {
-    auto data = uart.read_data();
-    angle = get<0>(data);
-    emitter = get<1>(data);
-    kicker_charged = get<2>(data);
+    uart.write_data<char>('R');
+    angle = uart.read_data<float>();
+    emitter = uart.read_data<bool>();
+    kicker_charged = uart.read_data<bool>();
 }
 
 void Robot::write_to_arduino() {
-    uart.write_data(direction, speed, rotation, rotation_limit, dribling,
-                    kicked_force);
+    uart.write_data<char>('W');
+    uart.write_data<float>(direction);
+    uart.write_data<float>(speed);
+    uart.write_data<float>(rotation);
+    uart.write_data<float>(rotation_limit);
+    uart.write_data<int32_t>(dribling);
+    uart.write_data<int32_t>(kicker_force);
 }
 
-void Robot::cycle() {
-    cout << "Cycle method\n";
-    while (true) {
-        cout << "Read cycle\n";
-        read_from_arduino();
-        // serials wait for data while reading, so no delay needed
-    }
-}
-
-void start_cycle(Robot *robot) { robot->cycle(); }
-
-void Robot::start_arduino_reading() {
+void Robot::init_uart() {
     uart.connect();
-
-    thread th(start_cycle, this);
-    th.detach();
+    uart.wait_for_x();
 }

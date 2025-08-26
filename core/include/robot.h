@@ -8,6 +8,7 @@ class Robot {
    private:
     UART uart;
 
+   public:
     float angle = 0;
     bool emitter = false;
     bool kicker_charged = false;
@@ -15,15 +16,11 @@ class Robot {
     float direction = 0;
     float speed = 0;
     float rotation = 0;
-    float rotation_limit = 0;
+    float rotation_limit = 30;
     int dribling = 0;
-    int kicked_force;
+    int kicker_force = 0;
 
+    void init_uart();
     void read_from_arduino();
-    void cycle();
-    friend void start_cycle(Robot *);
-
-   public:
-    void start_arduino_reading();
     void write_to_arduino();
 };

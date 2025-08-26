@@ -1,7 +1,11 @@
 #pragma once
 
+#include <assert.h>
 #include <libserial/SerialStream.h>
 
+#include <chrono>
+#include <iostream>
+#include <thread>
 #include <tuple>
 
 using namespace LibSerial;
@@ -13,6 +17,32 @@ class UART {
 
    public:
     void connect();
-    tuple<float, bool, bool> read_data();
-    void write_data(float, float, float, float, int, int);
+    void wait_for_x();
+
+    template <class T>
+    T read_data() {
+        assert(serial.good());
+        while (!serial.IsDataAvailable()) {
+            std::this_thread::sleep_for(chrono::milliseconds(10));
+        }
+        const int SZ = sizeof(T);
+        char buffer[SZ];
+        serial.read(buffer, SZ);
+        assert(serial.good());
+        T res;
+        memcpy((byte *)&res, buffer, SZ);
+        return res;
+    };
+
+    template <class T>
+    void write_data(T val) {
+        assert(serial.good());
+        const int SZ = sizeof(T);
+        char buffer[SZ];
+        memcpy(buffer, (byte *)&val, SZ);
+        serial.write(buffer, SZ);
+        assert(serial.good());
+        serial.flush();
+        assert(serial.good());
+    };
 };

@@ -1,9 +1,12 @@
 {
-  "preview": {
-    "enabled": true
-  },
   "tracking": {
+    "enabled": true,
+    "preview": {
+        "enabled": true,
+        "window_name": "Camera"
+    },
     "camera_id": 0,
+    "retries": 10,
     "fps": 30,
     "width": 1080,
     "height": 1920,
@@ -13,7 +16,6 @@
       "x": 540,
       "y": 540
     },
-    "window_name": "Camera",
     "ball": {
       "hsv_min": [80, 40, 40],
       "hsv_max": [90, 255, 255]
@@ -28,7 +30,6 @@
     "enabled": true,
     "buzzer": {
         "pin": 23
-    },
-    "buttons": [11, 9, 10]
+    }
   }
 }

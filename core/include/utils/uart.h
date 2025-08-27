@@ -5,9 +5,7 @@
 
 #include <chrono>
 #include <cstring>
-#include <iostream>
 #include <thread>
-#include <tuple>
 
 using namespace LibSerial;
 using namespace std;

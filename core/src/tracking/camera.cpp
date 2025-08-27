@@ -53,7 +53,7 @@ void Camera::show_preview() {
     if (preview_image.empty()) {
         return;
     }
-    imshow(config["tracking"]["window_name"], preview_image);
+    imshow(config["tracking"]["preview"]["window_name"], preview_image);
 }
 
 void Camera::cycle() {
@@ -80,7 +80,7 @@ void Camera::cycle() {
 void start_camera_cycle(Camera *camera) { camera->cycle(); }
 
 void Camera::start() {
-    for (int time = 10; time > 0; --time) {
+    for (int retries = config["tracking"]["retries"]; retries > 0; --retries) {
         video = cv::VideoCapture((int)config["tracking"]["camera_id"]);
         video.set(cv::CAP_PROP_FPS, (int)config["tracking"]["fps"]);
         video.set(cv::CAP_PROP_FRAME_WIDTH, (int)config["tracking"]["width"]);

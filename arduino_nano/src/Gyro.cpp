@@ -41,7 +41,7 @@ float Gyro::trim(float raw_angle) {
         int k = raw_angle / mod;
         raw_angle -= k * mod;
     } else {
-        int k = (-raw_angle + mod - 1) / mod;
+        int k = ceil(-raw_angle / mod);
         raw_angle += k * mod;
     }
     return raw_angle;

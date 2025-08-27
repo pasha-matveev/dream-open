@@ -12,17 +12,17 @@ int main() {
     Robot robot;
     robot.init_hardware();
 
-    int delay = 1000 / (int)config["tracking"]["fps"] / 2;
+    int delay = 1000 / config["tracking"]["fps"].GetInt() / 2;
     while (true) {
-        if (config["serial"]["enabled"]) {
+        if (config["serial"]["enabled"].GetBool()) {
             robot.read_from_arduino();
         }
         // ... strategy ...
-        if (config["serial"]["enabled"]) {
+        if (config["serial"]["enabled"].GetBool()) {
             robot.write_to_arduino();
         }
         // delay
-        if (config["tracking"]["preview"]["enabled"]) {
+        if (config["tracking"]["preview"]["enabled"].GetBool()) {
             robot.camera->show_preview();
             if (cv::waitKey(delay) == 27) {
                 break;

@@ -28,14 +28,16 @@ void Robot::write_to_arduino() {
 }
 
 void Robot::init_camera() {
-    Ball ball(config["tracking"]["ball"]["hsv_min"],
-              config["tracking"]["ball"]["hsv_max"]);
-    camera = new Camera(ball, config["tracking"]["preview"]["enabled"]);
+    auto v1 = config["tracking"]["ball"]["hsv_min"].GetArray();
+    auto v2 = config["tracking"]["ball"]["hsv_max"].GetArray();
+    Ball ball(make_int_vector(v1), make_int_vector(v2));
+    camera =
+        new Camera(ball, config["tracking"]["preview"]["enabled"].GetBool());
     camera->start();
 }
 
 void Robot::init_buzzer() {
-    buzzer = new Buzzer(config["gpio"]["buzzer"]["pin"]);
+    buzzer = new Buzzer(config["gpio"]["buzzer"]["pin"].GetInt());
 }
 
 void Robot::init_buttons() { setup_buttons(buzzer); }
@@ -47,10 +49,10 @@ void Robot::init_uart() {
 }
 
 void Robot::init_hardware() {
-    if (config["tracking"]["enabled"]) {
+    if (config["tracking"]["enabled"].GetBool()) {
         init_camera();
     }
-    if (config["gpio"]["enabled"]) {
+    if (config["gpio"]["enabled"].GetBool()) {
         if (wiringPiSetupPinType(WPI_PIN_BCM) == -1) {
             cout << "Failed to setup wiringPi\n";
             exit(-1);
@@ -58,7 +60,7 @@ void Robot::init_hardware() {
         init_buzzer();
         init_buttons();
     }
-    if (config["serial"]["enabled"]) {
+    if (config["serial"]["enabled"].GetBool()) {
         init_uart();
     }
 }

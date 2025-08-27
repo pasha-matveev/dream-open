@@ -98,12 +98,15 @@ void loop() {
         robot.run();
     } else {
         robot.stop();
+    }
+
+    if (alive_tm <= millis()) {
         rgb_led = false;
     }
 
     if (rgb_led) {
         pixels.setPixelColor(1,
-                             pixels.ColorHSV(millis() * 10 % 65535, 255, 255));
+                             pixels.ColorHSV(millis() * 80 % 65535, 255, 255));
         pixels.show();
     } else {
         pixels.setPixelColor(1, pixels.Color(0, 0, 0));

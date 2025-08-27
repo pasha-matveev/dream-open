@@ -28,6 +28,7 @@ class Robot {
     float rotation_limit = 30;
     int dribling = 0;
     int kicker_force = 0;
+    bool rgb_led = false;
 
     void init_hardware();
 

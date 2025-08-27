@@ -11,6 +11,7 @@ int main() {
 
     Robot robot;
     robot.init_hardware();
+    robot.rgb_led = true;
 
     int delay = 1000 / config["tracking"]["fps"].GetInt() / 2;
     while (true) {

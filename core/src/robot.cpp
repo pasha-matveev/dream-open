@@ -25,6 +25,7 @@ void Robot::write_to_arduino() {
     uart->write_data<float>(rotation_limit);
     uart->write_data<int32_t>(dribling);
     uart->write_data<int32_t>(kicker_force);
+    uart->write_data<bool>(rgb_led);
 }
 
 void Robot::init_camera() {

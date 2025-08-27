@@ -17,8 +17,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Install OpenCV & LibSerial
-        run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev
+      - name: Install OpenCV, LibSerial, RapidJSON
+        run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev rapidjson-dev
       - name: Build & Install WiringPi
         run: |
           git clone https://github.com/WiringPi/WiringPi.git

@@ -23,7 +23,7 @@ void toggle_music(WPIWfiStatus status, void *p) {
 }
 
 void setup_music_button(Buzzer *buzzer) {
-    const int pin = config["gpio"]["buttons"][0];
+    const int pin = config["gpio"]["buttons"][0].GetInt();
     pinMode(pin, INPUT);
     wiringPiISR2(pin, INT_EDGE_FALLING, toggle_music, 30, buzzer);
 }

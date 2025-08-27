@@ -9,7 +9,7 @@
 using namespace std;
 
 void UART::connect() {
-    serial.Open(config["serial"]["device"]);
+    serial.Open(config["serial"]["device"].GetString());
     serial.SetBaudRate(BaudRate::BAUD_115200);
     serial.SetDTR(true);
     serial.SetCharacterSize(CharacterSize::CHAR_SIZE_8);

@@ -1,7 +1,12 @@
 #pragma once
 
-#include "utils/json.h"
+#include <rapidjson/document.h>
 
-extern nlohmann::json config;
+#include <vector>
+
+extern rapidjson::Document config;
 
 void load_config();
+
+std::vector<int> make_int_vector(
+    const rapidjson::GenericArray<false, rapidjson::Value> &);

@@ -17,7 +17,14 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Install OpenCV
+      - name: Install OpenCV & LibSerial
         run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev
+      - name: Build & Install WiringPi
+        run: |
+          git clone https://github.com/WiringPi/WiringPi.git
+          cd WiringPi
+          ./build debian
+          mv debian-template/*.deb wiringpi.deb
+          sudo apt install ./wiringpi.deb
       - name: Build core
         run: mkdir build && cd build && cmake .. && make

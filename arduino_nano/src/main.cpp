@@ -9,6 +9,7 @@ Robot robot;
 Adafruit_NeoPixel pixels(2, 9, NEO_GRB + NEO_KHZ800);
 unsigned long long alive_tm;
 unsigned long long test_tm;
+bool rgb_led = false;
 
 template <typename T>
 T read_data() {
@@ -75,6 +76,7 @@ void loop() {
             robot.rotation_limit = read_data<float>();
             robot.dribling.set_speed(read_data<int32_t>());
             robot.kicker_force = read_data<int32_t>();
+            rgb_led = read_data<bool>();
         }
 
         if (millis() - robot.emitter.first_tm > 100) {
@@ -92,8 +94,19 @@ void loop() {
         robot.kicker.charge(false);
     }
 
-    if (alive_tm > millis() && robot.button.state())
+    if (alive_tm > millis() && robot.button.state()) {
         robot.run();
-    else
+    } else {
         robot.stop();
+        rgb_led = false;
+    }
+
+    if (rgb_led) {
+        pixels.setPixelColor(1,
+                             pixels.ColorHSV(millis() * 10 % 65535, 255, 255));
+        pixels.show();
+    } else {
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.show();
+    }
 }

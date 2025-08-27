@@ -10,6 +10,7 @@
         "string": "cpp",
         "string_view": "cpp",
         "vector": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "chrono": "cpp"
     }
 }

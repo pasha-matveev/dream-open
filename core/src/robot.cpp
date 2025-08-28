@@ -7,7 +7,7 @@
 #include <thread>
 
 #include "gpio/buttons.h"
-#include "gpio/buzzer.h"
+#include "media/img.h"
 #include "utils/config.h"
 
 void Robot::read_from_arduino() {
@@ -49,6 +49,17 @@ void Robot::init_uart() {
     uart->wait_for_x();
 }
 
+void Robot::init_display() {
+    string str_address = config["gpio"]["display"]["address"].GetString();
+    uint8_t address = stoi(str_address, nullptr, 16);
+    display =
+        new Display(config["gpio"]["display"]["device"].GetString(), address);
+    display->init();
+    if (string(config["gpio"]["display"]["mode"].GetString()) == "img") {
+        display->draw_image(get_img(config["gpio"]["display"]["img"].GetInt()));
+    }
+}
+
 void Robot::init_hardware() {
     if (config["tracking"]["enabled"].GetBool()) {
         init_camera();
@@ -58,10 +69,24 @@ void Robot::init_hardware() {
             cout << "Failed to setup wiringPi\n";
             exit(-1);
         }
-        init_buzzer();
-        init_buttons();
+        if (config["gpio"]["buzzer"]["enabled"].GetBool()) {
+            init_buzzer();
+        }
+        if (config["gpio"]["buttons"]["enabled"].GetBool()) {
+            init_buttons();
+        }
+        if (config["gpio"]["display"]["enabled"].GetBool()) {
+            init_display();
+        }
     }
     if (config["serial"]["enabled"].GetBool()) {
         init_uart();
     }
+}
+
+Robot::~Robot() {
+    if (camera != nullptr) delete camera;
+    if (buzzer != nullptr) delete buzzer;
+    if (uart != nullptr) delete uart;
+    if (display != nullptr) delete display;
 }

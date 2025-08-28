@@ -14,8 +14,9 @@ aux_source_directory(src SRC_FILES)
 aux_source_directory(src/tracking TRACKING_FILES)
 aux_source_directory(src/utils UTILS_FILES)
 aux_source_directory(src/gpio GPIO_FILES)
+aux_source_directory(src/media MEDIA_FILES)
 
-add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES} ${GPIO_FILES})
+add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES} ${GPIO_FILES} ${MEDIA_FILES})
 
 target_include_directories(core PRIVATE include)
 target_link_libraries(core PRIVATE ${OpenCV_LIBS} ${LibSerial_LIBRARY} )

@@ -13,6 +13,7 @@
         "compare": "cpp",
         "chrono": "cpp",
         "stdexcept": "cpp",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "ostream": "cpp"
     }
 }

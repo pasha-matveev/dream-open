@@ -1,4 +1,5 @@
 from PIL import Image
+from typing import cast
 
 
 def convert_image_to_binary_array(
@@ -39,7 +40,7 @@ def convert_image_to_binary_array(
                 pixel_y = y_offset + y * y_step + y_step // 2
 
                 # Получаем значение пикселя
-                pixel_value = img.getpixel((pixel_x, pixel_y))
+                pixel_value = cast(float, img.getpixel((pixel_x, pixel_y)))
 
                 # Определяем порог для конвертации в 0 или 1 (например, 128)
                 # Белый (255) станет 0, черный (0) станет 1

@@ -11,6 +11,8 @@
         "string_view": "cpp",
         "vector": "cpp",
         "compare": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "stdexcept": "cpp",
+        "cstdint": "cpp"
     }
 }

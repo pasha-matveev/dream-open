@@ -1,4 +1,5 @@
 #pragma once
+#include "media/music.h"
 
 class Buzzer {
    private:
@@ -8,7 +9,7 @@ class Buzzer {
 
    public:
     Buzzer(int);
-    void megalovania();
+    void play_song(const std::vector<Note> &);
     void beep();
     bool music_running = false;
     bool stop_music = false;

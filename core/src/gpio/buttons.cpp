@@ -6,11 +6,12 @@
 #include <thread>
 
 #include "gpio/buzzer.h"
+#include "media/music.h"
 #include "utils/config.h"
 
 using namespace std;
 
-void run_music(Buzzer *b) { b->megalovania(); }
+void run_music(Buzzer *b) { b->play_song(get_notes(1)); }
 
 void toggle_music(WPIWfiStatus status, void *p) {
     Buzzer *b = (Buzzer *)p;

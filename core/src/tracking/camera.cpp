@@ -83,7 +83,6 @@ void Camera::cycle() {
 void start_camera_cycle(Camera *camera) { camera->cycle(); }
 
 void requestComplete(libcamera::Request *request) {
-    cout << "Request Complete" << endl;
     if (request->status() == libcamera::Request::RequestCancelled) return;
 }
 
@@ -97,6 +96,7 @@ void Camera::start() {
     string camera_id = cameras[0]->id();
     lcamera = cm->get(camera_id);
     lcamera->acquire();
+    lcamera->requestCompleted.connect(requestComplete);
     // Настройки
     unique_ptr<libcamera::CameraConfiguration> camera_config =
         lcamera->generateConfiguration({libcamera::StreamRole::Viewfinder});
@@ -108,58 +108,37 @@ void Camera::start() {
     lcamera->configure(camera_config.get());
 
     // Выделение памяти
+    libcamera::Stream *stream = streamConfig.stream();
     libcamera::FrameBufferAllocator *allocator =
         new libcamera::FrameBufferAllocator(lcamera);
 
-    for (libcamera::StreamConfiguration &cfg : *camera_config) {
-        int ret = allocator->allocate(cfg.stream());
-        if (ret < 0) {
-            throw runtime_error("Can't allocate buffers");
-        }
-
-        size_t allocated = allocator->buffers(cfg.stream()).size();
-        cout << "Allocated " << allocated << " buffers for stream\n";
+    int ret = allocator->allocate(stream);
+    if (ret < 0) {
+        throw runtime_error("Can't allocate buffers");
     }
 
-    auto *stream = streamConfig.stream();
-    const auto &buffers = allocator->buffers(stream);
-    vector<unique_ptr<libcamera::Request>> requests;
+    size_t allocated = allocator->buffers(streamConfig.stream()).size();
+
+    const vector<unique_ptr<libcamera::FrameBuffer>> &buffers =
+        allocator->buffers(stream);
 
     for (unsigned int i = 0; i < buffers.size(); ++i) {
-        auto request = lcamera->createRequest();
+        unique_ptr<libcamera::Request> request = lcamera->createRequest();
         if (!request) {
             throw runtime_error("Can't create request");
         }
 
-        const auto &buffer = buffers[i];
-        int ret = request->addBuffer(stream, buffer.get());
-        if (ret < 0) {
+        const unique_ptr<libcamera::FrameBuffer> &buffer = buffers[i];
+        int res = request->addBuffer(stream, buffer.get());
+        if (res < 0) {
             throw runtime_error("Can't set buffer for request");
         }
 
-        requests.push_back(std::move(request));
+        requests.push_back(move(request));
     }
 
-    lcamera->requestCompleted.connect(requestComplete);
-
-    // for (int retries = config["tracking"]["retries"].GetInt();
-    //              retries > 0; --retries) {
-    //     video = cv::VideoCapture(config["tracking"]["camera_id"].GetInt());
-    //     video.set(cv::CAP_PROP_FPS, config["tracking"]["fps"].GetInt());
-    //     video.set(cv::CAP_PROP_FRAME_WIDTH,
-    //               config["tracking"]["width"].GetInt());
-    //     video.set(cv::CAP_PROP_FRAME_HEIGHT,
-    //               config["tracking"]["height"].GetInt());
-    //     if (video.isOpened()) {
-    //         cout << "Camera connected\n";
-    //         break;
-    //     }
-    //     this_thread::sleep_for(chrono::seconds(1));
-    // }
-    // if (!video.isOpened()) {
-    //     cout << "Can not connect to camera\n";
-    //     throw runtime_error("Can not connect to camera");
-    // }
-    // thread camera_thread(start_camera_cycle, this);
-    // camera_thread.detach();
+    lcamera->start();
+    for (unique_ptr<libcamera::Request> &request : requests) {
+        lcamera->queueRequest(request.get());
+    }
 }

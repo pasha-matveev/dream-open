@@ -1,5 +1,7 @@
 #pragma once
 
+#include <libcamera/libcamera.h>
+
 #include <opencv2/opencv.hpp>
 
 #include "tracking/ball.h"
@@ -14,6 +16,8 @@ class Camera {
     cv::VideoCapture video;
     Ball &ball;
     bool has_preview;
+    std::unique_ptr<libcamera::CameraManager> cm;
+    std::shared_ptr<libcamera::Camera> lcamera;
 
     void capture();
     void analyze();

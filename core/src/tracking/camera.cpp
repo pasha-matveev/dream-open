@@ -17,6 +17,8 @@ Camera::Camera(Ball &b, bool preview) : ball(b), has_preview(preview) {
     mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
     circle(mask, {radius, radius}, radius, 255, -1);
     circle(mask, {radius, radius}, disabled_radius, 0, -1);
+
+    cm = make_unique<libcamera::CameraManager>();
 }
 
 void Camera::capture() {
@@ -80,25 +82,84 @@ void Camera::cycle() {
 
 void start_camera_cycle(Camera *camera) { camera->cycle(); }
 
+void requestComplete(libcamera::Request *request) {
+    cout << "Request Complete" << endl;
+    if (request->status() == libcamera::Request::RequestCancelled) return;
+}
+
 void Camera::start() {
-    for (int retries = config["tracking"]["retries"].GetInt(); retries > 0;
-         --retries) {
-        video = cv::VideoCapture(config["tracking"]["camera_id"].GetInt());
-        video.set(cv::CAP_PROP_FPS, config["tracking"]["fps"].GetInt());
-        video.set(cv::CAP_PROP_FRAME_WIDTH,
-                  config["tracking"]["width"].GetInt());
-        video.set(cv::CAP_PROP_FRAME_HEIGHT,
-                  config["tracking"]["height"].GetInt());
-        if (video.isOpened()) {
-            cout << "Camera connected\n";
-            break;
+    // Подключение камеры
+    cm->start();
+    auto cameras = cm->cameras();
+    if (cameras.empty()) {
+        throw runtime_error("No camera found");
+    }
+    string camera_id = cameras[0]->id();
+    lcamera = cm->get(camera_id);
+    lcamera->acquire();
+    // Настройки
+    unique_ptr<libcamera::CameraConfiguration> camera_config =
+        lcamera->generateConfiguration({libcamera::StreamRole::Viewfinder});
+    auto &streamConfig = camera_config->at(0);
+    streamConfig.size.width = config["tracking"]["width"].GetInt();
+    streamConfig.size.height = config["tracking"]["height"].GetInt();
+    camera_config->validate();
+    cout << "Camera configuration is: " << streamConfig.toString() << endl;
+    lcamera->configure(camera_config.get());
+
+    // Выделение памяти
+    libcamera::FrameBufferAllocator *allocator =
+        new libcamera::FrameBufferAllocator(lcamera);
+
+    for (libcamera::StreamConfiguration &cfg : *camera_config) {
+        int ret = allocator->allocate(cfg.stream());
+        if (ret < 0) {
+            throw runtime_error("Can't allocate buffers");
         }
-        this_thread::sleep_for(chrono::seconds(1));
+
+        size_t allocated = allocator->buffers(cfg.stream()).size();
+        cout << "Allocated " << allocated << " buffers for stream\n";
     }
-    if (!video.isOpened()) {
-        cout << "Can not connect to camera\n";
-        throw runtime_error("Can not connect to camera");
+
+    auto *stream = streamConfig.stream();
+    const auto &buffers = allocator->buffers(stream);
+    vector<unique_ptr<libcamera::Request>> requests;
+
+    for (unsigned int i = 0; i < buffers.size(); ++i) {
+        auto request = lcamera->createRequest();
+        if (!request) {
+            throw runtime_error("Can't create request");
+        }
+
+        const auto &buffer = buffers[i];
+        int ret = request->addBuffer(stream, buffer.get());
+        if (ret < 0) {
+            throw runtime_error("Can't set buffer for request");
+        }
+
+        requests.push_back(std::move(request));
     }
-    thread camera_thread(start_camera_cycle, this);
-    camera_thread.detach();
+
+    lcamera->requestCompleted.connect(requestComplete);
+
+    // for (int retries = config["tracking"]["retries"].GetInt();
+    //              retries > 0; --retries) {
+    //     video = cv::VideoCapture(config["tracking"]["camera_id"].GetInt());
+    //     video.set(cv::CAP_PROP_FPS, config["tracking"]["fps"].GetInt());
+    //     video.set(cv::CAP_PROP_FRAME_WIDTH,
+    //               config["tracking"]["width"].GetInt());
+    //     video.set(cv::CAP_PROP_FRAME_HEIGHT,
+    //               config["tracking"]["height"].GetInt());
+    //     if (video.isOpened()) {
+    //         cout << "Camera connected\n";
+    //         break;
+    //     }
+    //     this_thread::sleep_for(chrono::seconds(1));
+    // }
+    // if (!video.isOpened()) {
+    //     cout << "Can not connect to camera\n";
+    //     throw runtime_error("Can not connect to camera");
+    // }
+    // thread camera_thread(start_camera_cycle, this);
+    // camera_thread.detach();
 }

@@ -14,22 +14,21 @@ class Camera {
     cv::Mat hsv_frame;
     cv::Mat preview_image;
     cv::VideoCapture video;
-    Ball &ball;
+    Ball ball;
     bool has_preview;
     std::unique_ptr<libcamera::CameraManager> cm;
     std::shared_ptr<libcamera::Camera> lcamera;
     std::vector<std::unique_ptr<libcamera::Request>> requests;
+    libcamera::StreamConfiguration *streamConfig;
 
     void capture();
     void analyze();
     void draw();
-    void cycle();
+    void requestComplete(libcamera::Request *request);
 
    public:
-    Camera(Ball &, bool);
+    Camera(bool);
 
     void start();
     void show_preview();
-
-    friend void start_camera_cycle(Camera *);
 };

@@ -12,7 +12,7 @@ class Ball : Object {
     bool visible = false;
     double radius;
 
-    Ball(std::vector<int>, std::vector<int>);
+    Ball(const std::vector<int> &, const std::vector<int> &);
     virtual ~Ball();
     void find(cv::Mat frame);
     void draw(cv::Mat frame);

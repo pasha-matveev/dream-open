@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Ball::Ball(vector<int> hsv_min, vector<int> hsv_max)
+Ball::Ball(const vector<int> &hsv_min, const vector<int> &hsv_max)
     : Object(hsv_min, hsv_max) {}
 Ball::~Ball() {};
 

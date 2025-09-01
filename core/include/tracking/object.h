@@ -12,6 +12,6 @@ class Object {
     double angle;
     double dist;
 
-    Object(std::vector<int> color_low, std::vector<int> color_high);
+    Object(const std::vector<int> &, const std::vector<int> &);
     virtual ~Object();
 };

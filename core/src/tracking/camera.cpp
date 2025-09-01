@@ -1,6 +1,7 @@
 #include "tracking/camera.h"
 
 #include <assert.h>
+#include <sys/mman.h>
 
 #include <chrono>
 #include <iostream>
@@ -11,7 +12,45 @@
 
 using namespace std;
 
-Camera::Camera(Ball &b, bool preview) : ball(b), has_preview(preview) {
+// Конвертация из буфера в матрицу
+struct MappedBuffer {
+    void *memory;
+    size_t length;
+};
+
+MappedBuffer mapBuffer(const libcamera::FrameBuffer *buffer) {
+    const libcamera::FrameBuffer::Plane &plane = buffer->planes().front();
+    int fd = plane.fd.get();
+    size_t length = plane.length;
+
+    void *memory =
+        mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (memory == MAP_FAILED) {
+        perror("mmap");
+        throw std::runtime_error("mmap failed");
+    }
+
+    return {memory, length};
+}
+
+cv::Mat toMat(const libcamera::FrameBuffer *buffer) {
+    auto mapped = mapBuffer(buffer);
+    int width = config["tracking"]["width"].GetInt();
+    int height = config["tracking"]["height"].GetInt();
+
+    cv::Mat img(height, width, CV_8UC3, mapped.memory);
+
+    cv::Mat copy = img.clone();
+
+    munmap(mapped.memory, mapped.length);
+
+    return copy;
+}
+
+Camera::Camera(bool preview)
+    : ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
+           make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray())),
+      has_preview(preview) {
     const int radius = config["tracking"]["radius"].GetInt(),
               disabled_radius = config["tracking"]["disabled_radius"].GetInt();
     mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
@@ -59,32 +98,20 @@ void Camera::show_preview() {
            preview_image);
 }
 
-void Camera::cycle() {
-    int delay = 1000 / config["tracking"]["fps"].GetInt() / 2;
-    while (true) {
-        long long cycle_start =
-            chrono::steady_clock::now().time_since_epoch().count();
-        capture();
-        if (!frame.empty()) {
-            analyze();
-            if (has_preview) {
-                draw();
-            }
-        }
-        long long cycle_finish =
-            chrono::steady_clock::now().time_since_epoch().count();
-        long long required_sleep = delay - (cycle_finish - cycle_start);
-        if (required_sleep > 0) {
-            this_thread::sleep_for(chrono::milliseconds(required_sleep));
-        }
-    }
-}
-
-void start_camera_cycle(Camera *camera) { camera->cycle(); }
-
-void requestComplete(libcamera::Request *request) {
+void Camera::requestComplete(libcamera::Request *request) {
     if (request->status() == libcamera::Request::RequestCancelled) return;
-}
+    const std::map<const libcamera::Stream *, libcamera::FrameBuffer *>
+        &buffers = request->buffers();
+    assert(buffers.size() == 1);
+    for (const auto [_, buffer] : buffers) {
+        frame = toMat(buffer);
+    }
+    cv::cvtColor(frame, hsv_frame, cv::COLOR_RGB2HSV);
+    analyze();
+    draw();
+    request->reuse(libcamera::Request::ReuseBuffers);
+    lcamera->queueRequest(request);
+};
 
 void Camera::start() {
     // Подключение камеры
@@ -96,13 +123,14 @@ void Camera::start() {
     string camera_id = cameras[0]->id();
     lcamera = cm->get(camera_id);
     lcamera->acquire();
-    lcamera->requestCompleted.connect(requestComplete);
+    lcamera->requestCompleted.connect(this, &Camera::requestComplete);
     // Настройки
     unique_ptr<libcamera::CameraConfiguration> camera_config =
         lcamera->generateConfiguration({libcamera::StreamRole::Viewfinder});
     auto &streamConfig = camera_config->at(0);
     streamConfig.size.width = config["tracking"]["width"].GetInt();
     streamConfig.size.height = config["tracking"]["height"].GetInt();
+    streamConfig.pixelFormat = libcamera::formats::RGB888;
     camera_config->validate();
     cout << "Camera configuration is: " << streamConfig.toString() << endl;
     lcamera->configure(camera_config.get());

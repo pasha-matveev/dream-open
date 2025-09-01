@@ -29,11 +29,7 @@ void Robot::write_to_arduino() {
 }
 
 void Robot::init_camera() {
-    auto v1 = config["tracking"]["ball"]["hsv_min"].GetArray();
-    auto v2 = config["tracking"]["ball"]["hsv_max"].GetArray();
-    Ball ball(make_int_vector(v1), make_int_vector(v2));
-    camera =
-        new Camera(ball, config["tracking"]["preview"]["enabled"].GetBool());
+    camera = new Camera(config["tracking"]["preview"]["enabled"].GetBool());
     camera->start();
 }
 

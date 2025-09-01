@@ -18,6 +18,7 @@ class Camera {
     bool has_preview;
     std::unique_ptr<libcamera::CameraManager> cm;
     std::shared_ptr<libcamera::Camera> lcamera;
+    std::vector<std::unique_ptr<libcamera::Request>> requests;
 
     void capture();
     void analyze();

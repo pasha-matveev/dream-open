@@ -162,6 +162,11 @@ void Camera::start() {
             throw runtime_error("Can't set buffer for request");
         }
 
+        auto &controls = request->controls();
+        controls.set(libcamera::controls::AeEnable, false);
+        controls.set(libcamera::controls::ExposureTime, 20000);
+        controls.set(libcamera::controls::AnalogueGain, 1.0f);
+
         requests.push_back(move(request));
     }
 

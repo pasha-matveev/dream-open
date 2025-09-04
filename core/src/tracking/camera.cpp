@@ -1,6 +1,7 @@
 #include "tracking/camera.h"
 
 #include <assert.h>
+#include <spdlog/spdlog.h>
 #include <sys/mman.h>
 
 #include <chrono>
@@ -120,7 +121,7 @@ void Camera::start() {
     streamConfig.size.height = config["tracking"]["height"].GetInt();
     streamConfig.pixelFormat = libcamera::formats::RGB888;
     camera_config->validate();
-    cout << "Camera configuration is: " << streamConfig.toString() << endl;
+    spdlog::info("Camera configuration: {}", streamConfig.toString());
     lcamera->configure(camera_config.get());
 
     // Выделение памяти

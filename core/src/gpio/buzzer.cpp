@@ -41,8 +41,7 @@ void Buzzer::play_song(const vector<Note> &notes) {
 
 Buzzer::Buzzer(int pin) : pin(pin) {
     if (softToneCreate(pin) == -1) {
-        cout << "Failed to setup pin" << endl;
-        exit(-1);
+        throw runtime_error("Failed to setup pin");
     }
 }
 

@@ -62,8 +62,7 @@ void Robot::init_hardware() {
     }
     if (config["gpio"]["enabled"].GetBool()) {
         if (wiringPiSetupPinType(WPI_PIN_BCM) == -1) {
-            cout << "Failed to setup wiringPi" << endl;
-            exit(-1);
+            throw runtime_error("Failed to setup wiringPi");
         }
         if (config["gpio"]["buzzer"]["enabled"].GetBool()) {
             init_buzzer();

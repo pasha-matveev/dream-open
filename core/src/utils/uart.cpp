@@ -1,5 +1,7 @@
 #include "utils/uart.h"
 
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -28,8 +30,7 @@ void UART::connect() {
     serial.SetStopBits(StopBits::STOP_BITS_1);
 
     if (!serial.IsOpen() || !serial.good()) {
-        cout << "Failed to open serial" << endl;
-        exit(-1);
+        throw runtime_error("Failed to open serial");
     }
 }
 
@@ -41,10 +42,9 @@ void UART::wait_for_x() {
         char buffer[1];
         serial.read(buffer, 1);
         if (buffer[0] == 'X') {
-            cout << "X found" << endl;
-            break;
+            spdlog::info("Received begin byte (X)");
         } else {
-            cout << "Not X ..." << endl;
+            spdlog::info("Received random byte ...");
         }
     }
 }

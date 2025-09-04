@@ -47,10 +47,9 @@ cv::Mat toMat(const libcamera::FrameBuffer *buffer) {
     return copy;
 }
 
-Camera::Camera(bool preview)
+Camera::Camera()
     : ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
-           make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray())),
-      has_preview(preview) {
+           make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray())) {
     const int radius = config["tracking"]["radius"].GetInt(),
               disabled_radius = config["tracking"]["disabled_radius"].GetInt();
     mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
@@ -58,29 +57,6 @@ Camera::Camera(bool preview)
     circle(mask, {radius, radius}, disabled_radius, 0, -1);
 
     cm = make_unique<libcamera::CameraManager>();
-}
-
-void Camera::capture() {
-    auto grabbed = video.read(temp);
-    if (!grabbed) {
-        return;
-    }
-    const int radius = config["tracking"]["radius"].GetInt();
-    const int center_x = config["tracking"]["center"]["x"].GetInt();
-    const int center_y = config["tracking"]["center"]["y"].GetInt();
-    const int width = config["tracking"]["width"].GetInt();
-    const int height = config["tracking"]["height"].GetInt();
-    int x1 = center_x - radius;
-    int y1 = center_y - radius;
-    if (temp.size[0] != width || temp.size[1] != height) {
-        cout << "Wrong frame dimensions: " << temp.size[0] << "x"
-             << temp.size[1] << '\n';
-        exit(-1);
-    }
-    temp = temp(cv::Rect(x1, y1, radius * 2, radius * 2));
-    frame = cv::Mat();
-    bitwise_and(temp, temp, frame, mask);
-    cv::cvtColor(frame, hsv_frame, cv::COLOR_RGB2HSV);
 }
 
 void Camera::analyze() { ball.find(hsv_frame); }
@@ -106,9 +82,21 @@ void Camera::requestComplete(libcamera::Request *request) {
     for (const auto [_, buffer] : buffers) {
         frame = toMat(buffer);
     }
+
+    const int radius = config["tracking"]["radius"].GetInt();
+    const int center_x = config["tracking"]["center"]["x"].GetInt();
+    const int center_y = config["tracking"]["center"]["y"].GetInt();
+    const int width = config["tracking"]["width"].GetInt();
+    const int height = config["tracking"]["height"].GetInt();
+    int x1 = center_x - radius;
+    int y1 = center_y - radius;
+    frame = frame(cv::Rect(x1, y1, radius * 2, radius * 2));
+    bitwise_and(frame, frame, frame, mask);
     cv::cvtColor(frame, hsv_frame, cv::COLOR_RGB2HSV);
+
     analyze();
     draw();
+
     request->reuse(libcamera::Request::ReuseBuffers);
     lcamera->queueRequest(request);
 };

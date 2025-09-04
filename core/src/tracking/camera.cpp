@@ -162,10 +162,15 @@ void Camera::start() {
             throw runtime_error("Can't set buffer for request");
         }
 
+        int duration = (1000 / config["tracking"]["fps"].GetInt()) * 1000;
         auto &controls = request->controls();
         controls.set(libcamera::controls::AeEnable, false);
-        controls.set(libcamera::controls::ExposureTime, 20000);
-        controls.set(libcamera::controls::AnalogueGain, 1.0f);
+        controls.set(libcamera::controls::ExposureTime, duration);
+        controls.set(libcamera::controls::AnalogueGain,
+                     config["tracking"]["brightness"].GetFloat());
+        controls.set(libcamera::controls::ExposureTime, duration * 0.9);
+        controls.set(libcamera::controls::FrameDurationLimits,
+                     libcamera::Span<const int64_t, 2>({duration, duration}));
 
         requests.push_back(move(request));
     }

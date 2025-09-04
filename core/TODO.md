@@ -1,5 +1,5 @@
 - [ ] Camera settings from config
-- [ ] Baud rate from config
 - [ ] Global endl or char
 - [ ] Is UART wait for data required?
+- [x] Baud rate from config
 - [x] Non-header JSON library (to speed up build)

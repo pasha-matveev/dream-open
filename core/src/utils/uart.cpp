@@ -8,9 +8,20 @@
 
 using namespace std;
 
+BaudRate int_to_baud(int baud) {
+    switch (baud) {
+        case 115200:
+            return BaudRate::BAUD_115200;
+        case 9600:
+            return BaudRate::BAUD_9600;
+        default:
+            throw runtime_error("Unsupported baud rate");
+    }
+}
+
 void UART::connect() {
     serial.Open(config["serial"]["device"].GetString());
-    serial.SetBaudRate(BaudRate::BAUD_115200);
+    serial.SetBaudRate(int_to_baud(config["serial"]["rate"].GetInt()));
     serial.SetDTR(true);
     serial.SetCharacterSize(CharacterSize::CHAR_SIZE_8);
     serial.SetParity(Parity::PARITY_NONE);

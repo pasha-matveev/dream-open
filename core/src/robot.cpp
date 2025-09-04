@@ -29,7 +29,7 @@ void Robot::write_to_arduino() {
 }
 
 void Robot::init_camera() {
-    camera = new Camera(config["tracking"]["preview"]["enabled"].GetBool());
+    camera = new Camera();
     camera->start();
 }
 
@@ -62,7 +62,7 @@ void Robot::init_hardware() {
     }
     if (config["gpio"]["enabled"].GetBool()) {
         if (wiringPiSetupPinType(WPI_PIN_BCM) == -1) {
-            cout << "Failed to setup wiringPi\n";
+            cout << "Failed to setup wiringPi" << endl;
             exit(-1);
         }
         if (config["gpio"]["buzzer"]["enabled"].GetBool()) {

@@ -35,8 +35,11 @@ find_library(WiringPi_LIB wiringPi REQUIRED)
 target_link_libraries(core PRIVATE ${WiringPi_LIB})
 
 # LibCamera
-find_package(PkgConfig)
+find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCAMERA REQUIRED IMPORTED_TARGET libcamera)
 include_directories(${LIBCAMERA_INCLUDE_DIRS})
 target_link_libraries(core PRIVATE PkgConfig::LIBCAMERA)
 
+# spdlog
+find_package(spdlog REQUIRED)
+target_link_libraries(core PRIVATE spdlog::spdlog)

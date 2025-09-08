@@ -75,6 +75,11 @@ void Motors::requestVoltageData() {
 }
 
 float Motors::parseMotorVoltage() {
-    uint16_t voltageRaw = (canMsg.data[3] << 8) | canMsg.data[2];
-    return voltageRaw * 0.01f;
+    if (mcp2515.readMessage(&canMsg) == MCP2515::ERROR_OK) {
+        if (canMsg.can_id == MOTOR_ID && canMsg.data[0] == 0x9A) {
+            uint16_t voltageRaw = (canMsg.data[3] << 8) | canMsg.data[2];
+            return voltageRaw * 0.01f;
+        }
+    }
+    return -1;
 }

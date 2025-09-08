@@ -5,7 +5,7 @@
 
 #include "Robot.h"
 
-constexpr float MIN_VOLTAGE = 14;
+constexpr float MIN_VOLTAGE = 12;
 
 Robot robot;
 Adafruit_NeoPixel pixels(2, 9, NEO_GRB + NEO_KHZ800);
@@ -33,6 +33,8 @@ void setup() {
     pixels.setPixelColor(1, pixels.Color(0, 0, 0));
     pixels.show();
     robot.init();
+    robot.stop();
+    delay(1000);
     robot.motors.requestVoltageData();
     float voltage = robot.motors.parseMotorVoltage();
     if (voltage < MIN_VOLTAGE) {

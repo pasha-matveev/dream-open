@@ -14,6 +14,6 @@ class Ball : Object {
 
     Ball(const std::vector<int> &, const std::vector<int> &);
     virtual ~Ball();
-    void find(cv::Mat frame);
+    void find(const cv::Mat &frame);
     void draw(cv::Mat frame);
 };

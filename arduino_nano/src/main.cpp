@@ -5,12 +5,13 @@
 
 #include "Robot.h"
 
+constexpr float MIN_VOLTAGE = 14;
+
 Robot robot;
 Adafruit_NeoPixel pixels(2, 9, NEO_GRB + NEO_KHZ800);
 unsigned long long alive_tm;
 unsigned long long test_tm;
 bool rgb_led = false;
-bool charge_led_millis = -1;
 
 template <typename T>
 T read_data() {
@@ -32,6 +33,15 @@ void setup() {
     pixels.setPixelColor(1, pixels.Color(0, 0, 0));
     pixels.show();
     robot.init();
+    robot.motors.requestVoltageData();
+    float voltage = robot.motors.parseMotorVoltage();
+    if (voltage < MIN_VOLTAGE) {
+        pixels.setPixelColor(1, pixels.Color(255, 0, 0));
+        pixels.show();
+        delay(1000);
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.show();
+    }
     pixels.setPixelColor(0, pixels.Color(0, 0, 0));
     pixels.show();
 
@@ -65,9 +75,6 @@ void loop() {
     robot.read();
 
     if (Serial.available()) {
-        if (charge_led_millis == -1) {
-            charge_led_millis = millis() + 3000;
-        }
         char c = read_data<char>();
         if (c == 'R') {
             write_data<float>(robot.gyro.angle);
@@ -89,8 +96,6 @@ void loop() {
         }
 
         alive_tm = millis() + 1000;
-    } else {
-        charge_led_millis = -1;
     }
 
     if (alive_tm > millis() && robot.init_kicker) {
@@ -113,8 +118,6 @@ void loop() {
     if (rgb_led) {
         pixels.setPixelColor(1,
                              pixels.ColorHSV(millis() * 80 % 65535, 255, 255));
-    } else if (millis() <= charge_led_millis) {
-        pixels.setPixelColor(1, pixels.Color(255, 0, 0));
     } else {
         pixels.setPixelColor(1, pixels.Color(0, 0, 0));
     }

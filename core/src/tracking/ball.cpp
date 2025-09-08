@@ -8,28 +8,37 @@ Ball::Ball(const vector<int> &hsv_min, const vector<int> &hsv_max)
     : Object(hsv_min, hsv_max) {}
 Ball::~Ball() {};
 
-void Ball::find(cv::Mat frame) {
-    cv::Mat range;
-    cv::inRange(frame, hsv_min, hsv_max, range);
-    vector<cv::Mat> contours;
-    cv::findContours(range, contours, 1, 2);
+void Ball::find(const cv::Mat &frame) {
+    cv::Mat mask;
+    cv::inRange(frame, hsv_min, hsv_max, mask);
+
+    cv::erode(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
+    cv::dilate(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
+
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(mask, contours, cv::RETR_EXTERNAL,
+                     cv::CHAIN_APPROX_SIMPLE);
+
     if (contours.empty()) {
         visible = false;
         return;
     }
-    int mx_area = 0;
+
     int j = -1;
-    for (int i = 0; i < contours.size(); ++i) {
+    double mx_area = 0.0;
+    for (int i = 0; i < (int)contours.size(); ++i) {
         double area = cv::contourArea(contours[i]);
         if (area > mx_area) {
             mx_area = area;
             j = i;
         }
     }
+
     if (mx_area < MIN_BALL_AREA) {
         visible = false;
         return;
     }
+
     visible = true;
     cv::Point2f point_center;
     float float_radius;

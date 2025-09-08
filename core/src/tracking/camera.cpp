@@ -75,6 +75,9 @@ void Camera::show_preview() {
            preview_image);
 }
 
+int f = 0;
+auto st = clock();
+
 void Camera::requestComplete(libcamera::Request *request) {
     if (request->status() == libcamera::Request::RequestCancelled) return;
     const std::map<const libcamera::Stream *, libcamera::FrameBuffer *>
@@ -100,6 +103,16 @@ void Camera::requestComplete(libcamera::Request *request) {
 
     request->reuse(libcamera::Request::ReuseBuffers);
     lcamera->queueRequest(request);
+
+    ++f;
+
+    auto t = (clock() - st) * 1000 / CLOCKS_PER_SEC;
+
+    if (t >= 1000) {
+        cout << "FPS: " << f << endl;
+        f = 0;
+        st = clock();
+    }
 };
 
 void Camera::start() {
@@ -154,10 +167,9 @@ void Camera::start() {
         int duration = (1000 / config["tracking"]["fps"].GetInt()) * 1000;
         auto &controls = request->controls();
         controls.set(libcamera::controls::AeEnable, false);
-        controls.set(libcamera::controls::ExposureTime, duration);
+        controls.set(libcamera::controls::ExposureTime, duration * 0.9);
         controls.set(libcamera::controls::AnalogueGain,
                      config["tracking"]["brightness"].GetFloat());
-        controls.set(libcamera::controls::ExposureTime, duration * 0.9);
         controls.set(libcamera::controls::FrameDurationLimits,
                      libcamera::Span<const int64_t, 2>({duration, duration}));
 

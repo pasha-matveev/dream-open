@@ -86,6 +86,8 @@ void Camera::requestComplete(libcamera::Request *request) {
     for (const auto [_, buffer] : buffers) {
         frame = toMat(buffer);
     }
+    request->reuse(libcamera::Request::ReuseBuffers);
+    lcamera->queueRequest(request);
 
     const int radius = config["tracking"]["radius"].GetInt();
     const int center_x = config["tracking"]["center"]["x"].GetInt();
@@ -100,9 +102,6 @@ void Camera::requestComplete(libcamera::Request *request) {
 
     analyze();
     draw();
-
-    request->reuse(libcamera::Request::ReuseBuffers);
-    lcamera->queueRequest(request);
 
     ++f;
 

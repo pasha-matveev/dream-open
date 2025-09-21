@@ -1,20 +1,21 @@
 {
   "tracking": {
-    "enabled": false,
+    "enabled": true,
     "preview": {
         "enabled": false,
         "window_name": "Camera"
     },
     "camera_id": 0,
     "retries": 10,
-    "fps": 30,
-    "width": 1080,
-    "height": 1920,
-    "radius": 500,
+    "fps": 60,
+    "width": 800,
+    "height": 800,
+    "brightness": 1.0,
+    "radius": 400,
     "disabled_radius": 10,
     "center": {
-      "x": 540,
-      "y": 540
+      "x": 400,
+      "y": 400
     },
     "ball": {
       "hsv_min": [80, 40, 40],
@@ -22,7 +23,7 @@
     }
   },
   "serial": {
-    "enabled": true,
+    "enabled": false,
     "device": "/dev/ttyUSB0",
     "rate": 115200
   },

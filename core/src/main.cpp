@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <thread>
 
@@ -7,10 +9,14 @@
 using namespace std;
 
 int main() {
+    spdlog::info("Loading config...");
     load_config();
+    spdlog::info("Config loaded");
 
     Robot robot;
+    spdlog::info("Initializing hardware...");
     robot.init_hardware();
+    spdlog::info("Hardware ready");
     robot.rgb_led = true;
 
     int delay = 1000 / config["tracking"]["fps"].GetInt() / 2;

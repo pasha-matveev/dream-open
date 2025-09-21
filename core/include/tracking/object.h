@@ -14,4 +14,5 @@ class Object {
 
     Object(const std::vector<int> &, const std::vector<int> &);
     virtual ~Object();
+    float get_pixels_dist();
 };

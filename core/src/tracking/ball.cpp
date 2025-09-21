@@ -51,3 +51,7 @@ void Ball::draw(cv::Mat frame) {
     if (!visible) return;
     cv::circle(frame, center, radius, 100, 10);
 }
+
+float Ball::get_cm() {
+    return 7612.57165 / (392.22648 - get_pixels_dist()) - 17.45807;
+}

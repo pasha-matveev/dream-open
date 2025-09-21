@@ -16,4 +16,6 @@ class Ball : Object {
     virtual ~Ball();
     void find(const cv::Mat &frame);
     void draw(cv::Mat frame);
+    float get_pixels_dist();
+    float get_cm();
 };

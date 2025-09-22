@@ -571,8 +571,8 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
-    cout << "C++ program started. PID: " << getpid() << "\n" << flush;
-    cout << "Waiting for SIGTERM.\n" << flush;
+    // cout << "C++ program started. PID: " << getpid() << "\n" << flush;
+    // cout << "Waiting for SIGTERM.\n" << flush;
 
     signal(SIGINT, ctrlc);
 

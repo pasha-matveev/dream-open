@@ -56,6 +56,11 @@ void Robot::init_display() {
     }
 }
 
+void Robot::init_lidar() {
+    lidar = new Lidar();
+    lidar->start();
+}
+
 void Robot::init_hardware() {
     if (config["tracking"]["enabled"].GetBool()) {
         init_camera();
@@ -77,6 +82,9 @@ void Robot::init_hardware() {
     if (config["serial"]["enabled"].GetBool()) {
         init_uart();
     }
+    if (config["lidar"]["enabled"].GetBool()) {
+        init_lidar();
+    }
 }
 
 Robot::~Robot() {
@@ -84,4 +92,5 @@ Robot::~Robot() {
     if (buzzer != nullptr) delete buzzer;
     if (uart != nullptr) delete uart;
     if (display != nullptr) delete display;
+    if (lidar != nullptr) delete lidar;
 }

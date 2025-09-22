@@ -44,5 +44,9 @@
         "mode": "img",
         "img": 1
     }
+  },
+  "lidar": {
+    "enabled": true,
+    "path": "../lidar/lidar"
   }
 }

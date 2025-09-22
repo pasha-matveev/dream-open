@@ -1,9 +1,10 @@
 #pragma once
 
 #include "gpio/buzzer.h"
-#include "tracking/camera.h"
-#include "utils/uart.h"
 #include "gpio/display.h"
+#include "tracking/camera.h"
+#include "utils/lidar.h"
+#include "utils/uart.h"
 
 using namespace LibSerial;
 
@@ -14,12 +15,14 @@ class Robot {
     void init_buttons();
     void init_uart();
     void init_display();
+    void init_lidar();
 
    public:
     Camera *camera = nullptr;
     Buzzer *buzzer = nullptr;
     UART *uart = nullptr;
     Display *display = nullptr;
+    Lidar *lidar = nullptr;
 
     Robot() = default;
     ~Robot();

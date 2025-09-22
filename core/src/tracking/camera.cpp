@@ -134,14 +134,17 @@ void Camera::start() {
     streamConfig.pixelFormat = libcamera::formats::RGB888;
     camera_config->validate();
     spdlog::info("Camera configuration: {}", streamConfig.toString());
-    lcamera->configure(camera_config.get());
+    int ret = lcamera->configure(camera_config.get());
+    if (ret < 0) {
+        throw runtime_error("Failed to configure camera");
+    }
 
     // Выделение памяти
     libcamera::Stream *stream = streamConfig.stream();
     libcamera::FrameBufferAllocator *allocator =
         new libcamera::FrameBufferAllocator(lcamera);
 
-    int ret = allocator->allocate(stream);
+    ret = allocator->allocate(stream);
     if (ret < 0) {
         throw runtime_error("Can't allocate buffers");
     }

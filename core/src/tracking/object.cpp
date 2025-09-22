@@ -14,5 +14,6 @@ Object::~Object() {};
 float Object::get_pixels_dist() {
     Vec mirror_center = {config["tracking"]["center"]["x"].GetInt(),
                          config["tracking"]["center"]["y"].GetInt()};
-    return (center - mirror_center).len();
+    return (center - mirror_center).len() * 972.0 /
+           (float)config["tracking"]["width"].GetInt();
 }

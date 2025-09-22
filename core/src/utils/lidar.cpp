@@ -1,0 +1,101 @@
+#include "utils/lidar.h"
+
+void LidarObject::update(double a, double d, double r, int w, int h) {
+    angle = a;
+    dist = d;
+    rotation = r;
+    width = w;
+    height = h;
+}
+
+void LidarObject::rotate() {
+    if (width < height) {
+        swap(width, height);
+        rotation -= M_PI / 2;
+    }
+
+    rotation = -rotation + M_PI / 2;
+
+    while (rotation < 0) rotation += M_PI * 2;
+    while (rotation > M_PI) rotation -= M_PI;
+}
+
+double LidarObject::get_radius() const {
+    return sqrt(width * width + height * height) / 2.0;
+}
+
+void Lidar::start() {
+    string cmd = config["lidar"]["path"].GetString();
+
+    pipe = popen(cmd.c_str(), "r");
+    if (!pipe) {
+        throw runtime_error("Failed to start lidar process");
+    }
+
+    running = true;
+    output_thread = thread(&Lidar::_output_loop, this);
+}
+
+void Lidar::stop() {
+    running = false;
+    if (pipe) {
+        pclose(pipe);
+        pipe = nullptr;
+    }
+    if (output_thread.joinable()) output_thread.join();
+}
+
+void Lidar::compute() {
+    vector<string> local_copy;
+
+    {
+        lock_guard<mutex> lock(data_mtx);
+        if (latest_data.empty()) return;
+        local_copy = latest_data;
+        latest_data.clear();
+    }
+
+    if (local_copy.size() >= 5) {
+        field.update(stod(local_copy[0]), stod(local_copy[1]),
+                     stod(local_copy[2]), stoi(local_copy[3]),
+                     stoi(local_copy[4]));
+        field.rotate();
+    }
+
+    obstacles_data.clear();
+    for (size_t i = 5; i + 4 < local_copy.size(); i += 5) {
+        LidarObject obj;
+        obj.update(stod(local_copy[i]), stod(local_copy[i + 1]),
+                   stod(local_copy[i + 2]), stoi(local_copy[i + 3]),
+                   stoi(local_copy[i + 4]));
+        obstacles_data.push_back(obj);
+    }
+}
+
+bool Lidar::new_data() {
+    lock_guard<mutex> lock(data_mtx);
+    return !latest_data.empty();
+}
+
+void Lidar::_output_loop() {
+    char buffer[256];
+    while (running && pipe && fgets(buffer, sizeof(buffer), pipe)) {
+        string line(buffer);
+        if (!line.empty() && line.back() == '\n') line.pop_back();
+
+        istringstream iss(line);
+        vector<string> tokens;
+        string word;
+        while (iss >> word) tokens.push_back(word);
+
+        if (!tokens.empty() && tokens[0] == "Data") {
+            tokens.erase(tokens.begin());
+            {
+                lock_guard<mutex> lock(data_mtx);
+                latest_data = tokens;
+            }
+        } else {
+            throw runtime_error("ERROR: " + line);
+        }
+    }
+}

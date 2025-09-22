@@ -493,14 +493,17 @@ int main(int argc, const char *argv[]) {
         preview = atoi(argv[1]);
         port = argv[2];
     } else {
-        preview = 1;
-        port = "/dev/cu.usbserial-110";
+        preview = 0;
+        // port = "/dev/cu.usbserial-110";
+        port = "/dev/ttyUSB0";
     }
 
     Point center = {400, 400};
-    sf::RenderWindow window;
-    if (preview)
-        window = sf::RenderWindow(sf::VideoMode({800, 800}), "Lidar Preview");
+    sf::RenderWindow *window = nullptr;
+    if (preview) {
+        window =
+            new sf::RenderWindow(sf::VideoMode({800, 800}), "Lidar Preview");
+    }
 
     if (!drv) {
         cout << "insufficent memory, exit\n" << flush;
@@ -522,6 +525,8 @@ int main(int argc, const char *argv[]) {
             drv = NULL;
         }
     }
+
+    cout << "Finish connect" << endl;
 
     // Failed to connect
     if (!connectSuccess) {
@@ -617,22 +622,22 @@ int main(int argc, const char *argv[]) {
                 result_data.push_back(minimalAreaBoundingRectangle(cluster));
 
         if (preview) {
-            running = window.isOpen();
-            while (const optional event = window.pollEvent()) {
+            running = window->isOpen();
+            while (const optional event = window->pollEvent()) {
                 if (event->is<sf::Event::Closed>()) {
-                    window.close();
+                    window->close();
                 }
             }
-            window.clear(sf::Color::Black);
-            draw_circle(window, center, 300, sf::Color::White);
-            draw_dot(window, center, sf::Color::Green, 2);
+            window->clear(sf::Color::Black);
+            draw_circle(*window, center, 300, sf::Color::White);
+            draw_dot(*window, center, sf::Color::Green, 2);
             for (int i = 0; i < result_data.size(); i++)
-                draw_convex(window, result_data[i].corners,
+                draw_convex(*window, result_data[i].corners,
                             i ? sf::Color::Red : sf::Color::Green);
-            draw_convex(window, inner.corners, sf::Color::White);
-            draw_dots(window, outside, sf::Color::Green);
-            draw_dots(window, inside, sf::Color::White);
-            window.display();
+            draw_convex(*window, inner.corners, sf::Color::White);
+            draw_dots(*window, outside, sf::Color::Green);
+            draw_dots(*window, inside, sf::Color::White);
+            window->display();
         }
 
         cout << "Data ";
@@ -668,5 +673,6 @@ on_finished:
         delete drv;
         drv = NULL;
     }
+    delete window;
     return 0;
 }

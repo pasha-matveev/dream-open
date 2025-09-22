@@ -526,8 +526,6 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-    cout << "Finish connect" << endl;
-
     // Failed to connect
     if (!connectSuccess) {
         cout << "Error, cannot bind to the specified serial port " << port

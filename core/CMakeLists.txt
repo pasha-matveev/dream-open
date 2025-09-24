@@ -40,8 +40,9 @@ target_precompile_headers(core PRIVATE
 find_library(LibSerial_LIB serial REQUIRED)
 target_link_libraries(core PRIVATE ${LibSerial_LIB})
 
-# WiringPi
 if (UNIX AND NOT APPLE)
+
+# WiringPi
 find_library(WiringPi_LIB wiringPi REQUIRED)
 target_link_libraries(core PRIVATE ${WiringPi_LIB})
 

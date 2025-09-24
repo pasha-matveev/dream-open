@@ -14,6 +14,8 @@ class Camera {
     Camera();
     ~Camera();
 
+    Ball ball;
+
     void start();
     void show_preview();
 };

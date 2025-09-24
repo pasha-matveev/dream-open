@@ -54,7 +54,7 @@ struct Camera::Impl {
     cv::Mat frame;
     cv::Mat hsv_frame;
     cv::Mat preview_image;
-    Ball ball;
+    Ball &ball;
 
     std::unique_ptr<libcamera::CameraManager> cm;
     std::shared_ptr<libcamera::Camera> lcamera;
@@ -67,15 +67,11 @@ struct Camera::Impl {
     void requestComplete(libcamera::Request *request);
     void show_preview();
 
-    Impl();
+    Impl(Ball &ball);
     ~Impl() = default;
 };
 
-
-Camera::Impl::Impl()
-    : ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
-           make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray())) {
-    
+Camera::Impl::Impl(Ball &ball_reference) : ball(ball_reference) {
     const int radius = config["tracking"]["radius"].GetInt(),
               disabled_radius = config["tracking"]["disabled_radius"].GetInt();
     mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
@@ -85,8 +81,10 @@ Camera::Impl::Impl()
     cm = make_unique<libcamera::CameraManager>();
 }
 
-Camera::Camera() {
-    impl = make_unique<Impl>();
+Camera::Camera()
+    : ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
+           make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray())) {
+    impl = make_unique<Impl>(ball);
 }
 Camera::~Camera() = default;
 
@@ -97,9 +95,7 @@ void Camera::Impl::draw() {
     ball.draw(preview_image);
 }
 
-void Camera::show_preview() {
-    impl->show_preview();
-}
+void Camera::show_preview() { impl->show_preview(); }
 
 void Camera::Impl::show_preview() {
     if (preview_image.empty()) {
@@ -218,6 +214,4 @@ void Camera::Impl::start() {
     }
 }
 
-void Camera::start() {
-    impl->start();
-}
+void Camera::start() { impl->start(); }

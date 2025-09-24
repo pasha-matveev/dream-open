@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "robot.h"
+#include "strategy/strategy.h"
 #include "utils/config.h"
 
 using namespace std;
@@ -19,12 +20,15 @@ int main() {
     spdlog::info("Hardware ready");
     robot.rgb_led = true;
 
+    Strategy strategy;
+
     int delay = 1000 / config["tracking"]["fps"].GetInt() / 2;
     while (true) {
         if (config["serial"]["enabled"].GetBool()) {
             robot.read_from_arduino();
         }
         // ... strategy ...
+        strategy.run(robot);
         if (config["serial"]["enabled"].GetBool()) {
             robot.write_to_arduino();
         }

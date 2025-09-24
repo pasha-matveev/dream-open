@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "utils/config.h"
+
 using namespace std;
 
 Ball::Ball(const vector<int> &hsv_min, const vector<int> &hsv_max)
@@ -45,6 +47,8 @@ void Ball::find(const cv::Mat &frame) {
     cv::minEnclosingCircle(contours[j], point_center, float_radius);
     center = point_center;
     radius = float_radius;
+    point = (Vec)center - Vec{config["tracking"]["center"]["x"].GetInt(),
+                              config["tracking"]["center"]["y"].GetInt()};
 }
 
 void Ball::draw(cv::Mat frame) {
@@ -55,3 +59,5 @@ void Ball::draw(cv::Mat frame) {
 float Ball::get_cm() {
     return 7612.57165 / (392.22648 - get_pixels_dist()) - 17.45807;
 }
+
+float Ball::angle() { return normalize_angle(-1 * point.angle() - M_PI); }

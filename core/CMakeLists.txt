@@ -57,3 +57,16 @@ endif()
 # spdlog
 find_package(spdlog REQUIRED)
 target_link_libraries(core PRIVATE spdlog::spdlog)
+
+# SFML
+
+include(FetchContent)
+FetchContent_Declare(SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 3.0.2
+    GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
+    SYSTEM)
+FetchContent_MakeAvailable(SFML)
+
+target_link_libraries(core PRIVATE SFML::Graphics)

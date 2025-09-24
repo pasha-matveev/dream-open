@@ -12,8 +12,8 @@ Object::Object(const vector<int> &hsv_min, const vector<int> &hsv_max)
 Object::~Object() {};
 
 float Object::get_pixels_dist() {
-    Vec mirror_center = {config["tracking"]["center"]["x"].GetInt(),
-                         config["tracking"]["center"]["y"].GetInt()};
+    Vec mirror_center = {(double)config["tracking"]["center"]["x"].GetInt(),
+                         (double)config["tracking"]["center"]["y"].GetInt()};
     return (center - mirror_center).len() * 972.0 /
            (float)config["tracking"]["width"].GetInt();
 }

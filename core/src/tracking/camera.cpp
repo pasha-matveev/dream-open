@@ -1,6 +1,7 @@
 #include "tracking/camera.h"
 
 #include <assert.h>
+#include <libcamera/libcamera.h>
 #include <spdlog/spdlog.h>
 #include <sys/mman.h>
 
@@ -12,6 +13,22 @@
 #include "utils/config.h"
 
 using namespace std;
+
+struct Camera::Impl {
+    cv::Mat mask;
+    cv::Mat frame;
+    cv::Mat hsv_frame;
+    cv::Mat preview_image;
+    Ball ball;
+    std::unique_ptr<libcamera::CameraManager> cm;
+    std::shared_ptr<libcamera::Camera> lcamera;
+    std::vector<std::unique_ptr<libcamera::Request>> requests;
+    libcamera::StreamConfiguration *streamConfig;
+
+    void analyze();
+    void draw();
+    void requestComplete(libcamera::Request *request);
+}
 
 // Конвертация из буфера в матрицу
 struct MappedBuffer {

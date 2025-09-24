@@ -14,22 +14,6 @@
 
 using namespace std;
 
-struct Camera::Impl {
-    cv::Mat mask;
-    cv::Mat frame;
-    cv::Mat hsv_frame;
-    cv::Mat preview_image;
-    Ball ball;
-    std::unique_ptr<libcamera::CameraManager> cm;
-    std::shared_ptr<libcamera::Camera> lcamera;
-    std::vector<std::unique_ptr<libcamera::Request>> requests;
-    libcamera::StreamConfiguration *streamConfig;
-
-    void analyze();
-    void draw();
-    void requestComplete(libcamera::Request *request);
-}
-
 // Конвертация из буфера в матрицу
 struct MappedBuffer {
     void *memory;
@@ -65,9 +49,33 @@ cv::Mat toMat(const libcamera::FrameBuffer *buffer) {
     return copy;
 }
 
-Camera::Camera()
+struct Camera::Impl {
+    cv::Mat mask;
+    cv::Mat frame;
+    cv::Mat hsv_frame;
+    cv::Mat preview_image;
+    Ball ball;
+
+    std::unique_ptr<libcamera::CameraManager> cm;
+    std::shared_ptr<libcamera::Camera> lcamera;
+    std::vector<std::unique_ptr<libcamera::Request>> requests;
+    libcamera::StreamConfiguration *streamConfig;
+
+    void start();
+    void analyze();
+    void draw();
+    void requestComplete(libcamera::Request *request);
+    void show_preview();
+
+    Impl();
+    ~Impl() = default;
+};
+
+
+Camera::Impl::Impl()
     : ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
            make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray())) {
+    
     const int radius = config["tracking"]["radius"].GetInt(),
               disabled_radius = config["tracking"]["disabled_radius"].GetInt();
     mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
@@ -77,14 +85,23 @@ Camera::Camera()
     cm = make_unique<libcamera::CameraManager>();
 }
 
-void Camera::analyze() { ball.find(hsv_frame); }
+Camera::Camera() {
+    impl = make_unique<Impl>();
+}
+Camera::~Camera() = default;
 
-void Camera::draw() {
+void Camera::Impl::analyze() { ball.find(hsv_frame); }
+
+void Camera::Impl::draw() {
     preview_image = frame;
     ball.draw(preview_image);
 }
 
 void Camera::show_preview() {
+    impl->show_preview();
+}
+
+void Camera::Impl::show_preview() {
     if (preview_image.empty()) {
         return;
     }
@@ -95,7 +112,7 @@ void Camera::show_preview() {
 int f = 0;
 auto st = clock();
 
-void Camera::requestComplete(libcamera::Request *request) {
+void Camera::Impl::requestComplete(libcamera::Request *request) {
     if (request->status() == libcamera::Request::RequestCancelled) return;
     const std::map<const libcamera::Stream *, libcamera::FrameBuffer *>
         &buffers = request->buffers();
@@ -131,7 +148,7 @@ void Camera::requestComplete(libcamera::Request *request) {
     }
 };
 
-void Camera::start() {
+void Camera::Impl::start() {
     // Подключение камеры
     cm->start();
     auto cameras = cm->cameras();
@@ -141,7 +158,7 @@ void Camera::start() {
     string camera_id = cameras[0]->id();
     lcamera = cm->get(camera_id);
     lcamera->acquire();
-    lcamera->requestCompleted.connect(this, &Camera::requestComplete);
+    lcamera->requestCompleted.connect(this, &Camera::Impl::requestComplete);
     // Настройки
     unique_ptr<libcamera::CameraConfiguration> camera_config =
         lcamera->generateConfiguration({libcamera::StreamRole::Viewfinder});
@@ -199,4 +216,8 @@ void Camera::start() {
     for (unique_ptr<libcamera::Request> &request : requests) {
         lcamera->queueRequest(request.get());
     }
+}
+
+void Camera::start() {
+    impl->start();
 }

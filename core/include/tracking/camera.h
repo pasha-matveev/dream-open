@@ -8,10 +8,11 @@
 class Camera {
    private:
     struct Impl;
-    std::unique_ptr<Impl> *impl;
+    std::unique_ptr<Impl> impl;
 
    public:
     Camera();
+    ~Camera();
 
     void start();
     void show_preview();

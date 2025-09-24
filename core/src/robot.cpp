@@ -1,12 +1,12 @@
 #include "robot.h"
 
 #include <libserial/SerialPort.h>
-#include <wiringPi.h>
 
 #include <iostream>
 #include <thread>
 
 #include "gpio/buttons.h"
+#include "gpio/setup.h"
 #include "media/img.h"
 #include "utils/config.h"
 
@@ -66,9 +66,7 @@ void Robot::init_hardware() {
         init_camera();
     }
     if (config["gpio"]["enabled"].GetBool()) {
-        if (wiringPiSetupPinType(WPI_PIN_BCM) == -1) {
-            throw runtime_error("Failed to setup wiringPi");
-        }
+        setup_wiringpi();
         if (config["gpio"]["buzzer"]["enabled"].GetBool()) {
             init_buzzer();
         }

@@ -43,6 +43,7 @@ void UART::wait_for_x() {
         serial.read(buffer, 1);
         if (buffer[0] == 'X') {
             spdlog::info("Received begin byte (X)");
+            break;
         } else {
             spdlog::info("Received random byte ...");
         }

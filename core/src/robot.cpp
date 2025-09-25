@@ -8,6 +8,7 @@
 #include "gpio/buttons.h"
 #include "gpio/setup.h"
 #include "media/img.h"
+#include "spdlog/spdlog.h"
 #include "utils/config.h"
 
 void Robot::read_from_arduino() {
@@ -65,24 +66,31 @@ void Robot::init_hardware() {
     if (config["tracking"]["enabled"].GetBool()) {
         init_camera();
     }
+    spdlog::info("Camera ready");
     if (config["gpio"]["enabled"].GetBool()) {
         setup_wiringpi();
         if (config["gpio"]["buzzer"]["enabled"].GetBool()) {
             init_buzzer();
         }
+        spdlog::info("Buzzer ready");
         if (config["gpio"]["buttons"]["enabled"].GetBool()) {
             init_buttons();
         }
+        spdlog::info("Buttons ready");
         if (config["gpio"]["display"]["enabled"].GetBool()) {
             init_display();
         }
+        spdlog::info("Camera ready");
     }
+    spdlog::info("GPIO ready");
     if (config["serial"]["enabled"].GetBool()) {
         init_uart();
     }
+    spdlog::info("UART ready");
     if (config["lidar"]["enabled"].GetBool()) {
         init_lidar();
     }
+    spdlog::info("Lidar ready");
 }
 
 Robot::~Robot() {

@@ -6,7 +6,7 @@
 
 void Strategy::run(Robot &robot) {
     spdlog::info(robot.camera->ball.angle());
-    robot.rotation = normalize_angle(.rotation + robot.camera->ball.angle());
+    // robot.rotation = normalize_angle(.rotation + robot.camera->ball.angle());
     // spdlog::info(robot.camera->ball.point.x);
     // spdlog::info(robot.camera->ball.point.y);
     // robot.rotation = robot.camera->ball.visible;

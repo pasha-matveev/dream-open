@@ -9,6 +9,7 @@ class Vec {
     double x = 0, y = 0;
     Vec() = default;
     Vec(double, double);
+    Vec(int, int);
     Vec(cv::Point2f);
     operator cv::Point();
     double len();

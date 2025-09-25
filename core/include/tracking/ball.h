@@ -15,6 +15,7 @@ class Ball : Object {
 
     Vec point;
 
+    Ball() = default;
     Ball(const std::vector<int> &, const std::vector<int> &);
     virtual ~Ball();
     void find(const cv::Mat &frame);

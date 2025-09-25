@@ -41,8 +41,8 @@ void Dribling::run() {
               0.00293644 * sp1 + 1454.7086;
         sp2 = sp1;
     } else {
-        sp1 = current_speed ? map(current_speed, 0, 100, 1450, 1600) : 1450;
-        sp2 = current_speed ? map(current_speed, 0, 100, 1450, 1600) : 1450;
+        sp1 = current_speed ? map(current_speed, 0, 100, 1440, 1600) : 1450;
+        sp2 = current_speed ? map(current_speed, 0, 100, 1440, 1600) : 1450;
     }
 
     ESC1.writeMicroseconds(sp1);

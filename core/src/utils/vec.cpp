@@ -5,10 +5,10 @@
 using namespace std;
 
 double normalize_angle(double a) {
-    while (a < 0) {
+    while (a <= -M_PI) {
         a += 2 * M_PI;
     }
-    while (a >= 2 * M_PI) {
+    while (a > M_PI) {
         a -= 2 * M_PI;
     }
     return a;

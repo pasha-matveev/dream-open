@@ -60,4 +60,4 @@ float Ball::get_cm() {
     return 7612.57165 / (392.22648 - get_pixels_dist()) - 17.45807;
 }
 
-float Ball::angle() { return normalize_angle(-1 * point.angle() - M_PI); }
+float Ball::angle() { return normalize_angle(-1 * point.angle() + M_PI); }

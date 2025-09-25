@@ -12,6 +12,7 @@ class Object {
     double angle;
     double dist;
 
+    Object() = default;
     Object(const std::vector<int> &, const std::vector<int> &);
     virtual ~Object();
     float get_pixels_dist();

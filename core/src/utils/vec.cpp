@@ -15,6 +15,7 @@ double normalize_angle(double a) {
 }
 
 Vec::Vec(double x, double y) : x(x), y(y) {}
+Vec::Vec(int x, int y) : x(x), y(y) {}
 Vec::Vec(cv::Point2f p) : x(p.x), y(p.y) {}
 Vec::operator cv::Point() { return {(int)x, (int)y}; }
 double Vec::len() { return hypot(x, y); }

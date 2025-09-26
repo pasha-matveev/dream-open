@@ -47,8 +47,8 @@ void Ball::find(const cv::Mat &frame) {
     cv::minEnclosingCircle(contours[j], point_center, float_radius);
     center = point_center;
     radius = float_radius;
-    point = (Vec)center - Vec{config["tracking"]["center"]["x"].GetInt(),
-                              config["tracking"]["center"]["y"].GetInt()};
+    point = (Vec)center - Vec{config["tracking"]["radius"].GetInt(),
+                              config["tracking"]["radius"].GetInt()};
 }
 
 void Ball::draw(cv::Mat frame) {

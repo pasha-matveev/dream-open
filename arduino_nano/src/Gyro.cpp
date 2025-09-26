@@ -36,21 +36,17 @@ void Gyro::read() {
 }
 
 float Gyro::trim(float raw_angle) {
-    float mod = 2 * M_PI;
-    if (raw_angle >= 0) {
-        int k = raw_angle / mod;
-        raw_angle -= k * mod;
-    } else {
-        int k = ceil(-raw_angle / mod);
-        raw_angle += k * mod;
-    }
+    while (raw_angle < 0) raw_angle += 2 * M_PI;
+    while (raw_angle > 2 * M_PI) raw_angle -= 2 * M_PI;
     return raw_angle;
 }
 
 float Gyro::relative(float abs_angle) {
     abs_angle = trim(abs_angle);
-    float res = abs_angle - angle;
-    return trim(res);
+    float res = min(abs(angle - abs_angle), 2 * M_PI - abs(angle - abs_angle));
+    res *= (abs(angle - abs_angle) < M_PI ? 1 : -1);
+    res *= (angle < abs_angle ? 1 : -1);
+    return res;
 }
 
 void Gyro::print_offsets() {

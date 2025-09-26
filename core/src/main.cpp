@@ -18,7 +18,6 @@ int main() {
     spdlog::info("Initializing hardware...");
     robot.init_hardware();
     spdlog::info("Hardware ready");
-    robot.rgb_led = true;
 
     Strategy strategy;
 

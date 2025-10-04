@@ -48,5 +48,10 @@
   "lidar": {
     "enabled": true,
     "path": "../lidar/lidar"
+  },
+  "visualization": {
+    "enabled": true,
+    "window_name": "Dream",
+    "frames": 60
   }
 }

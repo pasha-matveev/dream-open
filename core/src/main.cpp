@@ -38,7 +38,7 @@ int main() {
       robot.read_from_arduino();
     }
     // ... strategy ...
-    strategy.run(robot);
+    strategy.run(robot, ball);
     if (config["serial"]["enabled"].GetBool()) {
       robot.write_to_arduino();
     }

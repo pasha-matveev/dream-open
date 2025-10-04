@@ -5,15 +5,15 @@
 #include "utils/vec.h"
 
 class Object {
-   public:
-    std::vector<int> hsv_min;
-    std::vector<int> hsv_max;
-    Vec center;
-    double angle;
-    double dist;
+ public:
+  std::vector<int> hsv_min;
+  std::vector<int> hsv_max;
+  Vec center;
+  double angle;
+  double dist;
 
-    Object() = default;
-    Object(const std::vector<int> &, const std::vector<int> &);
-    virtual ~Object();
-    float get_pixels_dist();
+  Object() = default;
+  Object(const std::vector<int> &, const std::vector<int> &);
+  virtual ~Object();
+  float get_pixels_dist();
 };

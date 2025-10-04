@@ -33,12 +33,14 @@ class Robot {
   // Оси координат направлены математически
   // Наши ворота снизу, вражеские - сверху
   // Размеры поля - УТОЧНИТЬ, пока стоит 200x200 см
-  Vec position;
-  // Размеры проекции робота
-  const float width = 18;
-  const float height = 18;
+  Vec position = {100, 100};
+  // Фактическое положение.
+  // 0 - на ворота противника
+  // -P/2 - налево
+  // P/2 - направо
+  float field_angle = M_PI / 2;
 
-  float angle = 0;
+  float gyro_angle = 0;
   bool emitter = false;
   bool kicker_charged = false;
 

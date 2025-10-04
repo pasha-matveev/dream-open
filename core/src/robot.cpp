@@ -13,7 +13,7 @@
 
 void Robot::read_from_arduino() {
   uart->write_data<char>('R');
-  angle = uart->read_data<float>();
+  gyro_angle = uart->read_data<float>();
   emitter = uart->read_data<bool>();
   kicker_charged = uart->read_data<bool>();
 }

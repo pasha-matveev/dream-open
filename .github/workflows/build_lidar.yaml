@@ -23,6 +23,6 @@ jobs:
         run: sudo apt update && sudo apt install -y libx11-dev libxrandr-dev libxcursor-dev libxi-dev libgl1-mesa-dev libudev-dev libfreetype6-dev libogg-dev libvorbis-dev libflac-dev
       - name: Build rplidar_sdk
         working-directory: ./lidar/rplidar_sdk
-        run: make
+        run: make -j
       - name: Build lidar
-        run: mkdir build && cd build && cmake .. && make
+        run: mkdir build && cd build && cmake .. && make -j

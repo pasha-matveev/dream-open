@@ -16,8 +16,14 @@ int main() {
   load_config();
   spdlog::info("Config loaded");
 
+  if (config["tracking"]["preview"]["enabled"].GetBool()) {
+    cv::namedWindow(config["tracking"]["preview"]["window_name"].GetString(),
+                    cv::WINDOW_AUTOSIZE);
+  }
+
   Ball ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
-            make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray()));
+            make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray()),
+            config["tracking"]["preview"]["setup"].GetBool());
 
   Robot robot;
   spdlog::info("Initializing hardware...");

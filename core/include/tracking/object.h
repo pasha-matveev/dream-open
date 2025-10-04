@@ -6,8 +6,8 @@
 
 class Object {
  public:
-  std::vector<int> hsv_min;
-  std::vector<int> hsv_max;
+  int h_min, s_min, v_min;
+  int h_max, s_max, v_max;
   Vec center;
   double angle;
   double dist;

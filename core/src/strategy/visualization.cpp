@@ -28,6 +28,7 @@ Vec override_ball_position;
 
 const int BALL_R = cm_to_px(2.1);
 const int ROBOT_R = cm_to_px(9);
+float max_rotation = 30.0 / 60;
 
 void Visualization::run(Robot &robot, Ball &ball) {
   if (!window.isOpen()) {
@@ -58,7 +59,11 @@ void Visualization::run(Robot &robot, Ball &ball) {
 
   // compute robot
   if (!config["serial"]["enabled"].GetBool()) {
-    robot.field_angle += robot.rotation;
+    if (robot.rotation < 0) {
+      robot.field_angle += max(robot.rotation, -1 * max_rotation);
+    } else {
+      robot.field_angle += min(robot.rotation, max_rotation);
+    }
     robot.field_angle = normalize_angle(robot.field_angle);
     if (override_ball) {
       Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};

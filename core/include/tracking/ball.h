@@ -9,17 +9,18 @@
 constexpr int MIN_BALL_AREA = 10;
 
 class Ball : Object {
-   public:
-    bool visible = false;
-    double radius;
+ public:
+  bool visible = false;
+  double radius;
 
-    Vec point;
+  Vec camera_point;
+  Vec field_point;
 
-    Ball() = default;
-    Ball(const std::vector<int> &, const std::vector<int> &);
-    virtual ~Ball();
-    void find(const cv::Mat &frame);
-    void draw(cv::Mat frame);
-    float get_cm();
-    float angle();
+  Ball() = default;
+  Ball(const std::vector<int> &, const std::vector<int> &);
+  virtual ~Ball();
+  void find(const cv::Mat &frame);
+  void draw(cv::Mat frame);
+  float get_cm();
+  float angle();
 };

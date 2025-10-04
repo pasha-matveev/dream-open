@@ -2,15 +2,17 @@
 
 #include "gpio/buzzer.h"
 #include "gpio/display.h"
+#include "tracking/ball.h"
 #include "tracking/camera.h"
 #include "utils/lidar.h"
 #include "utils/uart.h"
+#include "utils/vec.h"
 
 using namespace LibSerial;
 
 class Robot {
  private:
-  void init_camera();
+  void init_camera(Ball &);
   void init_buzzer();
   void init_buttons();
   void init_uart();
@@ -27,6 +29,15 @@ class Robot {
   Robot() = default;
   ~Robot();
 
+  // Координаты центра робота на поле, в сантиметрах.
+  // Оси координат направлены математически
+  // Наши ворота снизу, вражеские - сверху
+  // Размеры поля - УТОЧНИТЬ, пока стоит 200x200 см
+  Vec position;
+  // Размеры проекции робота
+  const float width = 18;
+  const float height = 18;
+
   float angle = 0;
   bool emitter = false;
   bool kicker_charged = false;
@@ -39,8 +50,9 @@ class Robot {
   int kicker_force = 0;
   bool rgb_led = false;
 
-  void init_hardware();
+  void init_hardware(Ball &ball);
 
   void read_from_arduino();
   void write_to_arduino();
+  Vec ball_position(Ball &ball);
 };

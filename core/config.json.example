@@ -52,6 +52,7 @@
   "visualization": {
     "enabled": true,
     "window_name": "Dream",
-    "frames": 60
+    "frames": 60,
+    "interactive": true
   }
 }

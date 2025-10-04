@@ -48,7 +48,12 @@ void Ball::find(const cv::Mat &frame) {
   radius = float_radius;
   camera_point = (Vec)center - Vec{config["tracking"]["radius"].GetInt(),
                                    config["tracking"]["radius"].GetInt()};
-  field_point = Vec{sin(angle()) * -1 * get_cm(), cos(angle()) * get_cm()};
+
+  relative_angle = normalize_angle(-1 * camera_point.angle() + M_PI);
+
+  // TODO: FIX
+  field_point =
+      Vec{sin(relative_angle) * -1 * get_cm(), cos(relative_angle) * get_cm()};
 }
 
 void Ball::draw(cv::Mat frame) {
@@ -60,8 +65,4 @@ float Ball::get_cm() {
   double old_pixels =
       get_pixels_dist() * 972 / config["tracking"]["width"].GetInt();
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
-}
-
-float Ball::angle() {
-  return normalize_angle(-1 * camera_point.angle() + M_PI);
 }

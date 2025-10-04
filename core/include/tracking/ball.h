@@ -15,6 +15,7 @@ class Ball : Object {
 
   Vec camera_point;
   Vec field_point;
+  float relative_angle;
 
   Ball() = default;
   Ball(const std::vector<int> &, const std::vector<int> &);
@@ -22,5 +23,4 @@ class Ball : Object {
   void find(const cv::Mat &frame);
   void draw(cv::Mat frame);
   float get_cm();
-  float angle();
 };

@@ -14,42 +14,42 @@
 using namespace std;
 
 class LidarObject {
-   public:
-    double angle = 0;
-    double dist = 0;
-    double rotation = 0;
-    int width = 0;
-    int height = 0;
+ public:
+  double angle = 0;
+  double dist = 0;
+  double rotation = 0;
+  int width = 0;
+  int height = 0;
 
-    void update(double a, double d, double r, int w, int h);
+  void update(double a, double d, double r, int w, int h);
 
-    void rotate();
+  void rotate();
 
-    double get_radius() const;
+  double get_radius() const;
 };
 
 class Lidar {
-   public:
-    void start();
+ public:
+  void start();
 
-    void stop();
+  void stop();
 
-    void compute();
+  void compute();
 
-    bool new_data();
+  bool new_data();
 
-    ~Lidar() { stop(); }
+  ~Lidar() { stop(); }
 
-    LidarObject field;
-    vector<LidarObject> obstacles_data;
+  LidarObject field;
+  vector<LidarObject> obstacles_data;
 
-   private:
-    FILE* pipe = nullptr;
-    thread output_thread;
-    atomic<bool> running{false};
+ private:
+  FILE* pipe = nullptr;
+  thread output_thread;
+  atomic<bool> running{false};
 
-    mutex data_mtx;
-    vector<string> latest_data;
+  mutex data_mtx;
+  vector<string> latest_data;
 
-    void _output_loop();
+  void _output_loop();
 };

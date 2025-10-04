@@ -27,5 +27,5 @@ double Vec::angle() { return atan2(x, y); }
 
 Vec operator+(const Vec &a, const Vec &b) { return {a.x + b.x, a.y + b.y}; }
 Vec operator-(const Vec &a, const Vec &b) { return {a.x - b.x, a.y - b.y}; }
-double operator*(const Vec &a, const Vec &b) { return a.x * b.x + a.y + b.y; }
+double operator*(const Vec &a, const Vec &b) { return a.x * b.x + a.y * b.y; }
 double operator%(const Vec &a, const Vec &b) { return a.x * b.y - a.y * b.x; }

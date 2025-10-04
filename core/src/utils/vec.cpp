@@ -14,6 +14,16 @@ double normalize_angle(double a) {
   return a;
 }
 
+double normalize_angle2(double a) {
+  while (a < 0) {
+    a += 2 * M_PI;
+  }
+  while (a >= 2 * M_PI) {
+    a -= 2 * M_PI;
+  }
+  return a;
+}
+
 Vec::Vec(double x, double y) : x(x), y(y) {}
 Vec::Vec(int x, int y) : x(x), y(y) {}
 Vec::Vec(cv::Point2f p) : x(p.x), y(p.y) {}

@@ -5,6 +5,7 @@
 #include "SFML/Graphics.hpp"
 
 double normalize_angle(double a);
+double normalize_angle2(double a);
 
 class Vec {
  public:

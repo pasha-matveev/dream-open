@@ -16,7 +16,7 @@ class Ball : Object {
  public:
   bool visible = false;
   double radius;
-
+ 
   Vec camera_point;
   Vec field_point;
   float relative_angle;

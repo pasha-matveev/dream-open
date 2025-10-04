@@ -18,7 +18,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Install libraries
-        run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev rapidjson-dev libcamera-dev libspdlog-dev
+        run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev rapidjson-dev libcamera-dev libspdlog-dev libx11-dev libxrandr-dev libxcursor-dev libxi-dev libgl1-mesa-dev libudev-dev libfreetype6-dev libogg-dev libvorbis-dev libflac-dev
       - name: Build & Install WiringPi
         run: |
           git clone https://github.com/WiringPi/WiringPi.git

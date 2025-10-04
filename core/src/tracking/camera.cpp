@@ -179,6 +179,7 @@ void Camera::Impl::start() {
   const vector<unique_ptr<libcamera::FrameBuffer>> &buffers =
       allocator->buffers(stream);
 
+  // Создание запросов к камере
   for (unsigned int i = 0; i < buffers.size(); ++i) {
     unique_ptr<libcamera::Request> request = lcamera->createRequest();
     if (!request) {

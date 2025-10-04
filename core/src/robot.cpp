@@ -22,7 +22,7 @@ void Robot::write_to_arduino() {
   uart->write_data<char>('W');
   uart->write_data<float>(direction);
   uart->write_data<float>(speed);
-  uart->write_data<float>(rotation);
+  uart->write_data<float>(gyro_angle - rotation);
   uart->write_data<float>(rotation_limit);
   uart->write_data<int32_t>(dribling);
   uart->write_data<int32_t>(kicker_force);

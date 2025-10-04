@@ -27,4 +27,4 @@ jobs:
           mv debian-template/*.deb wiringpi.deb
           sudo apt install ./wiringpi.deb
       - name: Build core
-        run: mkdir build && cd build && cmake .. && make
+        run: mkdir build && cd build && cmake .. && make -j

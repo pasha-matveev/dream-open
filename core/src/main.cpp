@@ -6,6 +6,7 @@
 #include "robot.h"
 #include "strategy/strategy.h"
 #include "strategy/visualization.h"
+#include "tracking/ball.h"
 #include "utils/config.h"
 
 using namespace std;
@@ -15,9 +16,12 @@ int main() {
   load_config();
   spdlog::info("Config loaded");
 
+  Ball ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
+            make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray()));
+
   Robot robot;
   spdlog::info("Initializing hardware...");
-  robot.init_hardware();
+  robot.init_hardware(ball);
   spdlog::info("Hardware ready");
 
   Strategy strategy;
@@ -40,7 +44,7 @@ int main() {
     }
     // visualisation
     if (config["visualization"]["enabled"].GetBool()) {
-      visualization->run();
+      visualization->run(robot, ball);
       if (visualization->closed) {
         break;
       }

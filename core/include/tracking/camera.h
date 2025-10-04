@@ -6,16 +6,16 @@
 #include "tracking/ball.h"
 
 class Camera {
-   private:
-    struct Impl;
-    std::unique_ptr<Impl> impl;
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl;
 
-   public:
-    Camera();
-    ~Camera();
+ public:
+  Camera(Ball &);
+  ~Camera();
 
-    Ball ball;
+  Ball &ball;
 
-    void start();
-    void show_preview();
+  void start();
+  void show_preview();
 };

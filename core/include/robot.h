@@ -47,7 +47,7 @@ class Robot {
   float direction = 0;
   float speed = 0;
   float rotation = 0;
-  float rotation_limit = 30;
+  float rotation_limit = 100;
   int dribling = 0;
   int kicker_force = 0;
   bool rgb_led = false;

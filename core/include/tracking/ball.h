@@ -6,7 +6,7 @@
 #include "tracking/object.h"
 #include "utils/vec.h"
 
-constexpr int MIN_BALL_AREA = 10;
+constexpr int MIN_BALL_AREA = 50;
 
 class Ball : Object {
  private:
@@ -16,7 +16,7 @@ class Ball : Object {
  public:
   bool visible = false;
   double radius;
- 
+
   Vec camera_point;
   Vec field_point;
   float relative_angle;

@@ -3,7 +3,8 @@
     "enabled": true,
     "preview": {
         "enabled": false,
-        "window_name": "Camera"
+        "window_name": "Camera",
+        "setup": false
     },
     "camera_id": 0,
     "retries": 10,
@@ -25,7 +26,8 @@
   "serial": {
     "enabled": false,
     "device": "/dev/ttyUSB0",
-    "rate": 115200
+    "rate": 115200,
+    "interference": false
   },
   "gpio": {
     "enabled": true,
@@ -47,7 +49,7 @@
   },
   "lidar": {
     "enabled": true,
-    "path": "../lidar/lidar"
+    "path": "../lidar/build/bin/main"
   },
   "visualization": {
     "enabled": true,

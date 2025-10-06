@@ -1,5 +1,7 @@
 #include "utils/lidar.h"
 
+#include <spdlog/spdlog.h>
+
 void LidarObject::update(double a, double d, double r, int w, int h) {
   angle = a;
   dist = d;
@@ -59,6 +61,9 @@ void Lidar::compute() {
     field.update(stod(local_copy[0]), stod(local_copy[1]), stod(local_copy[2]),
                  stoi(local_copy[3]), stoi(local_copy[4]));
     field.rotate();
+    cout << "Angle: " << field.angle << endl;
+    cout << "Rotation: " << field.rotation << endl;
+    cout << "Distance: " << field.dist << endl;
   }
 
   obstacles_data.clear();
@@ -87,6 +92,12 @@ void Lidar::_output_loop() {
     string word;
     while (iss >> word) tokens.push_back(word);
 
+    // cout << "Tokens: ";
+    // for (const auto &el : tokens) {
+    //   cout << el << " ";
+    // }
+    // cout << endl;
+
     if (!tokens.empty() && tokens[0] == "Data") {
       tokens.erase(tokens.begin());
       {
@@ -94,7 +105,7 @@ void Lidar::_output_loop() {
         latest_data = tokens;
       }
     } else {
-      throw runtime_error("ERROR: " + line);
+      spdlog::warn("Failed to parse tokens:");
     }
   }
 }

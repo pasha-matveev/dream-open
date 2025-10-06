@@ -20,7 +20,6 @@ void Strategy::run(Robot &robot, Ball &ball) {
       robot.direction = ball.relative_angle;
       robot.kicker_force = 0;
     }
-
   } else {
     robot.rotation = 0;
     robot.speed = 0;

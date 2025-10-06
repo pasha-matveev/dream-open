@@ -20,7 +20,8 @@ void Robot::read_from_arduino() {
 
 void Robot::write_to_arduino() {
   uart->write_data<char>('W');
-  uart->write_data<float>(direction);
+  uart->write_data<float>(
+      normalize_angle2(gyro_angle - normalize_angle2(direction)));
   uart->write_data<float>(speed);
   uart->write_data<float>(
       normalize_angle2(gyro_angle - normalize_angle2(rotation)));

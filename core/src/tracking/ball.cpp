@@ -85,7 +85,6 @@ void Ball::draw(cv::Mat &frame) {
     return;
   }
   if (!visible) {
-    cout << "not visible" << endl;
     return;
   }
   cv::circle(frame, center, radius, 100, 10);

@@ -31,11 +31,17 @@ class LidarObject {
 
 class Lidar {
  public:
+  struct ComputeResult {
+    bool computed;
+    Vec v;
+    double rotation;
+  };
+
   void start();
 
   void stop();
 
-  pair<bool, Vec> compute();
+  ComputeResult compute();
 
   bool new_data();
 

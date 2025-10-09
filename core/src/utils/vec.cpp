@@ -40,3 +40,8 @@ Vec operator+(const Vec &a, const Vec &b) { return {a.x + b.x, a.y + b.y}; }
 Vec operator-(const Vec &a, const Vec &b) { return {a.x - b.x, a.y - b.y}; }
 double operator*(const Vec &a, const Vec &b) { return a.x * b.x + a.y * b.y; }
 double operator%(const Vec &a, const Vec &b) { return a.x * b.y - a.y * b.x; }
+
+Vec Vec::resize(double target) {
+  double k = target / len();
+  return {x * k, y * k};
+}

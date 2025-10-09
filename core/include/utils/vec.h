@@ -27,4 +27,6 @@ class Vec {
   friend Vec operator-(const Vec &, const Vec &);
   friend double operator*(const Vec &, const Vec &);
   friend double operator%(const Vec &, const Vec &);
+
+  Vec resize(double);
 };

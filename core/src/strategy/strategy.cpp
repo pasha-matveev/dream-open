@@ -7,7 +7,9 @@
 void Strategy::run(Robot &robot, Ball &ball) {
   robot.compute_lidar();
 
-  cout << robot.emitter << endl;
+  cout << ball.get_pixels_dist() << endl;
+  cout << ball.relative_angle << endl;
+  cout << ball.get_cm() << endl;
 
   // if (ball.visible) {
   //   if (robot.emitter) {

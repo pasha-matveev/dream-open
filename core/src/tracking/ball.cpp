@@ -88,6 +88,9 @@ void Ball::draw(cv::Mat &frame) {
 }
 
 float Ball::get_cm() {
+  if (override_dist != -1) {
+    return override_dist;
+  }
   double old_pixels =
       get_pixels_dist() * 972 / config["tracking"]["width"].GetInt();
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;

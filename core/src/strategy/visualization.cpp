@@ -24,7 +24,7 @@ Vec toReal(Vec s) {
 }
 
 bool override_ball = false;
-Vec override_ball_position;
+Vec ball_position;
 
 const int BALL_R = cm_to_px(2.1);
 const int ROBOT_R = cm_to_px(9);
@@ -49,12 +49,20 @@ void Visualization::run(Robot &robot, Ball &ball) {
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
     Vec mouse_position = sf::Mouse::getPosition(window);
     override_ball = true;
-    override_ball_position = toReal(mouse_position);
+    ball_position = toReal(mouse_position);
   }
 
   if (override_ball) {
     ball.visible = true;
-    ball.field_point = override_ball_position - robot.position;
+    Vec v = ball_position - robot.position;
+    Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
+    ball.relative_angle = atan2f(base % v, base * v);
+    ball.override_dist = v.len();
+  } else {
+    double ball_angle = robot.field_angle + ball.relative_angle;
+    Vec d{-1 * sin(ball_angle) * ball.get_cm(),
+          cos(ball_angle) * ball.get_cm()};
+    ball_position = robot.position + d;
   }
 
   // compute robot
@@ -65,11 +73,6 @@ void Visualization::run(Robot &robot, Ball &ball) {
       robot.field_angle += min(robot.rotation, max_rotation);
     }
     robot.field_angle = normalize_angle(robot.field_angle);
-    if (override_ball) {
-      Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
-      Vec v = override_ball_position - robot.position;
-      ball.relative_angle = atan2f(base % v, base * v);
-    }
   }
 
   // draw robot
@@ -92,8 +95,7 @@ void Visualization::run(Robot &robot, Ball &ball) {
   if (ball.visible) {
     auto ball_shape = sf::CircleShape(BALL_R);
     ball_shape.setFillColor(sf::Color(0, 0, 255));
-    Vec position = robot.ball_position(ball);
-    Vec point = toSFML(position) - Vec{BALL_R, BALL_R};
+    Vec point = toSFML(ball_position) - Vec{BALL_R, BALL_R};
     ball_shape.setPosition(point);
     window.draw(ball_shape);
   }

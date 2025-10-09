@@ -105,14 +105,6 @@ Robot::~Robot() {
   if (lidar != nullptr) delete lidar;
 }
 
-Vec Robot::ball_position(Ball &ball) {
-  if (!ball.visible) {
-    spdlog::error("Tried to get ball position while it is not visible");
-    return {-1, -1};
-  }
-  return position + ball.field_point;
-}
-
 void Robot::init_gyro() { top_angle = normalize_angle(gyro_angle - M_PI / 2); }
 
 void Robot::compute_lidar() {

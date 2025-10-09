@@ -6,7 +6,7 @@
 #include "tracking/object.h"
 #include "utils/vec.h"
 
-constexpr int MIN_BALL_AREA = 50;
+constexpr int MIN_BALL_AREA = 10;
 
 class Ball : Object {
  private:

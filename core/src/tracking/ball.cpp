@@ -63,10 +63,6 @@ void Ball::find(const cv::Mat &frame) {
                                    config["tracking"]["radius"].GetInt()};
 
   relative_angle = normalize_angle(-1 * camera_point.angle() + M_PI);
-
-  // TODO: FIX
-  field_point =
-      Vec{sin(relative_angle) * -1 * get_cm(), cos(relative_angle) * get_cm()};
 }
 
 void Ball::draw(cv::Mat &frame) {
@@ -85,6 +81,7 @@ void Ball::draw(cv::Mat &frame) {
     return;
   }
   if (!visible) {
+    cout << "not visible" << endl;
     return;
   }
   cv::circle(frame, center, radius, 100, 10);

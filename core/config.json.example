@@ -2,9 +2,9 @@
   "tracking": {
     "enabled": true,
     "preview": {
-        "enabled": false,
-        "window_name": "Camera",
-        "setup": false
+      "enabled": false,
+      "window_name": "Camera",
+      "setup": false
     },
     "camera_id": 0,
     "retries": 10,
@@ -12,39 +12,51 @@
     "width": 800,
     "height": 800,
     "brightness": 1.0,
-    "radius": 400,
-    "disabled_radius": 10,
+    "radius": 310,
+    "disabled_radius": 2,
     "center": {
       "x": 400,
-      "y": 400
+      "y": 385
     },
     "ball": {
-      "hsv_min": [80, 40, 40],
-      "hsv_max": [90, 255, 255]
+      "hsv_min": [
+        109,
+        64,
+        65
+      ],
+      "hsv_max": [
+        120,
+        255,
+        255
+      ]
     }
   },
   "serial": {
-    "enabled": false,
+    "enabled": true,
     "device": "/dev/ttyUSB0",
     "rate": 115200,
-    "interference": false
+    "interference": true
   },
   "gpio": {
     "enabled": true,
     "buzzer": {
-        "enabled": true,
-        "pin": 23
+      "enabled": true,
+      "pin": 23
     },
     "buttons": {
-        "enabled": true,
-        "pins": [11, 9, 10]
-    } ,
+      "enabled": true,
+      "pins": [
+        11,
+        9,
+        10
+      ]
+    },
     "display": {
-        "enabled": true,
-        "device": "/dev/i2c-1",
-        "address": "0x3c",
-        "mode": "img",
-        "img": 1
+      "enabled": true,
+      "device": "/dev/i2c-1",
+      "address": "0x3c",
+      "mode": "img",
+      "img": 1
     }
   },
   "lidar": {
@@ -52,9 +64,9 @@
     "path": "../lidar/build/bin/main"
   },
   "visualization": {
-    "enabled": true,
+    "enabled": false,
     "window_name": "Dream",
     "frames": 60,
-    "interactive": true
+    "interactive": false
   }
 }

@@ -57,7 +57,10 @@ int main() {
     }
     // delay
     if (config["tracking"]["preview"]["enabled"].GetBool()) {
-      robot.camera->show_preview();
+      try {
+        robot.camera->show_preview();
+      } catch (...) {
+      }
       if (cv::waitKey(delay) == 27) {
         break;
       }

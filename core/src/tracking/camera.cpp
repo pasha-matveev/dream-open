@@ -54,6 +54,7 @@ struct Camera::Impl {
   cv::Mat hsv_frame;
   cv::Mat preview_image;
   Ball &ball;
+  bool preview_ready = false;
 
   std::unique_ptr<libcamera::CameraManager> cm;
   std::shared_ptr<libcamera::Camera> lcamera;
@@ -74,6 +75,7 @@ Camera::Impl::Impl(Ball &ball_reference) : ball(ball_reference) {
   const int radius = config["tracking"]["radius"].GetInt(),
             disabled_radius = config["tracking"]["disabled_radius"].GetInt();
   mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
+  circle(mask, {radius, radius}, 1000, 0, -1);
   circle(mask, {radius, radius}, radius, 255, -1);
   circle(mask, {radius, radius}, disabled_radius, 0, -1);
 
@@ -86,18 +88,22 @@ Camera::~Camera() = default;
 void Camera::Impl::analyze() { ball.find(hsv_frame); }
 
 void Camera::Impl::draw() {
+  preview_ready = false;
   preview_image = frame;
   ball.draw(preview_image);
+  preview_ready = true;
 }
 
 void Camera::show_preview() { impl->show_preview(); }
 
 void Camera::Impl::show_preview() {
-  if (preview_image.empty()) {
+  if (!preview_ready) {
     return;
   }
+  cv::Mat small_preview;
+  cv::resize(preview_image, small_preview, cv::Size(600, 600));
   imshow(config["tracking"]["preview"]["window_name"].GetString(),
-         preview_image);
+         small_preview);
 }
 
 int f = 0;
@@ -121,8 +127,8 @@ void Camera::Impl::requestComplete(libcamera::Request *request) {
   const int height = config["tracking"]["height"].GetInt();
   int x1 = center_x - radius;
   int y1 = center_y - radius;
-  frame = frame(cv::Rect(x1, y1, radius * 2, radius * 2));
-  bitwise_and(frame, frame, frame, mask);
+  cv::Mat source = frame(cv::Rect(x1, y1, radius * 2, radius * 2));
+  cv::bitwise_and(source, source, frame, mask);
   cv::cvtColor(frame, hsv_frame, cv::COLOR_RGB2HSV);
 
   analyze();

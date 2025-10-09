@@ -4,31 +4,40 @@
 
 #include "utils/config.h"
 
+constexpr int REAL_WIDTH = 182;
+constexpr int REAL_HEIGHT = 243;
+constexpr double K = 3;
+constexpr int SFML_WIDTH = REAL_WIDTH * K;
+constexpr int SFML_HEIGHT = REAL_HEIGHT * K;
+
 Visualization::Visualization() {
-  window = sf::RenderWindow(sf::VideoMode({800, 800}),
-                            config["visualization"]["window_name"].GetString());
+  window =
+      sf::RenderWindow(sf::VideoMode({(uint)SFML_WIDTH, (uint)SFML_HEIGHT}),
+                       config["visualization"]["window_name"].GetString());
   window.setFramerateLimit(config["visualization"]["frames"].GetInt());
 }
 
-double cm_to_px(double x) { return x / 200 * 800; }
-double px_to_cm(double x) { return x / 800 * 200; }
+constexpr double cm_to_px(double x) { return x * K; }
+constexpr double px_to_cm(double x) { return x / K; }
 
 Vec toSFML(Vec r) {
   Vec v = {cm_to_px(r.x), cm_to_px(r.y)};
-  return {v.x, 800 - v.y};
+  return {v.x, SFML_HEIGHT - v.y};
 }
 
 Vec toReal(Vec s) {
-  Vec v = {s.x, 800 - s.y};
+  Vec v = {s.x, SFML_HEIGHT - s.y};
   return {px_to_cm(v.x), px_to_cm(v.y)};
 }
 
 bool override_ball = false;
 Vec ball_position;
+Vec ball_a{0, 0};
 
-const int BALL_R = cm_to_px(2.1);
-const int ROBOT_R = cm_to_px(9);
-float max_rotation = 30.0 / 60;
+constexpr double REAL_BALL_R = 2.1;
+constexpr double REAL_ROBOT_R = 9;
+constexpr int BALL_R = cm_to_px(REAL_BALL_R);
+constexpr int ROBOT_R = cm_to_px(REAL_ROBOT_R);
 
 void Visualization::run(Robot &robot, Ball &ball) {
   if (!window.isOpen()) {
@@ -50,34 +59,63 @@ void Visualization::run(Robot &robot, Ball &ball) {
     Vec mouse_position = sf::Mouse::getPosition(window);
     override_ball = true;
     ball_position = toReal(mouse_position);
+    ball_a = {0, 0};
   }
 
-  if (override_ball) {
-    ball.visible = true;
-    Vec v = ball_position - robot.position;
-    Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
-    ball.relative_angle = atan2f(base % v, base * v);
-    ball.override_dist = v.len();
-  } else {
-    double ball_angle = robot.field_angle + ball.relative_angle;
-    Vec d{-1 * sin(ball_angle) * ball.get_cm(),
-          cos(ball_angle) * ball.get_cm()};
-    ball_position = robot.position + d;
-  }
+  Vec robot_dir = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
 
   // compute robot
   if (!config["serial"]["enabled"].GetBool()) {
+    // rotation
+    float max_rotation = robot.rotation_limit / 60 / 3;
     if (robot.rotation < 0) {
       robot.field_angle += max(robot.rotation, -1 * max_rotation);
     } else {
       robot.field_angle += min(robot.rotation, max_rotation);
     }
+    if (robot.emitter && override_ball) {
+      Vec base{-1 * sin(robot.field_angle) * REAL_ROBOT_R,
+               cos(robot.field_angle) * REAL_ROBOT_R};
+      ball_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
+    }
+
+    // move
     robot.field_angle = normalize_angle(robot.field_angle);
-    // Vec m = {
-    //     (double)robot.speed * sin(robot.direction + robot.field_angle) * -1 /
-    //         60,
-    //     (double)robot.speed * cos(robot.direction + robot.field_angle) / 60};
-    // robot.position = robot.position + m;
+    Vec m = {
+        (double)robot.speed * sin(robot.direction + robot.field_angle) * -1 /
+            60,
+        (double)robot.speed * cos(robot.direction + robot.field_angle) / 60};
+    robot.position = robot.position + m;
+
+    // kick
+
+    if (robot.kicker_force > 0 && robot.emitter) {
+      ball_a = robot_dir.resize(robot.kicker_force * 0.8);
+    }
+  }
+
+  if (override_ball) {
+    ball_position = ball_position + ball_a;
+    ball_a = ball_a * 0.99;
+
+    ball.visible = true;
+    Vec v = ball_position - robot.position;
+    Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
+    ball.relative_angle = atan2f(base % v, base * v);
+    ball.override_dist = v.len();
+
+    if (ball.get_cm() <= 9) {
+      robot.emitter = true;
+      ball_a = {0, 0};
+    } else {
+      robot.emitter = false;
+    }
+
+  } else {
+    double ball_angle = robot.field_angle + ball.relative_angle;
+    Vec d{-1 * sin(ball_angle) * ball.get_cm(),
+          cos(ball_angle) * ball.get_cm()};
+    ball_position = robot.position + d;
   }
 
   // draw robot

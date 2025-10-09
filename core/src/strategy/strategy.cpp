@@ -9,20 +9,24 @@ void Strategy::run(Robot &robot, Ball &ball) {
   robot.compute_lidar();
 
   if (ball.visible) {
-    if (ball.get_cm() < 8.2) {
-      if (abs(robot.field_angle) <= 0.1) {
-        robot.kicker_force = 10;
-      }
+    if (robot.emitter) {
+      Vec target{91, 243};
+      Vec v = target - robot.position;
+      Vec robot_dir{-1 * sin(robot.field_angle), cos(robot.field_angle)};
+      double ang = atan2(robot_dir % v, robot_dir * v);
       robot.rotation_limit = 10;
       robot.dribling = 30;
-      robot.rotation = robot.field_angle * -1;
+      robot.rotation = ang;
       robot.speed = 0;
-      robot.kicker_force = 20;
+      robot.kicker_force = 0;
+      if (abs(ang) <= 0.01) {
+        robot.kicker_force = 10;
+      }
     } else {
       robot.dribling = 30;
       robot.rotation = ball.relative_angle;
       robot.rotation_limit = 50;
-      robot.speed = 10;
+      robot.speed = 30;
       robot.direction = ball.relative_angle;
       robot.kicker_force = 0;
     }

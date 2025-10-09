@@ -1,6 +1,7 @@
 #include "robot.h"
 
 #include <libserial/SerialPort.h>
+#include <spdlog/spdlog.h>
 
 #include <iostream>
 #include <thread>
@@ -8,7 +9,6 @@
 #include "gpio/buttons.h"
 #include "gpio/setup.h"
 #include "media/img.h"
-#include "spdlog/spdlog.h"
 #include "utils/config.h"
 
 void Robot::read_from_arduino() {
@@ -87,6 +87,8 @@ void Robot::init_hardware(Ball &ball) {
   spdlog::info("GPIO ready");
   if (config["serial"]["enabled"].GetBool()) {
     init_uart();
+    read_from_arduino();
+    init_gyro();
   }
   spdlog::info("UART ready");
   if (config["lidar"]["enabled"].GetBool()) {
@@ -109,4 +111,21 @@ Vec Robot::ball_position(Ball &ball) {
     return {-1, -1};
   }
   return position + ball.field_point;
+}
+
+void Robot::init_gyro() { top_angle = normalize_angle(gyro_angle - M_PI / 2); }
+
+void Robot::compute_lidar() {
+  if (!lidar) return;
+  auto [computed, v] = lidar->compute();
+
+  auto angle = gyro_angle - top_angle;
+
+  if (angle > 0) {
+    v = v * -1;
+  }
+
+  Vec center = {100, 100};
+  position = center + v;
+  cout << "Position: " << robot.position.x << " " << robot.position.y << endl;
 }

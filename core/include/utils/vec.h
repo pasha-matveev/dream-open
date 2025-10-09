@@ -18,6 +18,7 @@ class Vec {
   Vec(sf::Vector2i);
   operator cv::Point();
   operator sf::Vector2f();
+  Vec operator*(double);
   double len();
   double len2();
   double angle();

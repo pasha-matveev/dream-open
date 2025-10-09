@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "config.h"
+#include "utils/vec.h"
 
 using namespace std;
 
@@ -34,7 +35,7 @@ class Lidar {
 
   void stop();
 
-  void compute();
+  pair<bool, Vec> compute();
 
   bool new_data();
 

@@ -2,6 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include "utils/vec.h"
+
 void LidarObject::update(double a, double d, double r, int w, int h) {
   angle = a;
   dist = d;
@@ -47,15 +49,18 @@ void Lidar::stop() {
   if (output_thread.joinable()) output_thread.join();
 }
 
-void Lidar::compute() {
+pair<bool, Vec> Lidar::compute() {
   vector<string> local_copy;
 
   {
     lock_guard<mutex> lock(data_mtx);
-    if (latest_data.empty()) return;
+    if (latest_data.empty()) return {false, {0, 0}};
     local_copy = latest_data;
     latest_data.clear();
   }
+
+  Vec v = {0, 0};
+  bool computed = false;
 
   if (local_copy.size() >= 5) {
     field.update(stod(local_copy[0]), stod(local_copy[1]), stod(local_copy[2]),
@@ -64,6 +69,14 @@ void Lidar::compute() {
     cout << "Angle: " << field.angle << endl;
     cout << "Rotation: " << field.rotation << endl;
     cout << "Distance: " << field.dist << endl;
+    double robot_angle = -field.rotation;
+    double vector_angle = normalize_angle(robot_angle + field.angle - M_PI / 2);
+    v = {(double)sin(vector_angle) * field.dist,
+         (double)(-1.0 * cos(vector_angle) * field.dist)};
+    cout << "v " << sin(vector_angle) * field.dist << " "
+         << -1.0 * cos(vector_angle) * field.dist << endl;
+    cout << "v " << v.x << " " << v.y << endl;
+    computed = true;
   }
 
   obstacles_data.clear();
@@ -74,6 +87,8 @@ void Lidar::compute() {
                stoi(local_copy[i + 4]));
     obstacles_data.push_back(obj);
   }
+
+  return {computed, v};
 }
 
 bool Lidar::new_data() {
@@ -106,6 +121,11 @@ void Lidar::_output_loop() {
       }
     } else {
       spdlog::warn("Failed to parse tokens:");
+      cout << "Tokens: ";
+      for (const auto &el : tokens) {
+        cout << el << " ";
+      }
+      cout << endl;
     }
   }
 }

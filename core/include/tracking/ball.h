@@ -8,7 +8,7 @@
 
 constexpr int MIN_BALL_AREA = 10;
 
-class Ball : Object {
+class Ball : public Object {
  private:
   cv::Mat mask;
   bool setup_mode;
@@ -16,9 +16,9 @@ class Ball : Object {
  public:
   bool visible = false;
   double radius;
+  double override_dist = -1;
 
   Vec camera_point;
-  Vec field_point;
   float relative_angle;
 
   Ball() = default;

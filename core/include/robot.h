@@ -60,5 +60,4 @@ class Robot {
 
   void read_from_arduino();
   void write_to_arduino();
-  Vec ball_position(Ball &ball);
 };

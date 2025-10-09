@@ -5,23 +5,33 @@
 #include "utils/vec.h"
 
 void Strategy::run(Robot &robot, Ball &ball) {
-  if (ball.visible) {
-    if (robot.emitter) {
-      robot.dribling = 0;
-      robot.rotation = 0;
-      robot.speed = 0;
-      robot.kicker_force = 20;
+  if (robot.lidar) {
+    auto [computed, v] = robot.lidar->compute();
+    if (computed) {
+      Vec center = {100, 100};
+      robot.position = center + v;
+      cout << "Position: " << robot.position.x << " " << robot.position.y
+           << endl;
     } else {
-      robot.dribling = 30;
-      robot.rotation = ball.relative_angle;
-      robot.speed = 30;
-      robot.direction = ball.relative_angle;
-      robot.kicker_force = 0;
+      // cout << "Not computed" << endl;
     }
-  } else {
-    robot.rotation = 0;
-    robot.speed = 0;
-    robot.kicker_force = 0;
   }
-  // robot.lidar->compute();
+  // if (ball.visible) {
+  //   if (robot.emitter) {
+  //     robot.dribling = 0;
+  //     robot.rotation = 0;
+  //     robot.speed = 0;
+  //     robot.kicker_force = 20;
+  //   } else {
+  //     robot.dribling = 30;
+  //     robot.rotation = ball.relative_angle;
+  //     robot.speed = 30;
+  //     robot.direction = ball.relative_angle;
+  //     robot.kicker_force = 0;
+  //   }
+  // } else {
+  //   robot.rotation = 0;
+  //   robot.speed = 0;
+  //   robot.kicker_force = 0;
+  // }
 }

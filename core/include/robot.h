@@ -16,8 +16,11 @@ class Robot {
   void init_buzzer();
   void init_buttons();
   void init_uart();
+  void init_gyro();
   void init_display();
   void init_lidar();
+
+  double top_angle;
 
  public:
   Camera *camera = nullptr;
@@ -53,6 +56,7 @@ class Robot {
   bool rgb_led = false;
 
   void init_hardware(Ball &ball);
+  void compute_lidar();
 
   void read_from_arduino();
   void write_to_arduino();

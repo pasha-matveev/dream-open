@@ -73,6 +73,11 @@ void Visualization::run(Robot &robot, Ball &ball) {
       robot.field_angle += min(robot.rotation, max_rotation);
     }
     robot.field_angle = normalize_angle(robot.field_angle);
+    // Vec m = {
+    //     (double)robot.speed * sin(robot.direction + robot.field_angle) * -1 /
+    //         60,
+    //     (double)robot.speed * cos(robot.direction + robot.field_angle) / 60};
+    // robot.position = robot.position + m;
   }
 
   // draw robot

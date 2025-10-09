@@ -13,7 +13,7 @@
 
 void Robot::read_from_arduino() {
   uart->write_data<char>('R');
-  gyro_angle = uart->read_data<float>();
+  gyro_angle = normalize_angle2(-1 * uart->read_data<float>());
   emitter = uart->read_data<bool>();
   kicker_charged = uart->read_data<bool>();
 }
@@ -21,10 +21,10 @@ void Robot::read_from_arduino() {
 void Robot::write_to_arduino() {
   uart->write_data<char>('W');
   uart->write_data<float>(
-      normalize_angle2(gyro_angle - normalize_angle2(direction)));
+      normalize_angle2(-gyro_angle - normalize_angle2(direction)));
   uart->write_data<float>(speed);
   uart->write_data<float>(
-      normalize_angle2(gyro_angle - normalize_angle2(rotation)));
+      normalize_angle2(-gyro_angle - normalize_angle2(rotation)));
   uart->write_data<float>(rotation_limit);
   uart->write_data<int32_t>(dribling);
   uart->write_data<int32_t>(kicker_force);
@@ -117,15 +117,12 @@ void Robot::init_gyro() { top_angle = normalize_angle(gyro_angle - M_PI / 2); }
 
 void Robot::compute_lidar() {
   if (!lidar) return;
-  auto [computed, v] = lidar->compute();
+  auto res = lidar->compute();
 
-  auto angle = gyro_angle - top_angle;
-
-  if (angle > 0) {
-    v = v * -1;
-  }
+  if (!res.computed) return;
 
   Vec center = {100, 100};
-  position = center + v;
-  cout << "Position: " << robot.position.x << " " << robot.position.y << endl;
+  position = center + res.v;
+  cout << "Position: " << position.x << " " << position.y << endl;
+  field_angle = normalize_angle(res.rotation);
 }

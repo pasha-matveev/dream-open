@@ -4,9 +4,6 @@
 
 #include "utils/vec.h"
 
-double last_rotation = -4;
-bool inv = false;
-
 void LidarObject::update(double a, double d, double r, int w, int h) {
   angle = a;
   dist = d;
@@ -73,23 +70,12 @@ Lidar::ComputeResult Lidar::compute() {
     cout << "Angle: " << field.angle << endl;
     cout << "Rotation: " << field.rotation << endl;
     cout << "Distance: " << field.dist << endl;
-    if (last_rotation != -4) {
-      auto diff = abs(field.rotation - last_rotation);
-      if (diff > M_PI / 2) {
-        inv = !inv;
-      }
-    }
-    last_rotation = field.rotation;
+
     double robot_angle = -field.rotation;
     double vector_angle = normalize_angle(robot_angle + field.angle - M_PI / 2);
     v = {(double)sin(vector_angle) * field.dist,
          (double)(-1.0 * cos(vector_angle) * field.dist)};
-    result_rotation = field.rotation;
-    if (inv) {
-      v = v * -1;
-      result_rotation += M_PI;
-    }
-    result_rotation *= -1;
+    result_rotation = -1 * field.rotation;
 
     cout << "v " << sin(vector_angle) * field.dist << " "
          << -1.0 * cos(vector_angle) * field.dist << endl;

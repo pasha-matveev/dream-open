@@ -105,13 +105,26 @@ Robot::~Robot() {
   if (lidar != nullptr) delete lidar;
 }
 
-void Robot::init_gyro() { top_angle = normalize_angle(gyro_angle - M_PI / 2); }
+void Robot::init_gyro() { top_angle = normalize_angle2(gyro_angle + M_PI / 2); }
 
 void Robot::compute_lidar() {
   if (!lidar) return;
   auto res = lidar->compute();
 
   if (!res.computed) return;
+
+  double angle1 = gyro_angle - top_angle;
+  double angle2 = res.rotation;
+  bool inv = false;
+  if (abs(angle1 - angle2) > M_PI / 2) {
+    inv = true;
+    res.v = res.v * -1;
+    res.rotation += M_PI;
+  }
+  cout << "Raw gyro: " << normalize_angle(gyro_angle) << '\n';
+  cout << "Computed gyro: " << normalize_angle(angle1) << '\n';
+  cout << "Lidar: " << normalize_angle(angle2) << '\n';
+  cout << "Inversion: " << inv << endl;
 
   Vec center = {100, 100};
   position = center + res.v;

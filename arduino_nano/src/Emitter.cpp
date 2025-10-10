@@ -6,7 +6,7 @@ void Emitter::init() { pinMode(pin, INPUT); }
 
 void Emitter::read() {
   raw = analogRead(pin);
-  val = ROBOT ? (raw < 250) : (raw < 25);
+  val = ROBOT ? (raw < 400) : (raw < 400);
   if (val) {
     last_tm = millis();
   }

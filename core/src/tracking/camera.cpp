@@ -101,7 +101,7 @@ void Camera::Impl::show_preview() {
     return;
   }
   cv::Mat small_preview;
-  cv::resize(preview_image, small_preview, cv::Size(600, 600));
+  cv::resize(preview_image, small_preview, cv::Size(440, 440));
   imshow(config["tracking"]["preview"]["window_name"].GetString(),
          small_preview);
 }
@@ -139,7 +139,7 @@ void Camera::Impl::requestComplete(libcamera::Request *request) {
   auto t = (clock() - st) * 1000 / CLOCKS_PER_SEC;
 
   if (t >= 1000) {
-    cout << "FPS: " << f << endl;
+    // cout << "FPS: " << f << endl;
     f = 0;
     st = clock();
   }

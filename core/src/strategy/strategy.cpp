@@ -14,7 +14,7 @@ void Strategy::run(Robot &robot, Ball &ball) {
     Vec robot_dir{-1 * sin(robot.field_angle), cos(robot.field_angle)};
     double ang = atan2(robot_dir % v, robot_dir * v);
     robot.rotation_limit = 10;
-    robot.dribling = 40;
+    robot.dribling = 50;
     robot.rotation = ang;
     robot.speed = 0;
     robot.kicker_force = 0;

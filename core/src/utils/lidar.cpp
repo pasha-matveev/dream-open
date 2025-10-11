@@ -67,9 +67,6 @@ Lidar::ComputeResult Lidar::compute() {
     field.update(stod(local_copy[0]), stod(local_copy[1]), stod(local_copy[2]),
                  stoi(local_copy[3]), stoi(local_copy[4]));
     field.rotate();
-    cout << "Angle: " << field.angle << endl;
-    cout << "Rotation: " << field.rotation << endl;
-    cout << "Distance: " << field.dist << endl;
 
     double robot_angle = -field.rotation;
     double vector_angle = normalize_angle(robot_angle + field.angle - M_PI / 2);
@@ -77,9 +74,6 @@ Lidar::ComputeResult Lidar::compute() {
          (double)(-1.0 * cos(vector_angle) * field.dist)};
     result_rotation = -1 * field.rotation;
 
-    cout << "v " << sin(vector_angle) * field.dist << " "
-         << -1.0 * cos(vector_angle) * field.dist << endl;
-    cout << "v " << v.x << " " << v.y << endl;
     computed = true;
   }
 
@@ -118,6 +112,7 @@ void Lidar::_output_loop() {
     // cout << endl;
 
     if (!tokens.empty() && tokens[0] == "Data") {
+      received_data = true;
       tokens.erase(tokens.begin());
       {
         lock_guard<mutex> lock(data_mtx);

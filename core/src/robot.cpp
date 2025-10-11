@@ -62,6 +62,9 @@ void Robot::init_display() {
 void Robot::init_lidar() {
   lidar = new Lidar();
   lidar->start();
+  while (!lidar->received_data) {
+    this_thread::sleep_for(chrono::milliseconds(50));
+  }
 }
 
 void Robot::init_hardware(Ball &ball) {
@@ -87,7 +90,9 @@ void Robot::init_hardware(Ball &ball) {
   spdlog::info("GPIO ready");
   if (config["serial"]["enabled"].GetBool()) {
     init_uart();
+    cout << "Reading from arduino" << endl;
     read_from_arduino();
+    cout << "Got data from arduino" << endl;
     init_gyro();
   }
   spdlog::info("UART ready");
@@ -121,13 +126,13 @@ void Robot::compute_lidar() {
     res.v = res.v * -1;
     res.rotation += M_PI;
   }
-  cout << "Raw gyro: " << normalize_angle(gyro_angle) << '\n';
-  cout << "Computed gyro: " << normalize_angle(angle1) << '\n';
-  cout << "Lidar: " << normalize_angle(angle2) << '\n';
-  cout << "Inversion: " << inv << endl;
+  // cout << "Raw gyro: " << normalize_angle(gyro_angle) << '\n';
+  // cout << "Computed gyro: " << normalize_angle(angle1) << '\n';
+  // cout << "Lidar: " << normalize_angle(angle2) << '\n';
+  // cout << "Inversion: " << inv << endl;
 
   Vec center = {100, 100};
   position = center + res.v;
-  cout << "Position: " << position.x << " " << position.y << endl;
+  // cout << "Position: " << position.x << " " << position.y << endl;
   field_angle = normalize_angle(res.rotation);
 }

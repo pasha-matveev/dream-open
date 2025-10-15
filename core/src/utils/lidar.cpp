@@ -2,7 +2,10 @@
 
 #include <spdlog/spdlog.h>
 
+#include "utils/config.h"
 #include "utils/vec.h"
+
+double last_rotation = -4;
 
 void LidarObject::update(double a, double d, double r, int w, int h) {
   angle = a;

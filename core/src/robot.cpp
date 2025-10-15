@@ -121,7 +121,7 @@ void Robot::compute_lidar() {
   double angle1 = gyro_angle - top_angle;
   double angle2 = res.rotation;
   bool inv = false;
-  if (abs(angle1 - angle2) > M_PI / 2) {
+  if (abs(normalize_angle(angle1 - angle2)) > M_PI / 2) {
     inv = true;
     res.v = res.v * -1;
     res.rotation += M_PI;

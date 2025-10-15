@@ -90,13 +90,23 @@ void Visualization::run(Robot &robot, Ball &ball) {
     // kick
 
     if (robot.kicker_force > 0 && robot.emitter) {
-      ball_a = robot_dir.resize(robot.kicker_force * 0.8);
+      ball_a = robot_dir.resize(robot.kicker_force * 0.6);
     }
   }
 
   if (override_ball) {
     ball_position = ball_position + ball_a;
-    ball_a = ball_a * 0.99;
+    if (ball_position.x <= 0 + BALL_R) {
+      ball_a.x *= -1;
+    } else if (ball_position.x >= REAL_WIDTH - BALL_R) {
+      ball_a.x *= -1;
+    }
+    if (ball_position.y <= 0 + BALL_R) {
+      ball_a.y *= -1;
+    } else if (ball_position.y >= REAL_HEIGHT - BALL_R) {
+      ball_a.y *= -1;
+    }
+    ball_a = ball_a * 0.96;
 
     ball.visible = true;
     Vec v = ball_position - robot.position;

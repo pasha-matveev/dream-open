@@ -21,7 +21,8 @@ class Vec {
   Vec operator*(double);
   double len();
   double len2();
-  double angle();
+  double raw_angle();
+  double field_angle();
 
   friend Vec operator+(const Vec &, const Vec &);
   friend Vec operator-(const Vec &, const Vec &);

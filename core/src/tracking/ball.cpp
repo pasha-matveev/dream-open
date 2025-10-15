@@ -62,7 +62,7 @@ void Ball::find(const cv::Mat &frame) {
   camera_point = (Vec)center - Vec{config["tracking"]["radius"].GetInt(),
                                    config["tracking"]["radius"].GetInt()};
 
-  relative_angle = normalize_angle(-1 * camera_point.angle() + M_PI);
+  relative_angle = normalize_angle(-1 * camera_point.raw_angle() + M_PI);
 }
 
 void Ball::draw(cv::Mat &frame) {

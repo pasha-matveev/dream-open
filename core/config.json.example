@@ -68,5 +68,8 @@
     "window_name": "Dream",
     "frames": 60,
     "interactive": false
+  },
+  "strategy": {
+    "role": "keeper"
   }
 }

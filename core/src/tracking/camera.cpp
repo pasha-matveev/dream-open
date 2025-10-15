@@ -139,7 +139,7 @@ void Camera::Impl::requestComplete(libcamera::Request *request) {
   auto t = (clock() - st) * 1000 / CLOCKS_PER_SEC;
 
   if (t >= 1000) {
-    // cout << "FPS: " << f << endl;
+    spdlog::info("FPS: {}", f);
     f = 0;
     st = clock();
   }

@@ -36,10 +36,10 @@ void UART::connect() {
 
 void UART::wait_for_x() {
   if (!config["serial"]["interference"].GetBool()) {
-    cout << "Skip init byte" << endl;
+    spdlog::info("Skip init byte");
     return;
   }
-  cout << "Wait for init byte" << endl;
+  spdlog::info("Waiting for init byte...");
   while (true) {
     while (!serial.IsDataAvailable()) {
       std::this_thread::sleep_for(chrono::milliseconds(20));

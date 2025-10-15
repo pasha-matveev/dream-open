@@ -33,7 +33,8 @@ Vec::operator cv::Point() { return {(int)x, (int)y}; }
 Vec::operator sf::Vector2f() { return {(float)x, (float)y}; }
 double Vec::len() { return hypot(x, y); }
 double Vec::len2() { return x * x + y * y; }
-double Vec::angle() { return atan2(x, y); }
+double Vec::raw_angle() { return atan2(x, y); }
+double Vec::field_angle() { return atan2(-x, y); }
 Vec Vec::operator*(double k) { return {x * k, y * k}; }
 
 Vec operator+(const Vec &a, const Vec &b) { return {a.x + b.x, a.y + b.y}; }

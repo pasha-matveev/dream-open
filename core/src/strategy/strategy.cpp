@@ -8,6 +8,7 @@
 Strategy::Strategy() { role = config["strategy"]["role"].GetString(); }
 
 void Strategy::run(Robot &robot, Ball &ball) {
+  robot.compute_lidar();
   if (role == "attacker") {
     run_attacker(robot, ball);
   } else {

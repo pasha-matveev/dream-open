@@ -1,8 +1,6 @@
 #include "strategy/strategy.h"
 
 void Strategy::run_attacker(Robot &robot, Ball &ball) {
-  robot.compute_lidar();
-
   if (robot.emitter) {
     Vec target{91, 243};
     Vec v = target - robot.position;

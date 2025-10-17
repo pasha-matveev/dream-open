@@ -37,10 +37,11 @@ double Vec::raw_angle() { return atan2(x, y); }
 double Vec::field_angle() { return atan2(-x, y); }
 Vec Vec::operator*(double k) { return {x * k, y * k}; }
 
-Vec operator+(const Vec &a, const Vec &b) { return {a.x + b.x, a.y + b.y}; }
-Vec operator-(const Vec &a, const Vec &b) { return {a.x - b.x, a.y - b.y}; }
-double operator*(const Vec &a, const Vec &b) { return a.x * b.x + a.y * b.y; }
-double operator%(const Vec &a, const Vec &b) { return a.x * b.y - a.y * b.x; }
+Vec operator+(const Vec& a, const Vec& b) { return {a.x + b.x, a.y + b.y}; }
+Vec operator-(const Vec& a, const Vec& b) { return {a.x - b.x, a.y - b.y}; }
+double operator*(const Vec& a, const Vec& b) { return a.x * b.x + a.y * b.y; }
+double operator%(const Vec& a, const Vec& b) { return a.x * b.y - a.y * b.x; }
+bool operator==(const Vec& a, const Vec& b) { return a.x == b.x && a.y == b.y; }
 
 Vec Vec::resize(double target) {
   double k = target / len();

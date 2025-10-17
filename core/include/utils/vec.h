@@ -24,10 +24,11 @@ class Vec {
   double raw_angle();
   double field_angle();
 
-  friend Vec operator+(const Vec &, const Vec &);
-  friend Vec operator-(const Vec &, const Vec &);
-  friend double operator*(const Vec &, const Vec &);
-  friend double operator%(const Vec &, const Vec &);
+  friend Vec operator+(const Vec&, const Vec&);
+  friend Vec operator-(const Vec&, const Vec&);
+  friend double operator*(const Vec&, const Vec&);
+  friend double operator%(const Vec&, const Vec&);
+  friend bool operator==(const Vec&, const Vec&);
 
   Vec resize(double);
 };

@@ -7,11 +7,11 @@ class Strategy {
  private:
   string role;
 
-  void run_keeper(Robot &robot, Ball &ball);
-  void run_attacker(Robot &robot, Ball &ball);
+  void run_keeper(Robot& robot, Ball& ball);
+  void run_attacker(Robot& robot, Ball& ball);
 
  public:
   State state = INITIAL;
-  void run(Robot &robot, Ball &ball);
+  void run(Robot& robot, Ball& ball);
   Strategy();
 };

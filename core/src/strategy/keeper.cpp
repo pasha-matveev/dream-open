@@ -1,16 +1,15 @@
 #include <algorithm>
 #include <cmath>
-#include <stack>
 
 #include "strategy/strategy.h"
-
-stack<Vec> st;
 
 void Strategy::run_keeper(Robot& robot, Ball& ball) {
   if (!ball.visible) {
     robot.speed = 0;
     robot.rotation = 0;
-    st.clear();
+    while (!st.empty()) {
+      st.pop();
+    }
     return;
   }
   double ball_angle = robot.field_angle + ball.relative_angle;
@@ -47,7 +46,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
   if (ball_position.y < 50) {
     robot.speed = 0;
   }
-  robot.speed = min(robot.speed, 30.0f);
+  // robot.speed = min(robot.speed, 30.0f);
   robot.direction = vel.field_angle() - robot.field_angle;
   robot.rotation = ball.relative_angle;
   robot.rotation_limit = 10;

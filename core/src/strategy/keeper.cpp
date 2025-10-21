@@ -12,6 +12,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     }
     return;
   }
+
   double ball_angle = robot.field_angle + ball.relative_angle;
   Vec ball_position = Vec{ball.get_cm() * sin(ball_angle) * -1,
                           ball.get_cm() * cos(ball_angle)} +
@@ -23,11 +24,14 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     st.pop();
   }
 
+  bool line_movement = false;
+
   Vec target_position = {ball_position.x, 55.0};
   if (last_position.has_value()) {
     double delta_y = last_position->y - ball_position.y;
     double target_delta_y = last_position->y - 55;
     if (delta_y > 1 && target_delta_y > 0) {
+      line_movement = true;
       double delta_x = ball_position.x - last_position->x;
       double target_delta_x = delta_x / delta_y * target_delta_y;
       double target_x = last_position->x + target_delta_x;
@@ -37,7 +41,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
   target_position.x = std::clamp(target_position.x, 40.0, 130.0);
   Vec vel = target_position - robot.position;
 
-  if (ball_position.y < 85) {
+  if (ball_position.y < 85 || line_movement) {
     robot.speed = abs(vel.x) * 20;
   } else {
     robot.speed = abs(vel.x) * 10;

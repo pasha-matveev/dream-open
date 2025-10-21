@@ -31,7 +31,7 @@ void Robot::write_to_arduino() {
   uart->write_data<bool>(rgb_led);
 }
 
-void Robot::init_camera(Ball &ball) {
+void Robot::init_camera(Ball& ball) {
   camera = new Camera(ball);
   camera->start();
 }
@@ -67,7 +67,7 @@ void Robot::init_lidar() {
   }
 }
 
-void Robot::init_hardware(Ball &ball) {
+void Robot::init_hardware(Ball& ball) {
   if (config["tracking"]["enabled"].GetBool()) {
     init_camera(ball);
   }
@@ -112,11 +112,11 @@ Robot::~Robot() {
 
 void Robot::init_gyro() { top_angle = normalize_angle2(gyro_angle + M_PI / 2); }
 
-void Robot::compute_lidar() {
-  if (!lidar) return;
+bool Robot::compute_lidar() {
+  if (!lidar) return false;
   auto res = lidar->compute();
 
-  if (!res.computed) return;
+  if (!res.computed) return false;
 
   double angle1 = gyro_angle - top_angle;
   double angle2 = res.rotation;
@@ -135,4 +135,15 @@ void Robot::compute_lidar() {
   position = center + res.v;
   // cout << "Position: " << position.x << " " << position.y << endl;
   field_angle = normalize_angle(res.rotation);
+  return true;
+}
+
+void Robot::predict_position() {
+  double len = speed / 60;
+  double direction = field_angle + direction;
+  Vec shift = {-1 * sin(direction) * len, cos(direction) * len};
+  position = position + shift;
+
+  field_angle +=
+      clamp(-1 * rotation_limit / 60, rotation / 60, rotation_limit / 60);
 }

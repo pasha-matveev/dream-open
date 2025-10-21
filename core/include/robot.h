@@ -12,7 +12,7 @@ using namespace LibSerial;
 
 class Robot {
  private:
-  void init_camera(Ball &);
+  void init_camera(Ball&);
   void init_buzzer();
   void init_buttons();
   void init_uart();
@@ -23,11 +23,11 @@ class Robot {
   double top_angle;
 
  public:
-  Camera *camera = nullptr;
-  Buzzer *buzzer = nullptr;
-  UART *uart = nullptr;
-  Display *display = nullptr;
-  Lidar *lidar = nullptr;
+  Camera* camera = nullptr;
+  Buzzer* buzzer = nullptr;
+  UART* uart = nullptr;
+  Display* display = nullptr;
+  Lidar* lidar = nullptr;
 
   Robot() = default;
   ~Robot();
@@ -54,9 +54,11 @@ class Robot {
   int kicker_force = 0;
   bool rgb_led = false;
 
-  void init_hardware(Ball &ball);
-  void compute_lidar();
+  void init_hardware(Ball& ball);
+  bool compute_lidar();
 
   void read_from_arduino();
   void write_to_arduino();
+
+  void predict_position();
 };

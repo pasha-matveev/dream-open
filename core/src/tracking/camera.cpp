@@ -16,16 +16,18 @@ using namespace std;
 
 // Конвертация из буфера в матрицу
 struct MappedBuffer {
-  void *memory;
+  void* memory;
   size_t length;
 };
 
-MappedBuffer mapBuffer(const libcamera::FrameBuffer *buffer) {
-  const libcamera::FrameBuffer::Plane &plane = buffer->planes().front();
+MappedBuffer mapBuffer(const libcamera::FrameBuffer* buffer) {
+  const libcamera::FrameBuffer::Plane& plane = buffer->planes().front();
   int fd = plane.fd.get();
   size_t length = plane.length;
+  off_t offset = plane.offset;
 
-  void *memory = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  void* memory =
+      mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
   if (memory == MAP_FAILED) {
     perror("mmap");
     throw std::runtime_error("mmap failed");
@@ -34,12 +36,32 @@ MappedBuffer mapBuffer(const libcamera::FrameBuffer *buffer) {
   return {memory, length};
 }
 
-cv::Mat toMat(const libcamera::FrameBuffer *buffer) {
+cv::Mat toMat(const libcamera::FrameBuffer* buffer) {
   auto mapped = mapBuffer(buffer);
   int width = config["tracking"]["width"].GetInt();
   int height = config["tracking"]["height"].GetInt();
+  size_t min_stride = static_cast<size_t>(width) * 3;
+  size_t stride = min_stride;
+  if (height > 0) {
+    size_t h = static_cast<size_t>(height);
+    const auto& plane = buffer->planes().front();
+    if (plane.length >= h) {
+      size_t candidate = plane.length / h;
+      if (candidate >= min_stride && candidate > stride) {
+        stride = candidate;
+      }
+    }
+    const libcamera::FrameMetadata& metadata = buffer->metadata();
+    const auto& planes_md = metadata.planes();
+    if (!planes_md.empty() && planes_md[0].bytesused >= min_stride * h) {
+      size_t candidate = planes_md[0].bytesused / h;
+      if (candidate >= min_stride && candidate > stride) {
+        stride = candidate;
+      }
+    }
+  }
 
-  cv::Mat img(height, width, CV_8UC3, mapped.memory);
+  cv::Mat img(height, width, CV_8UC3, mapped.memory, stride);
 
   cv::Mat copy = img.clone();
 
@@ -53,25 +75,25 @@ struct Camera::Impl {
   cv::Mat frame;
   cv::Mat hsv_frame;
   cv::Mat preview_image;
-  Ball &ball;
+  Ball& ball;
   bool preview_ready = false;
 
   std::unique_ptr<libcamera::CameraManager> cm;
   std::shared_ptr<libcamera::Camera> lcamera;
   std::vector<std::unique_ptr<libcamera::Request>> requests;
-  libcamera::StreamConfiguration *streamConfig;
+  libcamera::StreamConfiguration* streamConfig;
 
   void start();
   void analyze();
   void draw();
-  void requestComplete(libcamera::Request *request);
+  void requestComplete(libcamera::Request* request);
   void show_preview();
 
-  Impl(Ball &ball);
+  Impl(Ball& ball);
   ~Impl() = default;
 };
 
-Camera::Impl::Impl(Ball &ball_reference) : ball(ball_reference) {
+Camera::Impl::Impl(Ball& ball_reference) : ball(ball_reference) {
   const int radius = config["tracking"]["radius"].GetInt(),
             disabled_radius = config["tracking"]["disabled_radius"].GetInt();
   mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
@@ -82,7 +104,7 @@ Camera::Impl::Impl(Ball &ball_reference) : ball(ball_reference) {
   cm = make_unique<libcamera::CameraManager>();
 }
 
-Camera::Camera(Ball &b) : ball(b) { impl = make_unique<Impl>(ball); }
+Camera::Camera(Ball& b) : ball(b) { impl = make_unique<Impl>(ball); }
 Camera::~Camera() = default;
 
 void Camera::Impl::analyze() { ball.find(hsv_frame); }
@@ -109,9 +131,9 @@ void Camera::Impl::show_preview() {
 int f = 0;
 auto st = clock();
 
-void Camera::Impl::requestComplete(libcamera::Request *request) {
+void Camera::Impl::requestComplete(libcamera::Request* request) {
   if (request->status() == libcamera::Request::RequestCancelled) return;
-  const std::map<const libcamera::Stream *, libcamera::FrameBuffer *> &buffers =
+  const std::map<const libcamera::Stream*, libcamera::FrameBuffer*>& buffers =
       request->buffers();
   assert(buffers.size() == 1);
   for (const auto [_, buffer] : buffers) {
@@ -159,7 +181,7 @@ void Camera::Impl::start() {
   // Настройки
   unique_ptr<libcamera::CameraConfiguration> camera_config =
       lcamera->generateConfiguration({libcamera::StreamRole::Viewfinder});
-  auto &streamConfig = camera_config->at(0);
+  auto& streamConfig = camera_config->at(0);
   streamConfig.size.width = config["tracking"]["width"].GetInt();
   streamConfig.size.height = config["tracking"]["height"].GetInt();
   streamConfig.pixelFormat = libcamera::formats::RGB888;
@@ -171,8 +193,8 @@ void Camera::Impl::start() {
   }
 
   // Выделение памяти
-  libcamera::Stream *stream = streamConfig.stream();
-  libcamera::FrameBufferAllocator *allocator =
+  libcamera::Stream* stream = streamConfig.stream();
+  libcamera::FrameBufferAllocator* allocator =
       new libcamera::FrameBufferAllocator(lcamera);
 
   ret = allocator->allocate(stream);
@@ -182,7 +204,7 @@ void Camera::Impl::start() {
 
   size_t allocated = allocator->buffers(streamConfig.stream()).size();
 
-  const vector<unique_ptr<libcamera::FrameBuffer>> &buffers =
+  const vector<unique_ptr<libcamera::FrameBuffer>>& buffers =
       allocator->buffers(stream);
 
   // Создание запросов к камере
@@ -192,14 +214,14 @@ void Camera::Impl::start() {
       throw runtime_error("Can't create request");
     }
 
-    const unique_ptr<libcamera::FrameBuffer> &buffer = buffers[i];
+    const unique_ptr<libcamera::FrameBuffer>& buffer = buffers[i];
     int res = request->addBuffer(stream, buffer.get());
     if (res < 0) {
       throw runtime_error("Can't set buffer for request");
     }
 
     int duration = (1000 / config["tracking"]["fps"].GetInt()) * 1000;
-    auto &controls = request->controls();
+    auto& controls = request->controls();
     controls.set(libcamera::controls::AeEnable, false);
     controls.set(libcamera::controls::ExposureTime, duration * 0.9);
     controls.set(libcamera::controls::AnalogueGain,
@@ -211,7 +233,7 @@ void Camera::Impl::start() {
   }
 
   lcamera->start();
-  for (unique_ptr<libcamera::Request> &request : requests) {
+  for (unique_ptr<libcamera::Request>& request : requests) {
     lcamera->queueRequest(request.get());
   }
 }

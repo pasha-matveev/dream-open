@@ -1,4 +1,4 @@
-#include <stack>
+#include <queue>
 
 #include "robot.h"
 #include "tracking/ball.h"
@@ -12,7 +12,7 @@ class Strategy {
   void run_keeper(Robot& robot, Ball& ball);
   void run_attacker(Robot& robot, Ball& ball);
 
-  stack<Vec> st;
+  queue<Vec> q;
 
  public:
   State state = INITIAL;

@@ -83,6 +83,7 @@
     "print": "cpp",
     "queue": "cpp",
     "stack": "cpp",
-    "codecvt": "cpp"
+    "codecvt": "cpp",
+    "format": "cpp"
   }
 }

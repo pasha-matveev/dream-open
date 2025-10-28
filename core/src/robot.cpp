@@ -135,6 +135,9 @@ bool Robot::compute_lidar() {
   position = center + res.v;
   // cout << "Position: " << position.x << " " << position.y << endl;
   field_angle = normalize_angle(res.rotation);
+
+  top_angle = normalize_angle(gyro_angle - field_angle);
+
   return true;
 }
 

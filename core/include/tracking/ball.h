@@ -8,6 +8,8 @@
 
 constexpr int MIN_BALL_AREA = 10;
 
+class Robot;
+
 class Ball : public Object {
  private:
   cv::Mat mask;
@@ -21,10 +23,13 @@ class Ball : public Object {
   Vec camera_point;
   float relative_angle;
 
+  Vec field_position{0, 0};
+
   Ball() = default;
   Ball(const std::vector<int> &, const std::vector<int> &, bool);
   virtual ~Ball();
   void find(const cv::Mat &frame);
   void draw(cv::Mat &frame);
   float get_cm();
+  void compute_field_position(const Robot &robot);
 };

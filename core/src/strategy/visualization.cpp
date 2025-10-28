@@ -2,6 +2,9 @@
 
 #include <spdlog/spdlog.h>
 
+#include <cmath>
+#include <optional>
+
 #include "utils/config.h"
 
 constexpr int REAL_WIDTH = 182;
@@ -31,7 +34,6 @@ Vec toReal(Vec s) {
 }
 
 bool override_ball = false;
-Vec ball_position;
 Vec ball_a{0, 0};
 
 constexpr double REAL_BALL_R = 2.1;
@@ -39,7 +41,7 @@ constexpr double REAL_ROBOT_R = 9;
 constexpr int BALL_R = cm_to_px(REAL_BALL_R);
 constexpr int ROBOT_R = cm_to_px(REAL_ROBOT_R);
 
-void Visualization::run(Robot &robot, Ball &ball) {
+void Visualization::run(Robot& robot, Ball& ball) {
   if (!window.isOpen()) {
     spdlog::info("Window is already closed, visualization not available");
     closed = true;
@@ -58,7 +60,7 @@ void Visualization::run(Robot &robot, Ball &ball) {
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
     Vec mouse_position = sf::Mouse::getPosition(window);
     override_ball = true;
-    ball_position = toReal(mouse_position);
+    ball.field_position = toReal(mouse_position);
     ball_a = {0, 0};
   }
 
@@ -74,9 +76,7 @@ void Visualization::run(Robot &robot, Ball &ball) {
       robot.field_angle += min(robot.rotation, max_rotation);
     }
     if (robot.emitter && override_ball) {
-      Vec base{-1 * sin(robot.field_angle) * REAL_ROBOT_R,
-               cos(robot.field_angle) * REAL_ROBOT_R};
-      ball_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
+      ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
     }
 
     // move
@@ -94,22 +94,22 @@ void Visualization::run(Robot &robot, Ball &ball) {
     }
   }
 
-  if (override_ball) {
-    ball_position = ball_position + ball_a;
-    if (ball_position.x <= 0 + BALL_R) {
+  if (override_ball && ball.visible) {
+    ball.field_position += ball_a;
+    if (ball.field_position.x <= 0 + BALL_R) {
       ball_a.x *= -1;
-    } else if (ball_position.x >= REAL_WIDTH - BALL_R) {
+    } else if (ball.field_position.x >= REAL_WIDTH - BALL_R) {
       ball_a.x *= -1;
     }
-    if (ball_position.y <= 0 + BALL_R) {
+    if (ball.field_position.y <= 0 + BALL_R) {
       ball_a.y *= -1;
-    } else if (ball_position.y >= REAL_HEIGHT - BALL_R) {
+    } else if (ball.field_position.y >= REAL_HEIGHT - BALL_R) {
       ball_a.y *= -1;
     }
     ball_a = ball_a * 0.96;
 
     ball.visible = true;
-    Vec v = ball_position - robot.position;
+    Vec v = ball.field_position - robot.position;
     Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
     ball.relative_angle = atan2f(base % v, base * v);
     ball.override_dist = v.len();
@@ -120,12 +120,6 @@ void Visualization::run(Robot &robot, Ball &ball) {
     } else {
       robot.emitter = false;
     }
-
-  } else {
-    double ball_angle = robot.field_angle + ball.relative_angle;
-    Vec d{-1 * sin(ball_angle) * ball.get_cm(),
-          cos(ball_angle) * ball.get_cm()};
-    ball_position = robot.position + d;
   }
 
   // draw robot
@@ -148,7 +142,7 @@ void Visualization::run(Robot &robot, Ball &ball) {
   if (ball.visible) {
     auto ball_shape = sf::CircleShape(BALL_R);
     ball_shape.setFillColor(sf::Color(0, 0, 255));
-    Vec point = toSFML(ball_position) - Vec{BALL_R, BALL_R};
+    Vec point = toSFML(ball.field_position - Vec{BALL_R, BALL_R});
     ball_shape.setPosition(point);
     window.draw(ball_shape);
   }

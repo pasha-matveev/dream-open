@@ -12,6 +12,10 @@ void Strategy::run(Robot& robot, Ball& ball) {
   if (!lidar_data) {
     robot.predict_position();
   }
+  if (!config["visualization"]["enabled"].GetBool()) {
+    ball.compute_field_position(robot);
+  }
+
   if (role == "attacker") {
     run_attacker(robot, ball);
   } else {

@@ -1,12 +1,14 @@
 #include "tracking/ball.h"
 
+#include <cmath>
 #include <vector>
 
+#include "robot.h"
 #include "utils/config.h"
 
 using namespace std;
 
-Ball::Ball(const vector<int> &hsv_min, const vector<int> &hsv_max,
+Ball::Ball(const vector<int>& hsv_min, const vector<int>& hsv_max,
            bool is_setup)
     : Object(hsv_min, hsv_max), setup_mode(is_setup) {
   if (config["tracking"]["preview"]["enabled"].GetBool() &&
@@ -23,7 +25,7 @@ Ball::Ball(const vector<int> &hsv_min, const vector<int> &hsv_max,
 }
 Ball::~Ball() {};
 
-void Ball::find(const cv::Mat &frame) {
+void Ball::find(const cv::Mat& frame) {
   cv::inRange(frame, cv::Scalar(h_min, s_min, v_min),
               cv::Scalar(h_max, s_max, v_max), mask);
 
@@ -65,7 +67,7 @@ void Ball::find(const cv::Mat &frame) {
   relative_angle = normalize_angle(-1 * camera_point.raw_angle() + M_PI);
 }
 
-void Ball::draw(cv::Mat &frame) {
+void Ball::draw(cv::Mat& frame) {
   if (setup_mode) {
     cv::Mat preview;
     cv::bitwise_and(frame, frame, preview, mask);
@@ -81,7 +83,7 @@ void Ball::draw(cv::Mat &frame) {
     return;
   }
   if (!visible) {
-    cout << "not visible" << endl;
+    cout << "ball not visible" << endl;
     return;
   }
   cv::circle(frame, center, radius, 100, 10);
@@ -94,4 +96,10 @@ float Ball::get_cm() {
   double old_pixels =
       get_pixels_dist() * 972 / config["tracking"]["width"].GetInt();
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
+}
+
+void Ball::compute_field_position(const Robot& robot) {
+  double ball_angle = robot.field_angle + relative_angle;
+  Vec offset{-1 * sin(ball_angle) * get_cm(), cos(ball_angle) * get_cm()};
+  field_position = robot.position + offset;
 }

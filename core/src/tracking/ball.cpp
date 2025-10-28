@@ -1,6 +1,7 @@
 #include "tracking/ball.h"
 
 #include <cmath>
+#include <spdlog/spdlog.h>
 #include <vector>
 
 #include "robot.h"
@@ -11,10 +12,8 @@ using namespace std;
 Ball::Ball(const vector<int>& hsv_min, const vector<int>& hsv_max,
            bool is_setup)
     : Object(hsv_min, hsv_max), setup_mode(is_setup) {
-  if (config["tracking"]["preview"]["enabled"].GetBool() &&
-      config["tracking"]["preview"]["setup"].GetBool()) {
-    string window_name =
-        config["tracking"]["preview"]["window_name"].GetString();
+  if (config.tracking.preview.enabled && config.tracking.preview.setup) {
+    string window_name = config.tracking.preview.window_name;
     cv::createTrackbar("H min", window_name, &h_min, 179);
     cv::createTrackbar("H max", window_name, &h_max, 179);
     cv::createTrackbar("S min", window_name, &s_min, 255);
@@ -61,8 +60,8 @@ void Ball::find(const cv::Mat& frame) {
   cv::minEnclosingCircle(contours[j], point_center, float_radius);
   center = point_center;
   radius = float_radius;
-  camera_point = (Vec)center - Vec{config["tracking"]["radius"].GetInt(),
-                                   config["tracking"]["radius"].GetInt()};
+  camera_point =
+      (Vec)center - Vec{config.tracking.radius, config.tracking.radius};
 
   relative_angle = normalize_angle(-1 * camera_point.raw_angle() + M_PI);
 }
@@ -83,7 +82,7 @@ void Ball::draw(cv::Mat& frame) {
     return;
   }
   if (!visible) {
-    cout << "ball not visible" << endl;
+    spdlog::info("Ball not visible");
     return;
   }
   cv::circle(frame, center, radius, 100, 10);
@@ -94,7 +93,7 @@ float Ball::get_cm() {
     return override_dist;
   }
   double old_pixels =
-      get_pixels_dist() * 972 / config["tracking"]["width"].GetInt();
+      get_pixels_dist() * 972 / config.tracking.width;
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
 }
 

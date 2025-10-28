@@ -16,8 +16,8 @@ constexpr int SFML_HEIGHT = REAL_HEIGHT * K;
 Visualization::Visualization() {
   window =
       sf::RenderWindow(sf::VideoMode({(uint)SFML_WIDTH, (uint)SFML_HEIGHT}),
-                       config["visualization"]["window_name"].GetString());
-  window.setFramerateLimit(config["visualization"]["frames"].GetInt());
+                       config.visualization.window_name);
+  window.setFramerateLimit(config.visualization.frames);
 }
 
 constexpr double cm_to_px(double x) { return x * K; }
@@ -56,7 +56,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
   }
   window.clear(sf::Color::White);
 
-  if (config["visualization"]["interactive"].GetBool() &&
+  if (config.visualization.interactive &&
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
     Vec mouse_position = sf::Mouse::getPosition(window);
     override_ball = true;
@@ -67,7 +67,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
   Vec robot_dir = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
 
   // compute robot
-  if (!config["serial"]["enabled"].GetBool()) {
+  if (!config.serial.enabled) {
     // rotation
     float max_rotation = robot.rotation_limit / 60 / 3;
     if (robot.rotation < 0) {
@@ -94,7 +94,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
     }
   }
 
-  if (override_ball && ball.visible) {
+  if (override_ball) {
     ball.field_position += ball_a;
     if (ball.field_position.x <= 0 + BALL_R) {
       ball_a.x *= -1;

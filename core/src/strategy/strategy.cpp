@@ -5,14 +5,14 @@
 #include "utils/config.h"
 #include "utils/vec.h"
 
-Strategy::Strategy() { role = config["strategy"]["role"].GetString(); }
+Strategy::Strategy() { role = config.strategy.role; }
 
 void Strategy::run(Robot& robot, Ball& ball) {
   bool lidar_data = robot.compute_lidar();
   if (!lidar_data) {
     robot.predict_position();
   }
-  if (!config["visualization"]["enabled"].GetBool()) {
+  if (!config.visualization.interactive) {
     ball.compute_field_position(robot);
   }
 

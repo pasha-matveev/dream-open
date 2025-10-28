@@ -32,7 +32,7 @@ double LidarObject::get_radius() const {
 }
 
 void Lidar::start() {
-  string cmd = config["lidar"]["path"].GetString();
+  string cmd = config.lidar.path;
 
   pipe = popen(cmd.c_str(), "r");
   if (!pipe) {
@@ -122,12 +122,17 @@ void Lidar::_output_loop() {
         latest_data = tokens;
       }
     } else {
-      spdlog::warn("Failed to parse tokens:");
-      cout << "Tokens: ";
-      for (const auto &el : tokens) {
-        cout << el << " ";
+      spdlog::warn("Failed to parse tokens");
+      if (!tokens.empty()) {
+        string message = "Tokens: ";
+        for (size_t i = 0; i < tokens.size(); ++i) {
+          message += tokens[i];
+          if (i + 1 < tokens.size()) {
+            message += ' ';
+          }
+        }
+        spdlog::warn(message);
       }
-      cout << endl;
     }
   }
 }

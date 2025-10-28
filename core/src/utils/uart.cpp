@@ -22,8 +22,8 @@ BaudRate int_to_baud(int baud) {
 }
 
 void UART::connect() {
-  serial.Open(config["serial"]["device"].GetString());
-  serial.SetBaudRate(int_to_baud(config["serial"]["rate"].GetInt()));
+  serial.Open(config.serial.device);
+  serial.SetBaudRate(int_to_baud(config.serial.rate));
   serial.SetDTR(true);
   serial.SetCharacterSize(CharacterSize::CHAR_SIZE_8);
   serial.SetParity(Parity::PARITY_NONE);
@@ -35,7 +35,7 @@ void UART::connect() {
 }
 
 void UART::wait_for_x() {
-  if (!config["serial"]["interference"].GetBool()) {
+  if (!config.serial.interference) {
     spdlog::info("Skip init byte");
     return;
   }

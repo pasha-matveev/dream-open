@@ -38,8 +38,8 @@ MappedBuffer mapBuffer(const libcamera::FrameBuffer* buffer) {
 
 cv::Mat toMat(const libcamera::FrameBuffer* buffer) {
   auto mapped = mapBuffer(buffer);
-  int width = config["tracking"]["width"].GetInt();
-  int height = config["tracking"]["height"].GetInt();
+  int width = config.tracking.width;
+  int height = config.tracking.height;
   size_t min_stride = static_cast<size_t>(width) * 3;
   size_t stride = min_stride;
   if (height > 0) {
@@ -94,8 +94,8 @@ struct Camera::Impl {
 };
 
 Camera::Impl::Impl(Ball& ball_reference) : ball(ball_reference) {
-  const int radius = config["tracking"]["radius"].GetInt(),
-            disabled_radius = config["tracking"]["disabled_radius"].GetInt();
+  const int radius = config.tracking.radius,
+            disabled_radius = config.tracking.disabled_radius;
   mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
   circle(mask, {radius, radius}, 1000, 0, -1);
   circle(mask, {radius, radius}, radius, 255, -1);
@@ -124,8 +124,7 @@ void Camera::Impl::show_preview() {
   }
   cv::Mat small_preview;
   cv::resize(preview_image, small_preview, cv::Size(440, 440));
-  imshow(config["tracking"]["preview"]["window_name"].GetString(),
-         small_preview);
+  imshow(config.tracking.preview.window_name, small_preview);
 }
 
 int f = 0;
@@ -142,11 +141,11 @@ void Camera::Impl::requestComplete(libcamera::Request* request) {
   request->reuse(libcamera::Request::ReuseBuffers);
   lcamera->queueRequest(request);
 
-  const int radius = config["tracking"]["radius"].GetInt();
-  const int center_x = config["tracking"]["center"]["x"].GetInt();
-  const int center_y = config["tracking"]["center"]["y"].GetInt();
-  const int width = config["tracking"]["width"].GetInt();
-  const int height = config["tracking"]["height"].GetInt();
+  const int radius = config.tracking.radius;
+  const int center_x = config.tracking.center.x;
+  const int center_y = config.tracking.center.y;
+  const int width = config.tracking.width;
+  const int height = config.tracking.height;
   int x1 = center_x - radius;
   int y1 = center_y - radius;
   cv::Mat source = frame(cv::Rect(x1, y1, radius * 2, radius * 2));
@@ -182,8 +181,8 @@ void Camera::Impl::start() {
   unique_ptr<libcamera::CameraConfiguration> camera_config =
       lcamera->generateConfiguration({libcamera::StreamRole::Viewfinder});
   auto& streamConfig = camera_config->at(0);
-  streamConfig.size.width = config["tracking"]["width"].GetInt();
-  streamConfig.size.height = config["tracking"]["height"].GetInt();
+  streamConfig.size.width = config.tracking.width;
+  streamConfig.size.height = config.tracking.height;
   streamConfig.pixelFormat = libcamera::formats::RGB888;
   camera_config->validate();
   spdlog::info("Camera configuration: {}", streamConfig.toString());
@@ -220,12 +219,12 @@ void Camera::Impl::start() {
       throw runtime_error("Can't set buffer for request");
     }
 
-    int duration = (1000 / config["tracking"]["fps"].GetInt()) * 1000;
+    int duration = (1000 / config.tracking.fps) * 1000;
     auto& controls = request->controls();
     controls.set(libcamera::controls::AeEnable, false);
     controls.set(libcamera::controls::ExposureTime, duration * 0.9);
     controls.set(libcamera::controls::AnalogueGain,
-                 config["tracking"]["brightness"].GetFloat());
+                 config.tracking.brightness);
     controls.set(libcamera::controls::FrameDurationLimits,
                  libcamera::Span<const int64_t, 2>({duration, duration}));
 

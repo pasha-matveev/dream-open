@@ -18,9 +18,9 @@ Object::Object(const vector<int> &hsv_min, const vector<int> &hsv_max) {
 Object::~Object() {};
 
 float Object::get_pixels_dist() {
-  int radius = config["tracking"]["radius"].GetInt();
+  int radius = config.tracking.radius;
   Vec mirror_center = {radius, radius};
   return (center - mirror_center).len();
   // return (center - mirror_center).len() * 972.0 /
-  //        (float)config["tracking"]["width"].GetInt();
+  //        (float)config.tracking.width;
 }

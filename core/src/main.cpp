@@ -16,14 +16,12 @@ int main() {
   load_config();
   spdlog::info("Config loaded");
 
-  if (config["tracking"]["preview"]["enabled"].GetBool()) {
-    cv::namedWindow(config["tracking"]["preview"]["window_name"].GetString(),
-                    cv::WINDOW_AUTOSIZE);
+  if (config.tracking.preview.enabled) {
+    cv::namedWindow(config.tracking.preview.window_name, cv::WINDOW_AUTOSIZE);
   }
 
-  Ball ball(make_int_vector(config["tracking"]["ball"]["hsv_min"].GetArray()),
-            make_int_vector(config["tracking"]["ball"]["hsv_max"].GetArray()),
-            config["tracking"]["preview"]["setup"].GetBool());
+  Ball ball(config.tracking.ball.hsv_min, config.tracking.ball.hsv_max,
+            config.tracking.preview.setup);
 
   Robot robot;
   spdlog::info("Initializing hardware...");
@@ -34,29 +32,29 @@ int main() {
 
   Visualization* visualization = nullptr;
 
-  if (config["visualization"]["enabled"].GetBool()) {
+  if (config.visualization.enabled) {
     visualization = new Visualization();
   }
 
-  int delay = 1000 / config["tracking"]["fps"].GetInt() / 2;
+  int delay = 1000 / config.tracking.fps / 2;
   while (true) {
-    if (config["serial"]["enabled"].GetBool()) {
+    if (config.serial.enabled) {
       robot.read_from_arduino();
     }
     // ... strategy ...
     strategy.run(robot, ball);
-    if (config["serial"]["enabled"].GetBool()) {
+    if (config.serial.enabled) {
       robot.write_to_arduino();
     }
     // visualisation
-    if (config["visualization"]["enabled"].GetBool()) {
+    if (config.visualization.enabled) {
       visualization->run(robot, ball);
       if (visualization->closed) {
         break;
       }
     }
     // delay
-    if (config["tracking"]["preview"]["enabled"].GetBool()) {
+    if (config.tracking.preview.enabled) {
       try {
         robot.camera->show_preview();
       } catch (...) {

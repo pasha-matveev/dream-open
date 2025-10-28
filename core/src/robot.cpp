@@ -36,9 +36,7 @@ void Robot::init_camera(Ball& ball) {
   camera->start();
 }
 
-void Robot::init_buzzer() {
-  buzzer = new Buzzer(config["gpio"]["buzzer"]["pin"].GetInt());
-}
+void Robot::init_buzzer() { buzzer = new Buzzer(config.gpio.buzzer.pin); }
 
 void Robot::init_buttons() { setup_buttons(buzzer); }
 
@@ -49,13 +47,12 @@ void Robot::init_uart() {
 }
 
 void Robot::init_display() {
-  string str_address = config["gpio"]["display"]["address"].GetString();
+  string str_address = config.gpio.display.address;
   uint8_t address = stoi(str_address, nullptr, 16);
-  display =
-      new Display(config["gpio"]["display"]["device"].GetString(), address);
+  display = new Display(config.gpio.display.device.c_str(), address);
   display->init();
-  if (string(config["gpio"]["display"]["mode"].GetString()) == "img") {
-    display->draw_image(get_img(config["gpio"]["display"]["img"].GetInt()));
+  if (config.gpio.display.mode == "img") {
+    display->draw_image(get_img(config.gpio.display.img));
   }
 }
 
@@ -68,35 +65,35 @@ void Robot::init_lidar() {
 }
 
 void Robot::init_hardware(Ball& ball) {
-  if (config["tracking"]["enabled"].GetBool()) {
+  if (config.tracking.enabled) {
     init_camera(ball);
   }
   spdlog::info("Camera ready");
-  if (config["gpio"]["enabled"].GetBool()) {
+  if (config.gpio.enabled) {
     setup_wiringpi();
-    if (config["gpio"]["buzzer"]["enabled"].GetBool()) {
+    if (config.gpio.buzzer.enabled) {
       init_buzzer();
     }
     spdlog::info("Buzzer ready");
-    if (config["gpio"]["buttons"]["enabled"].GetBool()) {
+    if (config.gpio.buttons.enabled) {
       init_buttons();
     }
     spdlog::info("Buttons ready");
-    if (config["gpio"]["display"]["enabled"].GetBool()) {
+    if (config.gpio.display.enabled) {
       init_display();
     }
     spdlog::info("Camera ready");
   }
   spdlog::info("GPIO ready");
-  if (config["serial"]["enabled"].GetBool()) {
+  if (config.serial.enabled) {
     init_uart();
-    cout << "Reading from arduino" << endl;
+    spdlog::info("Reading from arduino");
     read_from_arduino();
-    cout << "Got data from arduino" << endl;
+    spdlog::info("Got data from arduino");
     init_gyro();
   }
   spdlog::info("UART ready");
-  if (config["lidar"]["enabled"].GetBool()) {
+  if (config.lidar.enabled) {
     init_lidar();
   }
   spdlog::info("Lidar ready");

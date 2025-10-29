@@ -36,6 +36,11 @@ double Vec::len2() { return x * x + y * y; }
 double Vec::raw_angle() { return atan2(x, y); }
 double Vec::field_angle() { return atan2(-x, y); }
 Vec Vec::operator*(double k) { return {x * k, y * k}; }
+Vec& Vec::operator*=(double k) {
+  x *= k;
+  y *= k;
+  return *this;
+}
 Vec& Vec::operator+=(const Vec& other) {
   x += other.x;
   y += other.y;

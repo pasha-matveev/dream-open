@@ -128,7 +128,7 @@ bool Robot::compute_lidar() {
   // cout << "Lidar: " << normalize_angle(angle2) << '\n';
   // cout << "Inversion: " << inv << endl;
 
-  Vec center = {182 / 2, 243 / 2};
+  Vec center = {182.0 / 2, 243.0 / 2};
   position = center + res.v;
   // cout << "Position: " << position.x << " " << position.y << endl;
   field_angle = normalize_angle(res.rotation);

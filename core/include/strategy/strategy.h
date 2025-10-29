@@ -5,9 +5,14 @@
 
 enum State { INITIAL };
 
+long long millis();
+
 class Strategy {
  private:
   string role;
+
+  int last_ball_visible = 0;
+  bool active_def = false;
 
   void run_keeper(Robot& robot, Ball& ball);
   void run_attacker(Robot& robot, Ball& ball);

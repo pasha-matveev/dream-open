@@ -19,6 +19,7 @@ class Vec {
   operator cv::Point();
   operator sf::Vector2f();
   Vec operator*(double);
+  Vec& operator*=(double k);
   Vec& operator+=(const Vec&);
   double len();
   double len2();

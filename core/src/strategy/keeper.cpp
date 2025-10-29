@@ -39,7 +39,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
         robot.rotation_limit = 30;
       }
     } else {
-      Vec target{ball.field_position.x, 55.0};
+      Vec target{clamp(ball.field_position.x, 50.0, 130.0), 55.0};
       Vec vel = target - robot.position;
       vel *= 3;
       robot.dribling = 0;

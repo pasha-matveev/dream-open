@@ -6,9 +6,9 @@
 
 void Strategy::run_keeper(Robot& robot, Ball& ball) {
   if (millis() - last_ball_visible < 1000) {
-    if (ball.field_position.y < 80) {
+    if (ball.field_position.y < 100) {
       active_def = true;
-    } else if (ball.field_position.y > 90) {
+    } else if (ball.field_position.y > 110) {
       active_def = false;
     }
 
@@ -18,8 +18,8 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
         Vec target{91, 237};
         Vec route = target - robot.position;
         double target_angle = route.field_angle();
-        if (abs(robot.field_angle - target_angle) <= 0.05) {
-          robot.emitter = 70;  // здесь было 100
+        if (abs(robot.field_angle - target_angle) <= 0.1) {
+          robot.kicker_force = 70;  // здесь было 100
           robot.rotation = robot.field_angle;
           robot.speed = 0;
         } else {
@@ -43,8 +43,8 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
       Vec vel = target - robot.position;
       vel *= 3;
       robot.dribling = 0;
-      robot.speed = vel.len();
-      robot.direction = vel.field_angle() - robot.field_angle;
+      robot.speed = min(vel.len(), 50.0);
+      robot.direction = normalize_angle(vel.field_angle() - robot.field_angle);
       robot.rotation = ball.relative_angle;
       robot.rotation_limit = 20;
     }

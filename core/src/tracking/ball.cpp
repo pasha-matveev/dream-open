@@ -1,7 +1,8 @@
 #include "tracking/ball.h"
 
-#include <cmath>
 #include <spdlog/spdlog.h>
+
+#include <cmath>
 #include <vector>
 
 #include "robot.h"
@@ -92,8 +93,8 @@ float Ball::get_cm() {
   if (override_dist != -1) {
     return override_dist;
   }
-  double old_pixels =
-      get_pixels_dist() * 972 / config.tracking.width;
+  // cout << "pixels " << get_pixels_dist() << endl;
+  double old_pixels = get_pixels_dist() * 972 / config.tracking.width;
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
 }
 

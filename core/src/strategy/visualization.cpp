@@ -62,6 +62,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
     override_ball = true;
     ball.field_position = toReal(mouse_position);
     ball_a = {0, 0};
+    robot.emitter = false;
   }
 
   Vec robot_dir = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
@@ -86,12 +87,6 @@ void Visualization::run(Robot& robot, Ball& ball) {
             60,
         (double)robot.speed * cos(robot.direction + robot.field_angle) / 60};
     robot.position = robot.position + m;
-
-    // kick
-
-    if (robot.kicker_force > 0 && robot.emitter) {
-      ball_a = robot_dir.resize(robot.kicker_force * 0.6);
-    }
   }
 
   if (override_ball) {
@@ -114,11 +109,17 @@ void Visualization::run(Robot& robot, Ball& ball) {
     ball.relative_angle = atan2f(base % v, base * v);
     ball.override_dist = v.len();
 
-    if (ball.get_cm() <= 9) {
+    if (ball.get_cm() <= ROBOT_R) {
       robot.emitter = true;
       ball_a = {0, 0};
     } else {
       robot.emitter = false;
+    }
+
+    if (!config.serial.enabled && robot.kicker_force > 0 && robot.emitter) {
+      robot.emitter = false;
+      ball_a = robot_dir.resize(robot.kicker_force * 0.6);
+      ball.field_position += ball_a;
     }
   }
 

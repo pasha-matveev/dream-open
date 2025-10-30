@@ -19,8 +19,8 @@ long long millis() {
 
 void Strategy::run(Robot& robot, Ball& ball) {
   bool lidar_data = robot.compute_lidar();
-  if (!lidar_data) {
-    robot.predict_position();
+  if (!lidar_data && !config.visualization.enabled) {
+    // robot.predict_position();
   }
   if (!config.visualization.interactive) {
     ball.compute_field_position(robot);

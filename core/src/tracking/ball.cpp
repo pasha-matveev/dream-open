@@ -79,6 +79,7 @@ void Ball::draw(cv::Mat& frame) {
     colored.setTo(cv::Scalar(0, 255, 0), mask);  // красным
 
     cv::addWeighted(frame, 1, colored, 0.8, 0, frame);
+    cv::circle(frame, {frame.size().width / 2, frame.size().height / 2}, 5, {0, 0, 255}, 10);
 
     return;
   }
@@ -94,7 +95,7 @@ float Ball::get_cm() {
     return override_dist;
   }
   // cout << "pixels " << get_pixels_dist() << endl;
-  double old_pixels = get_pixels_dist() * 972 / config.tracking.width;
+  double old_pixels = get_pixels_dist() * 1.5;
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
 }
 

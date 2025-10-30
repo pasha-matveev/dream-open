@@ -84,6 +84,8 @@
     "queue": "cpp",
     "stack": "cpp",
     "codecvt": "cpp",
-    "format": "cpp"
+    "format": "cpp",
+    "any": "cpp",
+    "text_encoding": "cpp"
   }
 }

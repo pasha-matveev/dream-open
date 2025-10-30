@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libudev.h>
 
 #include "sl_lidar.h"
 #include "sl_lidar_driver.h"
@@ -33,6 +34,77 @@ static inline void delay(sl_word_size_t ms) {
 
 using namespace sl;
 using namespace std;
+
+optional<string> autodetect_usb_serial_port() {
+  unique_ptr<udev, decltype(&udev_unref)> udev_ctx(udev_new(), &udev_unref);
+  if (!udev_ctx) {
+    cerr << 
+        "udev initialization failed; cannot auto-detect Lidar port" << endl;;
+    return nullopt;
+  }
+
+  unique_ptr<udev_enumerate, decltype(&udev_enumerate_unref)> enumerate(
+      udev_enumerate_new(udev_ctx.get()), &udev_enumerate_unref);
+  if (!enumerate) {
+    cerr << 
+        "udev enumerate creation failed; cannot auto-detect Lidar port" << endl;;
+    return nullopt;
+  }
+
+  if (udev_enumerate_add_match_subsystem(enumerate.get(), "tty") < 0) {
+    cerr << "udev enumerate failed to match tty subsystem" << endl;
+    return nullopt;
+  }
+
+  if (udev_enumerate_scan_devices(enumerate.get()) < 0) {
+    cerr << "udev enumerate scan failed" << endl;
+    return nullopt;
+  }
+
+  for (auto entry = udev_enumerate_get_list_entry(enumerate.get()); entry;
+       entry = udev_list_entry_get_next(entry)) {
+    const char* syspath = udev_list_entry_get_name(entry);
+    if (!syspath) {
+      continue;
+    }
+
+    unique_ptr<udev_device, decltype(&udev_device_unref)> device(
+        udev_device_new_from_syspath(udev_ctx.get(), syspath),
+        &udev_device_unref);
+    if (!device) {
+      continue;
+    }
+
+    const char* devnode = udev_device_get_devnode(device.get());
+    if (devnode == nullptr) {
+      continue;
+    }
+
+    const char* id_bus = udev_device_get_property_value(device.get(), "ID_BUS");
+    if (id_bus == nullptr || string(id_bus) != "usb") {
+      continue;
+    }
+
+    const char* description_raw =
+        udev_device_get_property_value(device.get(), "ID_MODEL_FROM_DATABASE");
+    if (description_raw == nullptr) {
+      description_raw =
+          udev_device_get_property_value(device.get(), "ID_MODEL");
+    }
+    if (description_raw == nullptr) {
+      continue;
+    }
+
+    string description(description_raw);
+    replace(description.begin(), description.end(), '_', ' ');
+
+    if (description == "CP210x UART Bridge") {
+      return string(devnode);
+    }
+  }
+
+  return nullopt;
+}
 
 std::atomic<bool> keepRunning(true);
 
@@ -509,35 +581,25 @@ int main(int argc, const char* argv[]) {
 
   bool connectSuccess = false;
 
-  auto try_connect = [&](int number) {
-    sl_lidar_response_device_info_t devinfo;
+  sl_lidar_response_device_info_t devinfo;
 
-    string attempt_port = "/dev/ttyUSB" + std::to_string(number);
+  auto detection_result = autodetect_usb_serial_port();
+  if (!detection_result.has_value()) {
+    return 0;
+  }
+  port = (*detection_result).c_str();
 
-    // Connect to the lidar
-    _channel = (*createSerialPortChannel(attempt_port, baudrate));
-    if (SL_IS_OK((drv)->connect(_channel))) {
-      op_result = drv->getDeviceInfo(devinfo);
+  // Connect to the lidar
+  _channel = (*createSerialPortChannel(port, baudrate));
+  if (SL_IS_OK((drv)->connect(_channel))) {
+    op_result = drv->getDeviceInfo(devinfo);
 
-      if (SL_IS_OK(op_result)) {
-        connectSuccess = true;
-      } else {
-        delete drv;
-        drv = NULL;
-      }
-    }
-
-    // Failed to connect
-    if (!connectSuccess) {
-      return false;
-
+    if (SL_IS_OK(op_result)) {
+      connectSuccess = true;
     } else {
-      return true;
+      delete drv;
+      drv = NULL;
     }
-  };
-
-  for (int i = 0; i < 10 && !connectSuccess; ++i) {
-    try_connect(i);
   }
 
   if (!connectSuccess) {

@@ -5,6 +5,7 @@
 #include "strategy/strategy.h"
 
 void Strategy::run_keeper(Robot& robot, Ball& ball) {
+  robot.kicker_force = 0;
   if (millis() - last_ball_visible < 1000) {
     if (ball.field_position.y < 100) {
       active_def = true;
@@ -14,26 +15,37 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
 
     if (active_def) {
       if (robot.emitter) {
-        // раньше здесь была задержка
-        Vec target{91, 237};
-        Vec route = target - robot.position;
-        double target_angle = route.field_angle();
-        if (abs(robot.field_angle - target_angle) <= 0.1) {
-          robot.kicker_force = 70;  // здесь было 100
-          robot.rotation = robot.field_angle;
-          robot.speed = 0;
+        if (millis() - robot.first_time < 500) {
+          robot.speed = 10;
+          robot.dribling = 60;
+          robot.rotation_limit = 0;
         } else {
-          robot.rotation = target_angle - robot.field_angle;
           robot.rotation_limit = 10;
-          robot.speed = 0;
+          Vec target{91, 237};
+          Vec route = target - robot.position;
+          double target_angle = route.field_angle();
+          if (abs(robot.field_angle - target_angle) <= 0.1) {
+            robot.kicker_force = 70;  // здесь было 100
+            robot.rotation = robot.field_angle;
+            robot.speed = 0;
+          } else {
+            robot.rotation = target_angle - robot.field_angle;
+            robot.rotation_limit = 10;
+            robot.speed = 0;
+          }
         }
       } else {
-        Vec vel = ball.field_position - robot.position;
-        double desired_speed = (vel.len() > 10) ? vel.len() * 3 + 20 : 0;
-        vel = vel.resize(desired_speed);
+        Vec target{clamp(50.0, 130.0, ball.field_position.x), max(15.0, ball.field_position.y)};
+        Vec vel = target - robot.position;
+        double desired_speed; 
+        if (vel.len() <= 7) {
+          desired_speed = 1;
+        } else {
+          desired_speed = vel.len() * 2;
+        }
 
         robot.direction = vel.field_angle() - robot.field_angle;
-        robot.speed = vel.len();
+        robot.speed = desired_speed;
         robot.dribling = 60;
         robot.rotation = vel.field_angle() - robot.field_angle;
         robot.rotation_limit = 30;

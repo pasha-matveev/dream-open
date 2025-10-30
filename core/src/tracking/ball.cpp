@@ -95,7 +95,7 @@ float Ball::get_cm() {
     return override_dist;
   }
   // cout << "pixels " << get_pixels_dist() << endl;
-  double old_pixels = get_pixels_dist() * 1.5;
+  double old_pixels = get_pixels_dist() * 1.45;
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
 }
 

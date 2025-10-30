@@ -77,7 +77,8 @@ void Visualization::run(Robot& robot, Ball& ball) {
       robot.field_angle += min(robot.rotation, max_rotation);
     }
     if (robot.emitter && override_ball) {
-      ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
+      // ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
+        ball.field_position = robot.position;
     }
 
     // move

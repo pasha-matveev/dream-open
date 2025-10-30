@@ -44,6 +44,8 @@ class Robot {
 
   float gyro_angle = 0;
   bool emitter = false;
+  bool prev_emitter = false;
+  int first_time = 0;
   bool kicker_charged = false;
 
   float direction = 0;

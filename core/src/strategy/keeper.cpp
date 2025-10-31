@@ -17,11 +17,11 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
       if (robot.emitter) {
         if (millis() - robot.first_time < 500) {
           robot.vel = ball.field_position - robot.position;
-          robot.vel.resize(10);
+          robot.vel = robot.vel.resize(10);
           robot.rotation_limit = 0;
         } else {
           robot.rotation_limit = 10;
-          robot.vel.resize(0);
+          robot.vel = robot.vel.resize(0);
 
           Vec target{91, 237};
           Vec route = target - robot.position;
@@ -39,7 +39,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
                    max(10.0, ball.field_position.y)};
         Vec vel = target - robot.position;
         if (vel.len() <= 7) {
-          vel.resize(1);
+          vel = vel.resize(1);
         } else {
         }
 
@@ -53,13 +53,13 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
       Vec vel = target - robot.position;
       vel *= 3;
       robot.dribling = 0;
-      vel.resize(min(vel.len(), 50.0));
+      vel = vel.resize(min(vel.len(), 50.0));
       robot.vel = vel;
       robot.rotation = ball.relative_angle;
       robot.rotation_limit = 20;
     }
   } else {
-    robot.vel.resize(0);
+    robot.vel = robot.vel.resize(0);
     robot.rotation_limit = 0;
   }
 }

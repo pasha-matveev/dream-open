@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 extern const std::vector<std::vector<uint8_t>> img1;

@@ -31,10 +31,10 @@ Vec::Vec(sf::Vector2f v) : x(v.x), y(v.y) {}
 Vec::Vec(sf::Vector2i v) : x(v.x), y(v.y) {}
 Vec::operator cv::Point() { return {(int)x, (int)y}; }
 Vec::operator sf::Vector2f() { return {(float)x, (float)y}; }
-double Vec::len() { return sqrt(x * x + y * y); }
-double Vec::len2() { return x * x + y * y; }
-double Vec::raw_angle() { return atan2(x, y); }
-double Vec::field_angle() {
+double Vec::len() const { return sqrt(x * x + y * y); }
+double Vec::len2() const { return x * x + y * y; }
+double Vec::raw_angle() const { return atan2(x, y); }
+double Vec::field_angle() const {
   if (x == 0 && y == 0) {
     return 0;
   }
@@ -58,10 +58,15 @@ double operator*(const Vec& a, const Vec& b) { return a.x * b.x + a.y * b.y; }
 double operator%(const Vec& a, const Vec& b) { return a.x * b.y - a.y * b.x; }
 bool operator==(const Vec& a, const Vec& b) { return a.x == b.x && a.y == b.y; }
 
-Vec Vec::resize(double target) {
+Vec Vec::resize(double target) const {
   if (len() == 0) {
     return {0, 0};
   }
   double k = target / len();
   return {x * k, y * k};
 }
+double Vec::proection(const Vec& v) const {
+  double l = (*this * v) / v.len();
+  return l;
+}
+Vec Vec::turn_left() const { return {-y, x}; }

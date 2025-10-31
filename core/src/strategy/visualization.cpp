@@ -83,7 +83,7 @@ void Visualization::run(Robot& robot, Ball& ball, const Field& field) {
   // compute robot
   if (!config.serial.enabled) {
     // rotation
-    float max_rotation = robot.rotation_limit / 60 / 3;
+    float max_rotation = robot.rotation_limit / config.strategy.fps / 3;
     robot.field_angle += clamp(robot.rotation, -1 * max_rotation, max_rotation);
     if (robot.emitter && override_ball) {
       ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
@@ -91,7 +91,7 @@ void Visualization::run(Robot& robot, Ball& ball, const Field& field) {
 
     // move
     robot.field_angle = normalize_angle(robot.field_angle);
-    Vec m = robot.vel.resize(robot.vel.len() / 60);
+    Vec m = robot.vel.resize(robot.vel.len() / config.strategy.fps);
 
     robot.position = robot.position + m;
   }

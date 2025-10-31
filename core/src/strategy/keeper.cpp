@@ -13,6 +13,9 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     }
 
     if (active_def) {
+      // cout << ball.visible << '\n';
+      // cout << ball.field_position.x << " " << ball.field_position.y << '\n';
+      // cout << "---" << endl;
       robot.dribling = 60;
       if (robot.emitter) {
         if (millis() - robot.first_time < 500) {
@@ -79,7 +82,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     Vec vel = target - robot.position;
     vel *= 3;
     robot.dribling = 0;
-    // vel = vel.resize(min(vel.len(), 30.0));
+    vel = vel.resize(min(vel.len(), 50.0));
     robot.vel = vel;
     robot.rotation = -1 * robot.field_angle;
     robot.rotation_limit = 20;

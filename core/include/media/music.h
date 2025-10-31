@@ -17,11 +17,11 @@ constexpr float bb = 29.14;
 constexpr float bnat = 30.87;
 
 struct Note {
-    double base;
-    int octave;
-    double length;
+  double base;
+  int octave;
+  double length;
 };
 
 extern std::vector<Note> notes1;
 
-const std::vector<Note> &get_notes(int);
+const std::vector<Note>& get_notes(int);

@@ -13,6 +13,7 @@ class Strategy {
 
   int last_ball_visible = 0;
   bool active_def = false;
+  bool curve_kick = false;
 
   void run_keeper(Robot& robot, Ball& ball);
   void run_attacker(Robot& robot, Ball& ball);

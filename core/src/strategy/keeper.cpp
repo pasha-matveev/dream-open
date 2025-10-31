@@ -5,7 +5,6 @@
 #include "strategy/strategy.h"
 
 void Strategy::run_keeper(Robot& robot, Ball& ball) {
-  robot.kicker_force = 0;
   if (millis() - last_ball_visible < 1000) {
     if (ball.field_position.y < 100) {
       active_def = true;
@@ -14,15 +13,14 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     }
 
     if (active_def) {
+      robot.dribling = 60;
       if (robot.emitter) {
         if (millis() - robot.first_time < 500) {
           robot.vel = ball.field_position - robot.position;
           robot.vel.resize(10);
-          robot.dribling = 60;
           robot.rotation_limit = 0;
         } else {
           robot.rotation_limit = 10;
-          robot.dribling = 60;
           robot.vel.resize(0);
 
           Vec target{91, 237};
@@ -43,7 +41,6 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
         if (vel.len() <= 7) {
           vel.resize(1);
         } else {
-
         }
 
         robot.vel = vel;
@@ -66,7 +63,6 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     robot.rotation_limit = 0;
   }
 }
-
 
 // void Strategy::run_keeper(Robot& robot, Ball& ball) {
 //   if (!ball.visible) {

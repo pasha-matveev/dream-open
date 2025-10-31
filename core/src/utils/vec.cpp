@@ -31,10 +31,15 @@ Vec::Vec(sf::Vector2f v) : x(v.x), y(v.y) {}
 Vec::Vec(sf::Vector2i v) : x(v.x), y(v.y) {}
 Vec::operator cv::Point() { return {(int)x, (int)y}; }
 Vec::operator sf::Vector2f() { return {(float)x, (float)y}; }
-double Vec::len() { return hypot(x, y); }
+double Vec::len() { return sqrt(x * x + y * y); }
 double Vec::len2() { return x * x + y * y; }
 double Vec::raw_angle() { return atan2(x, y); }
-double Vec::field_angle() { return atan2(-x, y); }
+double Vec::field_angle() {
+  if (x == 0 && y == 0) {
+    return 0;
+  }
+  return atan2(-x, y);
+}
 Vec Vec::operator*(double k) { return {x * k, y * k}; }
 Vec& Vec::operator*=(double k) {
   x *= k;
@@ -54,6 +59,9 @@ double operator%(const Vec& a, const Vec& b) { return a.x * b.y - a.y * b.x; }
 bool operator==(const Vec& a, const Vec& b) { return a.x == b.x && a.y == b.y; }
 
 Vec Vec::resize(double target) {
+  if (len() == 0) {
+    return {0, 0};
+  }
   double k = target / len();
   return {x * k, y * k};
 }

@@ -16,37 +16,37 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     if (active_def) {
       if (robot.emitter) {
         if (millis() - robot.first_time < 500) {
-          robot.speed = 10;
+          robot.vel = ball.field_position - robot.position;
+          robot.vel.resize(10);
           robot.dribling = 60;
           robot.rotation_limit = 0;
         } else {
           robot.rotation_limit = 10;
+          robot.dribling = 60;
+          robot.vel.resize(0);
+
           Vec target{91, 237};
           Vec route = target - robot.position;
           double target_angle = route.field_angle();
+
           if (abs(robot.field_angle - target_angle) <= 0.1) {
             robot.kicker_force = 70;  // здесь было 100
             robot.rotation = robot.field_angle;
-            robot.speed = 0;
           } else {
             robot.rotation = target_angle - robot.field_angle;
-            robot.rotation_limit = 10;
-            robot.speed = 0;
           }
         }
       } else {
-        Vec target{clamp(ball.field_position.x, 15.0, 150.0),
-                   max(15.0, ball.field_position.y)};
+        Vec target{clamp(ball.field_position.x, 15.0, 160.0),
+                   max(10.0, ball.field_position.y)};
         Vec vel = target - robot.position;
-        double desired_speed;
         if (vel.len() <= 7) {
-          desired_speed = 1;
+          vel.resize(1);
         } else {
-          desired_speed = vel.len();
+
         }
 
-        robot.direction = vel.field_angle() - robot.field_angle;
-        robot.speed = desired_speed;
+        robot.vel = vel;
         robot.dribling = 60;
         robot.rotation = vel.field_angle() - robot.field_angle;
         robot.rotation_limit = 30;
@@ -56,13 +56,13 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
       Vec vel = target - robot.position;
       vel *= 3;
       robot.dribling = 0;
-      robot.speed = min(vel.len(), 50.0);
-      robot.direction = normalize_angle(vel.field_angle() - robot.field_angle);
+      vel.resize(min(vel.len(), 50.0));
+      robot.vel = vel;
       robot.rotation = ball.relative_angle;
       robot.rotation_limit = 20;
     }
   } else {
-    robot.speed = 0;
+    robot.vel.resize(0);
     robot.rotation_limit = 0;
   }
 }

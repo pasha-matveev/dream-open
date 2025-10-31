@@ -26,5 +26,14 @@ jobs:
           ./build debian
           mv debian-template/*.deb wiringpi.deb
           sudo apt install ./wiringpi.deb
+      - name: Build & Install LCCV
+        run: |
+          git clone https://github.com/kbarni/LCCV.git
+          cd LCCV
+          mkdir build
+          cd build
+          cmake ..
+          make -j
+          sudo make install
       - name: Build core
         run: mkdir build && cd build && cmake .. && make -j

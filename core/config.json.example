@@ -2,21 +2,21 @@
   "tracking": {
     "enabled": true,
     "preview": {
-      "enabled": false,
+      "enabled": true,
       "window_name": "Camera",
-      "setup": false
+      "setup": true
     },
     "camera_id": 0,
     "retries": 10,
-    "fps": 60,
-    "width": 800,
-    "height": 800,
-    "brightness": 1.0,
-    "radius": 310,
-    "disabled_radius": 2,
+    "fps": 45,
+    "width": 972,
+    "height": 972,
+    "brightness": 0.15,
+    "radius": 390,
+    "disabled_radius": 0,
     "center": {
-      "x": 400,
-      "y": 385
+      "x": 486,
+      "y": 512
     },
     "ball": {
       "hsv_min": [
@@ -32,13 +32,13 @@
     }
   },
   "serial": {
-    "enabled": true,
-    "device": "/dev/ttyUSB0",
+    "enabled": false,
+    "device": "auto",
     "rate": 115200,
-    "interference": true
+    "interference": false
   },
   "gpio": {
-    "enabled": true,
+    "enabled": false,
     "buzzer": {
       "enabled": true,
       "pin": 23
@@ -52,7 +52,7 @@
       ]
     },
     "display": {
-      "enabled": true,
+      "enabled": false,
       "device": "/dev/i2c-1",
       "address": "0x3c",
       "mode": "img",
@@ -60,7 +60,7 @@
     }
   },
   "lidar": {
-    "enabled": true,
+    "enabled": false,
     "path": "../lidar/build/bin/main"
   },
   "visualization": {
@@ -70,6 +70,7 @@
     "interactive": false
   },
   "strategy": {
-    "role": "keeper"
+    "role": "keeper",
+    "fps": 120
   }
 }

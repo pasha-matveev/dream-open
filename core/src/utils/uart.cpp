@@ -4,11 +4,13 @@
 
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <thread>
-#include <iostream>
+#ifdef __linux__
 #include <libudev.h>
+#endif
 
 #include "utils/config.h"
 
@@ -91,9 +93,7 @@ optional<string> autodetect_usb_serial_port() {
 
 #else
 
-optional<string> autodetect_usb_serial_port() {
-  return "/dev/ttyUSB0";
-}
+optional<string> autodetect_usb_serial_port() { return "/dev/ttyUSB0"; }
 
 #endif
 

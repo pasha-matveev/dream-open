@@ -22,6 +22,9 @@ class Robot {
 
   double top_angle;
 
+  float direction = 0;
+  float speed = 0;
+
  public:
   Camera* camera = nullptr;
   Buzzer* buzzer = nullptr;
@@ -48,8 +51,7 @@ class Robot {
   int first_time = 0;
   bool kicker_charged = false;
 
-  float direction = 0;
-  float speed = 0;
+  Vec vel{0, 0};
   float rotation = 0;
   float rotation_limit = 100;
   int dribling = 0;

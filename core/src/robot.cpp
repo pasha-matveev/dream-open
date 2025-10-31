@@ -19,6 +19,8 @@ void Robot::read_from_arduino() {
 }
 
 void Robot::write_to_arduino() {
+  speed = vel.len();
+  direction = vel.field_angle() - field_angle;
   uart->write_data<char>('W');
   uart->write_data<float>(
       normalize_angle2(-gyro_angle - normalize_angle2(direction)));

@@ -71,21 +71,15 @@ void Visualization::run(Robot& robot, Ball& ball) {
   if (!config.serial.enabled) {
     // rotation
     float max_rotation = robot.rotation_limit / 60 / 3;
-    if (robot.rotation < 0) {
-      robot.field_angle += max(robot.rotation, -1 * max_rotation);
-    } else {
-      robot.field_angle += min(robot.rotation, max_rotation);
-    }
+    robot.field_angle += clamp(robot.rotation, -1 * max_rotation, max_rotation);
     if (robot.emitter && override_ball) {
       ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
     }
 
     // move
     robot.field_angle = normalize_angle(robot.field_angle);
-    Vec m = {
-        (double)robot.speed * sin(robot.direction + robot.field_angle) * -1 /
-            60,
-        (double)robot.speed * cos(robot.direction + robot.field_angle) / 60};
+    Vec m = robot.vel.resize(robot.vel.len() / 60);
+
     robot.position = robot.position + m;
   }
 

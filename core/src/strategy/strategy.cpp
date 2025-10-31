@@ -25,7 +25,7 @@ void Strategy::run(Robot& robot, Ball& ball) {
   if (!lidar_data && config.serial.enabled) {
     robot.predict_position();
   }
-  if (!config.visualization.interactive) {  
+  if (!config.visualization.interactive) {
     ball.compute_field_position(robot);
   }
 
@@ -37,6 +37,9 @@ void Strategy::run(Robot& robot, Ball& ball) {
     robot.first_time = millis();
   }
   robot.prev_emitter = robot.emitter;
+
+  robot.kicker_force = 0;
+  robot.dribling = 0;
 
   if (role == "attacker") {
     run_attacker(robot, ball);

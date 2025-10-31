@@ -113,7 +113,7 @@ void Robot::init_gyro() { top_angle = normalize_angle2(gyro_angle + M_PI / 2); }
 
 bool Robot::compute_lidar() {
   if (!lidar) return false;
-  auto res = lidar->compute(field_angle);
+  auto res = lidar->compute(*this);
 
   if (!res.computed) return false;
 
@@ -135,7 +135,7 @@ bool Robot::compute_lidar() {
   // cout << "Position: " << position.x << " " << position.y << endl;
   field_angle = normalize_angle(res.rotation);
 
-  top_angle = normalize_angle(gyro_angle - field_angle);
+  // top_angle = normalize_angle(gyro_angle - field_angle);
 
   return true;
 }

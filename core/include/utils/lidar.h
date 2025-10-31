@@ -14,6 +14,8 @@
 #include "config.h"
 #include "utils/vec.h"
 
+class Robot;
+
 using namespace std;
 
 class LidarObject {
@@ -21,8 +23,8 @@ class LidarObject {
   double angle = 0;
   double dist = 0;
   double rotation = 0;
-  double width = 0;
-  double height = 0;
+  int width = 0;
+  int height = 0;
 
   void update(double a, double d, double r, int w, int h);
 
@@ -43,7 +45,7 @@ class Lidar {
 
   void stop();
 
-  ComputeResult compute(double robot_field_angle);
+  ComputeResult compute(const Robot& robot);
 
   bool new_data();
 

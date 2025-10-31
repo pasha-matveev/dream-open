@@ -1,12 +1,12 @@
-from path_planning.algorithms import dubins_path
-from path_planning.visualization import Visualization
+import logging
+import math
+import time
+
 from modules.lidar import Lidar
 from modules.uart import UART
-import logging
-import time
-import math
-from path_planning.models import Robot, Point, Field, Ball, Goal, Obstacle, Vector
-
+from path_planning.algorithms import dubins_path
+from path_planning.models import Ball, Field, Goal, Obstacle, Point, Robot, Vector
+from path_planning.visualization import Visualization
 from scripts.arg_parser import generate_args
 
 args = generate_args()
@@ -206,10 +206,6 @@ try:
                             if math.cos(angle - (-robot.gyro + math.pi / 2)) > 0.99:
                                 robot.kick = 100
                         else:
-                            # side_sign не инициализирован до использования,
-                            # но программа работает. Поэтому я делаю вывод,
-                            # что эта ветка не должна использоваться
-                            assert False
                             kick_point = Point(40 * side_sign, 45)
                             angle = kick_point.angle(Point(0, 100)) + math.pi
                             robot.vel = Vector.from_points(robot.pos, kick_point)

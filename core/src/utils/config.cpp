@@ -95,6 +95,7 @@ void load_config() {
 
   const auto& strategy = doc["strategy"];
   loaded.strategy.role = strategy["role"].GetString();
+  loaded.strategy.fps = strategy["fps"].GetInt();
 
   config = loaded;
 }

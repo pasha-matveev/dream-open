@@ -39,7 +39,7 @@ int main() {
     visualization = new Visualization();
   }
 
-  int delay = 1000 / config.tracking.fps / 2;
+  int delay = 1000 / config.strategy.fps / 10;
   while (true) {
     if (config.serial.enabled) {
       robot.read_from_arduino();

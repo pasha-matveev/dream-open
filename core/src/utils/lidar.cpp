@@ -23,8 +23,7 @@ void LidarObject::rotate() {
 
   rotation = -rotation + M_PI / 2;
 
-  while (rotation < 0) rotation += M_PI * 2;
-  while (rotation > M_PI) rotation -= M_PI;
+  rotation = normalize_angle2(rotation);
 }
 
 double LidarObject::get_radius() const {
@@ -52,7 +51,7 @@ void Lidar::stop() {
   if (output_thread.joinable()) output_thread.join();
 }
 
-Lidar::ComputeResult Lidar::compute() {
+Lidar::ComputeResult Lidar::compute(double robot_field_angle) {
   vector<string> local_copy;
 
   {
@@ -81,13 +80,23 @@ Lidar::ComputeResult Lidar::compute() {
   }
 
   obstacles_data.clear();
-  for (size_t i = 5; i + 4 < local_copy.size(); i += 5) {
+  for (size_t i = 5; i + 5 <= local_copy.size(); i += 5) {
     LidarObject obj;
+
     obj.update(stod(local_copy[i]), stod(local_copy[i + 1]),
                stod(local_copy[i + 2]), stoi(local_copy[i + 3]),
                stoi(local_copy[i + 4]));
-    obstacles_data.push_back(obj);
+
+    double result_angle = robot_field_angle + obj.angle;
+    Vec vec{obj.get_radius() * -1 * sin(result_angle),
+            obj.get_radius() * cos(result_angle)};
+
+    cout << result_angle << endl;
+    cout << vec.x << " " << vec.y << endl;
+
+    obstacles_data.push_back(vec);
   }
+  cout << "---" << endl;
 
   return {computed, v, result_rotation};
 }

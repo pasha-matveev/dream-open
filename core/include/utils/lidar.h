@@ -21,8 +21,8 @@ class LidarObject {
   double angle = 0;
   double dist = 0;
   double rotation = 0;
-  int width = 0;
-  int height = 0;
+  double width = 0;
+  double height = 0;
 
   void update(double a, double d, double r, int w, int h);
 
@@ -43,14 +43,14 @@ class Lidar {
 
   void stop();
 
-  ComputeResult compute();
+  ComputeResult compute(double robot_field_angle);
 
   bool new_data();
 
   ~Lidar() { stop(); }
 
   LidarObject field;
-  vector<LidarObject> obstacles_data;
+  vector<Vec> obstacles_data;
   bool received_data = false;
 
  private:

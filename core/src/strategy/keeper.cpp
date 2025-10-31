@@ -59,11 +59,27 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
       robot.rotation_limit = 20;
     }
   } else {
-    Vec target{91.0, 40.0};
+    optional<Vec> nearest_obstacle;
+    if (robot.lidar) {
+      for (const auto& obstacle : robot.lidar->obstacles_data) {
+        if (!nearest_obstacle.has_value() ||
+            (obstacle - robot.position).len() <
+                (*nearest_obstacle - robot.position).len()) {
+          nearest_obstacle = obstacle;
+        }
+      }
+    }
+    Vec target;
+    if (!nearest_obstacle.has_value() ||
+        (*nearest_obstacle - robot.position).len() > 70) {
+      target = {91.0, 35.0};
+    } else {
+      target = {nearest_obstacle->x, 35.0};
+    }
     Vec vel = target - robot.position;
     vel *= 3;
     robot.dribling = 0;
-    vel = vel.resize(min(vel.len(), 30.0));
+    // vel = vel.resize(min(vel.len(), 30.0));
     robot.vel = vel;
     robot.rotation = -1 * robot.field_angle;
     robot.rotation_limit = 20;

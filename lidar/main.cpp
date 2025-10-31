@@ -1,10 +1,10 @@
 // ./main --channel --serial /dev/cu.usbserial-110 460800
 
+#include <libudev.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libudev.h>
 
 #include "sl_lidar.h"
 #include "sl_lidar_driver.h"
@@ -38,16 +38,17 @@ using namespace std;
 optional<string> autodetect_usb_serial_port() {
   unique_ptr<udev, decltype(&udev_unref)> udev_ctx(udev_new(), &udev_unref);
   if (!udev_ctx) {
-    cerr << 
-        "udev initialization failed; cannot auto-detect Lidar port" << endl;;
+    cerr << "udev initialization failed; cannot auto-detect Lidar port" << endl;
+    ;
     return nullopt;
   }
 
   unique_ptr<udev_enumerate, decltype(&udev_enumerate_unref)> enumerate(
       udev_enumerate_new(udev_ctx.get()), &udev_enumerate_unref);
   if (!enumerate) {
-    cerr << 
-        "udev enumerate creation failed; cannot auto-detect Lidar port" << endl;;
+    cerr << "udev enumerate creation failed; cannot auto-detect Lidar port"
+         << endl;
+    ;
     return nullopt;
   }
 
@@ -588,6 +589,7 @@ int main(int argc, const char* argv[]) {
     return 0;
   }
   port = (*detection_result).c_str();
+  cout << "detected " << port << endl;
 
   // Connect to the lidar
   _channel = (*createSerialPortChannel(port, baudrate));

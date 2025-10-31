@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "robot.h"
 #include "utils/config.h"
 #include "utils/vec.h"
 
@@ -51,7 +52,7 @@ void Lidar::stop() {
   if (output_thread.joinable()) output_thread.join();
 }
 
-Lidar::ComputeResult Lidar::compute(double robot_field_angle) {
+Lidar::ComputeResult Lidar::compute(const Robot& robot) {
   vector<string> local_copy;
 
   {
@@ -87,16 +88,16 @@ Lidar::ComputeResult Lidar::compute(double robot_field_angle) {
                stod(local_copy[i + 2]), stoi(local_copy[i + 3]),
                stoi(local_copy[i + 4]));
 
-    double result_angle = robot_field_angle + obj.angle;
-    Vec vec{obj.get_radius() * -1 * sin(result_angle),
-            obj.get_radius() * cos(result_angle)};
+    double result_angle =
+        normalize_angle(robot.field_angle + obj.angle - (M_PI / 2));
+    Vec vec{obj.dist * -1 * sin(result_angle), obj.dist * cos(result_angle)};
+    Vec r = vec + robot.position;
 
-    cout << result_angle << endl;
-    cout << vec.x << " " << vec.y << endl;
+    // cout << r.x << " " << r.y << endl;
 
-    obstacles_data.push_back(vec);
+    obstacles_data.push_back(r);
   }
-  cout << "---" << endl;
+  // cout << "---" << endl;
 
   return {computed, v, result_rotation};
 }

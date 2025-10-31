@@ -86,6 +86,21 @@
     "codecvt": "cpp",
     "format": "cpp",
     "any": "cpp",
-    "text_encoding": "cpp"
+    "text_encoding": "cpp",
+    "__tree": "cpp",
+    "barrier": "cpp",
+    "cfenv": "cpp",
+    "csetjmp": "cpp",
+    "csignal": "cpp",
+    "cuchar": "cpp",
+    "future": "cpp",
+    "latch": "cpp",
+    "regex": "cpp",
+    "scoped_allocator": "cpp",
+    "shared_mutex": "cpp",
+    "source_location": "cpp",
+    "strstream": "cpp",
+    "syncstream": "cpp",
+    "valarray": "cpp"
   }
 }

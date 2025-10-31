@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "robot.h"
+#include "strategy/field.h"
 #include "strategy/strategy.h"
 #include "strategy/visualization.h"
 #include "tracking/ball.h"
@@ -12,6 +13,8 @@
 using namespace std;
 
 int main() {
+  Field field({{12, 12}, {12, 231}, {170, 231}, {170, 12}});
+
   spdlog::info("Loading config...");
   load_config();
   spdlog::info("Config loaded");
@@ -42,13 +45,13 @@ int main() {
       robot.read_from_arduino();
     }
     // ... strategy ...
-    strategy.run(robot, ball);
+    strategy.run(robot, ball, field);
     if (config.serial.enabled) {
       robot.write_to_arduino();
     }
     // visualisation
     if (config.visualization.enabled) {
-      visualization->run(robot, ball);
+      visualization->run(robot, ball, field);
       if (visualization->closed) {
         break;
       }

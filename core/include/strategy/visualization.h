@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "robot.h"
+#include "strategy/field.h"
 #include "tracking/ball.h"
 
 class Visualization {
@@ -12,5 +13,6 @@ class Visualization {
  public:
   bool closed = false;
   Visualization();
-  void run(Robot &robot, Ball &ball);
+  void run(Robot& robot, Ball& ball, const Field&);
+  void draw_field(const Field&);
 };

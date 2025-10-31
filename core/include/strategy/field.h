@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
 #include <vector>
 
 #include "robot.h"
@@ -13,5 +14,8 @@ class Field {
   vector<Vec> points;
 
  public:
-  void apply(Robot& robot);
+  Field(const vector<Vec>&);
+  void apply(Robot&) const;
+
+  friend class Visualization;
 };

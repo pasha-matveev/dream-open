@@ -3,6 +3,7 @@
 #include <queue>
 
 #include "robot.h"
+#include "strategy/field.h"
 #include "tracking/ball.h"
 
 enum State { INITIAL };
@@ -24,6 +25,6 @@ class Strategy {
 
  public:
   State state = INITIAL;
-  void run(Robot& robot, Ball& ball);
+  void run(Robot& robot, Ball& ball, const Field& field);
   Strategy();
 };

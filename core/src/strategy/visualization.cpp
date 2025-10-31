@@ -41,7 +41,18 @@ constexpr double REAL_ROBOT_R = 9;
 constexpr int BALL_R = cm_to_px(REAL_BALL_R);
 constexpr int ROBOT_R = cm_to_px(REAL_ROBOT_R);
 
-void Visualization::run(Robot& robot, Ball& ball) {
+void Visualization::draw_field(const Field& field) {
+  sf::ConvexShape shape(field.points.size());
+  for (int i = 0; i < field.points.size(); ++i) {
+    shape.setPoint(i, toSFML(field.points[i]));
+  }
+  shape.setOutlineColor(sf::Color::White);
+  shape.setOutlineThickness(5);
+  shape.setFillColor({2, 179, 46});
+  window.draw(shape);
+}
+
+void Visualization::run(Robot& robot, Ball& ball, const Field& field) {
   if (!window.isOpen()) {
     spdlog::info("Window is already closed, visualization not available");
     closed = true;
@@ -54,7 +65,9 @@ void Visualization::run(Robot& robot, Ball& ball) {
       window.close();
     }
   }
-  window.clear(sf::Color::White);
+  window.clear({2, 179, 46});
+
+  draw_field(field);
 
   if (config.visualization.interactive &&
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
@@ -103,7 +116,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
     ball.relative_angle = atan2f(base % v, base * v);
     ball.override_dist = v.len();
 
-    if (ball.get_cm() <= ROBOT_R) {
+    if (ball.get_cm() <= REAL_ROBOT_R) {
       robot.emitter = true;
       ball_a = {0, 0};
     } else {
@@ -126,7 +139,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
     window.draw(robot_shape);
     // draw hole
     auto hole_shape = sf::CircleShape(BALL_R);
-    hole_shape.setFillColor(sf::Color(255, 255, 255));
+    hole_shape.setFillColor({2, 179, 46});
     Vec move = {-1 * sin(robot.field_angle) * ROBOT_R,
                 -1 * cos(robot.field_angle) * ROBOT_R};
     Vec hole_point = robot_point + move;

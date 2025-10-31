@@ -10,7 +10,7 @@ bool Segment::is_inside(Robot& robot) {
 
 double Segment::dist(Vec& p) {
   Vec l = b - a;
-  double S = abs((a - p) % (b - p));
+  double S = (b - p) % (a - p);
   double h = S / l.len();
   return h;
 }
@@ -22,7 +22,12 @@ void Segment::apply(Robot& robot) {
 
   double vx = robot.vel.proection(ox);
   double vy = robot.vel.proection(oy);
-  if (d <= 2) {
+  if (is_inside(robot)) {
+    assert(d >= 0);
+  } else {
+    assert(d <= 0);
+  }
+  if (d <= -1.5) {
     // робот снаружи, почти касается
     // значит, больше не можем удаляться от поля
     vy = min(vy, 0.0);

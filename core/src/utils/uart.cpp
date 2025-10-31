@@ -8,6 +8,7 @@
 #include <optional>
 #include <thread>
 #include <iostream>
+#include <libudev.h>
 
 #include "utils/config.h"
 

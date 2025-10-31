@@ -29,8 +29,8 @@ Vec::Vec(int x, int y) : x(x), y(y) {}
 Vec::Vec(cv::Point2f p) : x(p.x), y(p.y) {}
 Vec::Vec(sf::Vector2f v) : x(v.x), y(v.y) {}
 Vec::Vec(sf::Vector2i v) : x(v.x), y(v.y) {}
-Vec::operator cv::Point() { return {(int)x, (int)y}; }
-Vec::operator sf::Vector2f() { return {(float)x, (float)y}; }
+Vec::operator cv::Point() const { return {(int)x, (int)y}; }
+Vec::operator sf::Vector2f() const { return {(float)x, (float)y}; }
 double Vec::len() const { return sqrt(x * x + y * y); }
 double Vec::len2() const { return x * x + y * y; }
 double Vec::raw_angle() const { return atan2(x, y); }

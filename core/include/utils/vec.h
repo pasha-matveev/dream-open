@@ -1,8 +1,7 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
 #include <opencv2/opencv.hpp>
-
-#include "SFML/Graphics.hpp"
 
 double normalize_angle(double a);
 double normalize_angle2(double a);
@@ -16,8 +15,8 @@ class Vec {
   Vec(cv::Point2f);
   Vec(sf::Vector2f);
   Vec(sf::Vector2i);
-  operator cv::Point();
-  operator sf::Vector2f();
+  operator cv::Point() const;
+  operator sf::Vector2f() const;
   Vec operator*(double);
   Vec& operator*=(double k);
   Vec& operator+=(const Vec&);

@@ -35,9 +35,9 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
           }
         }
       } else {
-        Vec target{clamp(ball.field_position.x, 15.0, 160.0),
-                   max(10.0, ball.field_position.y)};
-        Vec vel = target - robot.position;
+        // Vec target{clamp(ball.field_position.x, 15.0, 160.0),
+        //            max(10.0, ball.field_position.y)};
+        Vec vel = ball.field_position - robot.position;
         if (vel.len() <= 7) {
           vel = vel.resize(1);
         } else {
@@ -49,7 +49,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
         robot.rotation_limit = 30;
       }
     } else {
-      Vec target{clamp(ball.field_position.x, 50.0, 130.0), 55.0};
+      Vec target{clamp(ball.field_position.x, 50.0, 130.0), 40.0};
       Vec vel = target - robot.position;
       vel *= 3;
       robot.dribling = 0;
@@ -59,8 +59,14 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
       robot.rotation_limit = 20;
     }
   } else {
-    robot.vel = robot.vel.resize(0);
-    robot.rotation_limit = 0;
+    Vec target{91.0, 40.0};
+    Vec vel = target - robot.position;
+    vel *= 3;
+    robot.dribling = 0;
+    vel = vel.resize(min(vel.len(), 30.0));
+    robot.vel = vel;
+    robot.rotation = -1 * robot.field_angle;
+    robot.rotation_limit = 20;
   }
 }
 

@@ -1,6 +1,5 @@
 #include "utils/uart.h"
 
-#include <libudev.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -14,7 +13,7 @@
 
 using namespace std;
 
-namespace {
+#ifdef __linux__
 
 optional<string> autodetect_usb_serial_port() {
   unique_ptr<udev, decltype(&udev_unref)> udev_ctx(udev_new(), &udev_unref);
@@ -89,7 +88,13 @@ optional<string> autodetect_usb_serial_port() {
   return nullopt;
 }
 
-}  // namespace
+#else
+
+optional<string> autodetect_usb_serial_port() {
+  return "/dev/ttyUSB0";
+}
+
+#endif
 
 BaudRate int_to_baud(int baud) {
   switch (baud) {

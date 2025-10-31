@@ -31,7 +31,7 @@ void Strategy::run_attacker(Robot& robot, Ball& ball) {
           robot.vel = {10, 0};
           robot.rotation_limit = 20;
           robot.dribling = 60;
-          if (angle <= 0.1) {
+          if (abs(angle) <= 0.1) {
             robot.kicker_force = 70;
           }
         } else {

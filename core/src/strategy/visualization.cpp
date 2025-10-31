@@ -116,7 +116,7 @@ void Visualization::run(Robot& robot, Ball& ball, const Field& field) {
     ball.relative_angle = atan2f(base % v, base * v);
     ball.override_dist = v.len();
 
-    if (ball.get_cm() <= REAL_ROBOT_R) {
+    if (ball.get_cm() <= REAL_ROBOT_R || robot.emitter) {
       robot.emitter = true;
       ball_a = {0, 0};
     } else {

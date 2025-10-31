@@ -113,7 +113,7 @@ void Robot::init_gyro() { top_angle = normalize_angle2(gyro_angle + M_PI / 2); }
 
 bool Robot::compute_lidar() {
   if (!lidar) return false;
-  auto res = lidar->compute();
+  auto res = lidar->compute(field_angle);
 
   if (!res.computed) return false;
 
@@ -150,6 +150,7 @@ void Robot::predict_position() {
   // Vec shift = {-1 * sin(direction) * len, cos(direction) * len};
   // position = position + shift;
 
-    // field_angle +=
-    //     clamp(rotation / 60.0, -1.0 * rotation_limit / 60.0, rotation_limit / 60.0);
+  // field_angle +=
+  //     clamp(rotation / 60.0, -1.0 * rotation_limit / 60.0, rotation_limit
+  //     / 60.0);
 }

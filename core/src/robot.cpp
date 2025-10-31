@@ -133,9 +133,13 @@ bool Robot::compute_lidar() {
   // cout << "Position: " << position.x << " " << position.y << endl;
   field_angle = normalize_angle(res.rotation);
 
-  // top_angle = normalize_angle(gyro_angle - field_angle);
+  top_angle = normalize_angle(gyro_angle - field_angle);
 
   return true;
+}
+
+void Robot::compute_gyro_angle() {
+  field_angle = normalize_angle(gyro_angle - top_angle);
 }
 
 void Robot::predict_position() {
@@ -144,6 +148,6 @@ void Robot::predict_position() {
   // Vec shift = {-1 * sin(direction) * len, cos(direction) * len};
   // position = position + shift;
 
-  // field_angle +=
-  //     clamp(-1.0 * rotation_limit / 60.0, rotation / 60.0, rotation_limit / 60.0);
+    // field_angle +=
+    //     clamp(rotation / 60.0, -1.0 * rotation_limit / 60.0, rotation_limit / 60.0);
 }

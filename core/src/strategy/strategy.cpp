@@ -18,8 +18,9 @@ long long millis() {
 }
 
 void Strategy::run(Robot& robot, Ball& ball) {
+  robot.compute_gyro_angle();
   bool lidar_data = robot.compute_lidar();
-  if (!lidar_data && !config.visualization.enabled) {
+  if (!lidar_data && !config.visualization.interactive) {
     robot.predict_position();
   }
   if (!config.visualization.interactive) {  

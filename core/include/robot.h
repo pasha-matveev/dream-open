@@ -57,7 +57,9 @@ class Robot {
   bool rgb_led = false;
 
   void init_hardware(Ball& ball);
+
   bool compute_lidar();
+  void compute_gyro_angle();
 
   void read_from_arduino();
   void write_to_arduino();

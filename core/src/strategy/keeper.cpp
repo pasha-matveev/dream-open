@@ -35,13 +35,14 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
           }
         }
       } else {
-        Vec target{clamp(50.0, 130.0, ball.field_position.x), max(15.0, ball.field_position.y)};
+        Vec target{clamp(ball.field_position.x, 15.0, 150.0),
+                   max(15.0, ball.field_position.y)};
         Vec vel = target - robot.position;
-        double desired_speed; 
+        double desired_speed;
         if (vel.len() <= 7) {
           desired_speed = 1;
         } else {
-          desired_speed = vel.len() * 2;
+          desired_speed = vel.len();
         }
 
         robot.direction = vel.field_angle() - robot.field_angle;
@@ -65,6 +66,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
     robot.rotation_limit = 0;
   }
 }
+
 
 // void Strategy::run_keeper(Robot& robot, Ball& ball) {
 //   if (!ball.visible) {

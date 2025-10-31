@@ -77,8 +77,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
       robot.field_angle += min(robot.rotation, max_rotation);
     }
     if (robot.emitter && override_ball) {
-      // ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
-        ball.field_position = robot.position;
+      ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
     }
 
     // move
@@ -144,7 +143,7 @@ void Visualization::run(Robot& robot, Ball& ball) {
   if (ball.visible) {
     auto ball_shape = sf::CircleShape(BALL_R);
     ball_shape.setFillColor(sf::Color(0, 0, 255));
-    Vec point = toSFML(ball.field_position - Vec{BALL_R, BALL_R});
+    Vec point = toSFML(ball.field_position) - Vec{BALL_R, BALL_R};
     ball_shape.setPosition(point);
     window.draw(ball_shape);
   }

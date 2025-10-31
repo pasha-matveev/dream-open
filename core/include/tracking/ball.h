@@ -26,10 +26,10 @@ class Ball : public Object {
   Vec field_position{0, 0};
 
   Ball() = default;
-  Ball(const std::vector<int> &, const std::vector<int> &, bool);
+  Ball(const std::vector<int>&, const std::vector<int>&, bool);
   virtual ~Ball();
-  void find(const cv::Mat &frame);
-  void draw(cv::Mat &frame);
+  void find(const cv::Mat& frame);
+  void draw(cv::Mat& frame);
   float get_cm();
-  void compute_field_position(const Robot &robot);
+  void compute_field_position(const Robot& robot);
 };

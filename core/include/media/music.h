@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 
 constexpr int beat = 500;

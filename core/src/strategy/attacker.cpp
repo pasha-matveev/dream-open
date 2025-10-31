@@ -2,6 +2,7 @@
 
 void Strategy::run_attacker(Robot& robot, Ball& ball) {
   bool straight_path = true;
+
   if (millis() - last_ball_visible < 3000) {
     if (!robot.emitter) {
       if (!straight_path) {
@@ -15,7 +16,7 @@ void Strategy::run_attacker(Robot& robot, Ball& ball) {
     } else {
       if (millis() - robot.first_time < 500) {
         robot.vel = ball.field_position - robot.position;
-        robot.vel.resize(10);
+        robot.vel = robot.vel.resize(10);
         robot.dribling = 60;
         robot.rotation_limit = 0;
 
@@ -24,7 +25,8 @@ void Strategy::run_attacker(Robot& robot, Ball& ball) {
         if (!curve_kick) {
           // recognition
           Vec target{91, 237};
-          double angle = (target - robot.position).field_angle() - robot.field_angle;
+          double angle =
+              (target - robot.position).field_angle() - robot.field_angle;
           robot.rotation = angle;
           robot.vel = {10, 0};
           robot.rotation_limit = 20;
@@ -38,7 +40,7 @@ void Strategy::run_attacker(Robot& robot, Ball& ball) {
       }
     }
   } else {
-    Vec target {91, 121};
+    Vec target{91, 121};
     robot.vel = target - robot.position;
     robot.rotation = 0;
     robot.rotation_limit = 30;

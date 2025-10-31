@@ -62,7 +62,7 @@ int main() {
         robot.camera->show_preview();
       } catch (...) {
       }
-      if (cv::waitKey(delay) == 27) {
+      if (cv::waitKey(10) == 27) {
         break;
       }
     } else {

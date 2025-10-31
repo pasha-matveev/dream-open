@@ -2,19 +2,20 @@
 
 #include <memory>
 #include <opencv2/opencv.hpp>
+#include <thread>
 
 #include "tracking/ball.h"
 
 class Camera {
- private:
+ public:
+  std::thread camera_thread;
   struct Impl;
   std::unique_ptr<Impl> impl;
 
- public:
-  Camera(Ball &);
+  Camera(Ball&);
   ~Camera();
 
-  Ball &ball;
+  Ball& ball;
 
   void start();
   void show_preview();

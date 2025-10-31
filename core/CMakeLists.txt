@@ -28,7 +28,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 # OpenCV
 find_package(OpenCV REQUIRED)
-target_link_libraries(core PRIVATE ${OpenCV_LIBS} )
+target_link_libraries(core PRIVATE -llccv ${OpenCV_LIBS} )
 
 # RapidJSON
 find_package(RapidJSON REQUIRED)
@@ -39,25 +39,25 @@ target_precompile_headers(core PRIVATE
 
 # LibSerial
 find_library(LibSerial_LIB serial REQUIRED)
-target_link_libraries(core PRIVATE ${LibSerial_LIB})
+target_link_libraries(core PRIVATE -llccv ${LibSerial_LIB})
 
 if (UNIX AND NOT APPLE)
 
 # WiringPi
 find_library(WiringPi_LIB wiringPi REQUIRED)
-target_link_libraries(core PRIVATE ${WiringPi_LIB})
+target_link_libraries(core PRIVATE -llccv ${WiringPi_LIB})
 
 # LibCamera
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCAMERA REQUIRED IMPORTED_TARGET libcamera)
 include_directories(${LIBCAMERA_INCLUDE_DIRS})
-target_link_libraries(core PRIVATE PkgConfig::LIBCAMERA)
+target_link_libraries(core PRIVATE -llccv PkgConfig::LIBCAMERA)
 
 endif()
 
 # spdlog
 find_package(spdlog REQUIRED)
-target_link_libraries(core PRIVATE spdlog::spdlog)
+target_link_libraries(core PRIVATE -llccv spdlog::spdlog)
 
 # SFML
 
@@ -70,4 +70,4 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-target_link_libraries(core PRIVATE SFML::Graphics)
+target_link_libraries(core PRIVATE -llccv SFML::Graphics)

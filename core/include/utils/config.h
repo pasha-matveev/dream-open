@@ -86,6 +86,7 @@ struct Config {
   struct Strategy {
     string role;
     int fps;
+    bool enabled;
   } strategy;
 };
 

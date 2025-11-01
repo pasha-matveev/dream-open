@@ -24,6 +24,7 @@ class Robot {
 
   float direction = 0;
   float speed = 0;
+  bool applied_goal = false;
 
  public:
   Camera* camera = nullptr;

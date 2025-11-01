@@ -3,6 +3,7 @@
 #include <optional>
 
 #include "strategy/strategy.h"
+#include "utils/millis.h"
 
 void Strategy::run_keeper(Robot& robot, Object& __, Object& goal) {
   if (millis() - last_ball_visible < 1000 || robot.emitter) {

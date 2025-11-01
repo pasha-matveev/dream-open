@@ -6,16 +6,12 @@
 #include <cstdint>
 
 #include "utils/config.h"
+#include "utils/millis.h"
 #include "utils/vec.h"
 
 using namespace std::chrono;
 
 Strategy::Strategy() { role = config.strategy.role; }
-
-long long millis() {
-  return duration_cast<milliseconds>(steady_clock::now().time_since_epoch())
-      .count();
-}
 
 void Strategy::run(Robot& robot, Object& ball, Object& goal,
                    const Field& field) {
@@ -49,10 +45,78 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   robot.kicker_force = 0;
   robot.dribling = 0;
 
-  if (role == "attacker") {
-    run_attacker(robot, ball, goal);
-  } else {
-    run_keeper(robot, ball, goal);
+  if (config.strategy.enabled) {
+    reset_target = true;
+    if (role == "attacker") {
+      run_attacker(robot, ball, goal);
+    } else {
+      run_keeper(robot, ball, goal);
+    }
+    if (reset_target) {
+      target_status = "none";
+      target_angle = -1;
+      slow_tm = -1;
+    }
+    field.apply(robot);
   }
-  field.apply(robot);
+}
+
+void Strategy::hit(Robot& robot, Object& goal, bool slow) {
+  reset_target = false;
+  if (target_status == "none") {
+    Vec vel{-1 * sin(robot.field_angle) * 10.0, cos(robot.field_angle) * 10.0};
+    robot.vel = vel;
+    robot.dribling = 60;
+    robot.rotation_limit = 0;
+    if (millis() > robot.first_time + 300) {
+      target_status = "rotate";
+    }
+  } else if (target_status == "rotate") {
+    if (goal.visible) {
+      target_angle = goal.relative_angle + robot.gyro_angle;
+    } else {
+      Vec center{91, 237};
+      Vec simple_route = center - robot.position;
+      target_angle =
+          simple_route.field_angle() - robot.field_angle + robot.gyro_angle;
+    }
+    double delta = normalize_angle(target_angle - robot.gyro_angle);
+    if (abs(delta) <= M_PI / 3) {
+      target_status = "ac";
+    }
+    robot.rotation = delta;
+    robot.rotation_limit = 15;
+    robot.dribling = 70;
+    robot.vel = {0, 0};
+  } else if (target_status == "ac") {
+    double delta = normalize_angle(target_angle - robot.gyro_angle);
+    if (abs(delta) <= 0.1) {
+      if (slow) {
+        target_status = "slow";
+        slow_tm = millis() + 400;
+      } else {
+        target_status = "kick";
+      }
+      robot.rotation = 0;
+      robot.dribling = 0;
+      robot.vel = {0, 0};
+    } else {
+      robot.rotation = delta;
+      robot.rotation_limit = 15;
+      robot.dribling = 70;
+      robot.vel = {0, 0};
+    }
+  } else if (target_status == "slow") {
+    robot.rotation = 0;
+    robot.dribling = 0;
+    robot.vel = {0, 0};
+    if (slow_tm < millis()) {
+      target_status = "kick";
+    }
+  } else if (target_status == "kick") {
+    robot.kicker_force = 70;
+    robot.dribling = 0;
+    robot.rotation = 0;
+    robot.vel = {0, 0};
+  }
 }

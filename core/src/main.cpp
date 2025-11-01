@@ -13,24 +13,26 @@
 using namespace std;
 
 int main() {
+  spdlog::info("Loading config...");
+  load_config();
+  spdlog::info("Config loaded");
+
   vector<Vec> field_points;
 
   if (config.strategy.role == "keeper") {
+    cout << "keeper" << endl;
     field_points = {
         {12, 12},   {12, 231}, {40, 231}, {58, 191}, {125, 191}, {146, 231},
         {170, 231}, {170, 12}, {146, 12}, {125, 52}, {58, 52},   {40, 12},
     };
   } else {
+    cout << "attacker" << endl;
     field_points = {
         {12, 80},   {12, 231},  {40, 231},  {58, 191},
         {125, 191}, {146, 231}, {170, 231}, {170, 80},
     };
   }
   Field field(field_points);
-
-  spdlog::info("Loading config...");
-  load_config();
-  spdlog::info("Config loaded");
 
   if (config.tracking.preview.enabled) {
     cv::namedWindow(config.tracking.preview.window_name, cv::WINDOW_AUTOSIZE);

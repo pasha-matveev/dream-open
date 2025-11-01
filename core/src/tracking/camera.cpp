@@ -13,6 +13,7 @@
 #include <thread>
 
 #include "utils/config.h"
+#include "utils/millis.h"
 
 using namespace std;
 using namespace chrono;

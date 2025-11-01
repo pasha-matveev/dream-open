@@ -1,11 +1,11 @@
 #pragma once
 
 class Button {
-   private:
-    const int pin = 8;
-    bool was_pressed = false;
+ private:
+  const int pin = 8;
 
-   public:
-    void init();
-    bool state();
+ public:
+  bool was_pressed = false;
+  void init();
+  bool state();
 };

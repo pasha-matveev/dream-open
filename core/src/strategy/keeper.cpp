@@ -73,7 +73,7 @@ void Strategy::run_keeper(Robot& robot, Object& __, Object& goal) {
     } else {
       cout << "PASSIVE" << endl;
       // Vec target{clamp(last_ball.x, 50.0, 130.0), 40.0};
-      Vec target{90.0, 45.0};
+      Vec target{90.0, 52.0};
       Vec vel = target - robot.position;
       vel *= 3;
       robot.dribling = 0;
@@ -86,7 +86,7 @@ void Strategy::run_keeper(Robot& robot, Object& __, Object& goal) {
   } else {
     cout << "PASSIVE" << endl;
     // Vec target{clamp(last_ball.x, 50.0, 130.0), 40.0};
-    Vec target{90.0, 45.0};
+    Vec target{90.0, 52.0};
     Vec vel = target - robot.position;
     vel *= 3;
     robot.dribling = 0;

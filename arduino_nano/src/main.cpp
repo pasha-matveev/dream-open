@@ -12,17 +12,19 @@ Adafruit_NeoPixel pixels(2, 9, NEO_GRB + NEO_KHZ800);
 unsigned long long alive_tm;
 unsigned long long test_tm;
 bool rgb_led = false;
+bool prog_running = false;
+long long cooldown = 0;
 
 template <typename T>
 T read_data() {
   T result;
-  Serial.readBytes(reinterpret_cast<byte *>(&result), sizeof(T));
+  Serial.readBytes(reinterpret_cast<byte*>(&result), sizeof(T));
   return result;
 }
 
 template <class T>
 void write_data(T var) {
-  Serial.write((const byte *)&var, sizeof(var));
+  Serial.write((const byte*)&var, sizeof(var));
 }
 
 void setup() {
@@ -51,7 +53,7 @@ void setup() {
   robot.gyro.generate_correction();
 
   Serial.begin(115200);
-  write_data<char>('X');
+  // write_data<char>('X');
 }
 
 void loop() {
@@ -101,6 +103,14 @@ void loop() {
     alive_tm = millis() + 1000;
   }
 
+  if (robot.button.state() && millis() > cooldown) {
+    cooldown = millis() + 1000;
+    prog_running = !prog_running;
+    robot.button.was_pressed = false;
+  } else {
+    robot.button.was_pressed = false;
+  }
+
   if (alive_tm > millis() && robot.init_kicker) {
     robot.kicker.charge();
     if (robot.kicker.is_charged() && robot.kicker.force != 0) {
@@ -110,7 +120,7 @@ void loop() {
     robot.kicker.charge(false);
   }
 
-  if (alive_tm > millis() && robot.button.state()) {
+  if (alive_tm > millis() && prog_running) {
     robot.run();
   } else {
     robot.stop();
@@ -118,6 +128,8 @@ void loop() {
 
   if (alive_tm <= millis()) {
     rgb_led = false;
+    robot.button.was_pressed = false;
+    prog_running = false;
   }
 
   if (rgb_led) {

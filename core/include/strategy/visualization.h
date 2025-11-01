@@ -4,7 +4,7 @@
 
 #include "robot.h"
 #include "strategy/field.h"
-#include "tracking/ball.h"
+#include "tracking/object.h"
 
 class Visualization {
  private:
@@ -13,6 +13,6 @@ class Visualization {
  public:
   bool closed = false;
   Visualization();
-  void run(Robot& robot, Ball& ball, const Field&);
+  void run(Robot& robot, Object& ball, Object& goal, const Field&);
   void draw_field(const Field&);
 };

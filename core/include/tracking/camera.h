@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
-#include "tracking/ball.h"
+#include "tracking/object.h"
 
 class Camera {
  public:
@@ -12,10 +12,11 @@ class Camera {
   struct Impl;
   std::unique_ptr<Impl> impl;
 
-  Camera(Ball&);
+  Camera(Object& ball_, Object& goal_);
   ~Camera();
 
-  Ball& ball;
+  Object& ball;
+  Object& goal;
 
   void start();
   void show_preview();

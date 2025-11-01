@@ -17,7 +17,11 @@ long long millis() {
       .count();
 }
 
-void Strategy::run(Robot& robot, Ball& ball, const Field& field) {
+void Strategy::run(Robot& robot, Object& ball, Object& goal,
+                   const Field& field) {
+  if (millis() < throttle) {
+    return;
+  }
   if (config.serial.enabled) {
     robot.compute_gyro_angle();
   }
@@ -44,7 +48,7 @@ void Strategy::run(Robot& robot, Ball& ball, const Field& field) {
   if (role == "attacker") {
     run_attacker(robot, ball);
   } else {
-    run_keeper(robot, ball);
+    run_keeper(robot, ball, goal);
   }
   field.apply(robot);
 }

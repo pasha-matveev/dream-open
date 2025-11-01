@@ -33,8 +33,8 @@ void Robot::write_to_arduino() {
   uart->write_data<bool>(rgb_led);
 }
 
-void Robot::init_camera(Ball& ball) {
-  camera = new Camera(ball);
+void Robot::init_camera(Object& ball, Object& goal) {
+  camera = new Camera(ball, goal);
   camera->start();
 }
 
@@ -66,9 +66,9 @@ void Robot::init_lidar() {
   }
 }
 
-void Robot::init_hardware(Ball& ball) {
+void Robot::init_hardware(Object& ball, Object& goal) {
   if (config.tracking.enabled) {
-    init_camera(ball);
+    init_camera(ball, goal);
   }
   spdlog::info("Camera ready");
   if (config.gpio.enabled) {
@@ -141,7 +141,7 @@ bool Robot::compute_lidar() {
 }
 
 void Robot::compute_gyro_angle() {
-  field_angle = normalize_angle(gyro_angle - top_angle);
+  // field_angle = normalize_angle(gyro_angle - top_angle);
 }
 
 void Robot::predict_position() {

@@ -3,32 +3,62 @@
     "enabled": true,
     "preview": {
       "enabled": true,
-      "window_name": "Camera",
-      "setup": true
+      "window_name": "Camera"
     },
     "camera_id": 0,
     "retries": 10,
     "fps": 45,
     "width": 972,
     "height": 972,
-    "brightness": 0.15,
-    "radius": 390,
-    "disabled_radius": 0,
+    "brightness": 0.08,
+    "radius": 370,
+    "disabled_radius": 20,
     "center": {
       "x": 486,
       "y": 512
     },
     "ball": {
+      "setup": true,
+      "min_area": 4,
       "hsv_min": [
-        109,
-        64,
-        65
+        95,
+        104,
+        97
       ],
       "hsv_max": [
         120,
         255,
         255
       ]
+    },
+    "goal": {
+      "type": "yellow",
+      "setup": false,
+      "min_area": 20,
+      "yellow": {
+        "hsv_min": [
+          88,
+          83,
+          84
+        ],
+        "hsv_max": [
+          97,
+          255,
+          255
+        ]
+      },
+      "blue": {
+        "hsv_min": [
+          0,
+          160,
+          160
+        ],
+        "hsv_max": [
+          30,
+          255,
+          255
+        ]
+      }
     }
   },
   "serial": {
@@ -38,7 +68,7 @@
     "interference": false
   },
   "gpio": {
-    "enabled": false,
+    "enabled": true,
     "buzzer": {
       "enabled": true,
       "pin": 23

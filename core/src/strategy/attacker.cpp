@@ -1,6 +1,6 @@
 #include "strategy/strategy.h"
 
-void Strategy::run_attacker(Robot& robot, Ball& ball) {
+void Strategy::run_attacker(Robot& robot, Object& ball) {
   bool straight_path = true;
 
   if (millis() - last_ball_visible < 3000) {
@@ -47,7 +47,7 @@ void Strategy::run_attacker(Robot& robot, Ball& ball) {
   }
 }
 
-// void Strategy::run_attacker(Robot &robot, Ball &ball) {
+// void Strategy::run_attacker(Robot &robot, Object &ball) {
 //   if (robot.emitter) {
 //     Vec target{91, 243};
 //     Vec v = target - robot.position;

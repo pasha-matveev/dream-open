@@ -25,7 +25,8 @@ struct Camera::Impl {
   cv::Mat frame;
   cv::Mat hsv_frame;
   cv::Mat preview_image;
-  Ball& ball;
+  Object& ball;
+  Object& goal;
   bool preview_ready = false;
 
   void start();
@@ -34,11 +35,12 @@ struct Camera::Impl {
   void requestComplete();
   void show_preview();
 
-  Impl(Ball& ball);
+  Impl(Object& ball, Object& goal);
   ~Impl() = default;
 };
 
-Camera::Impl::Impl(Ball& ball_reference) : ball(ball_reference) {
+Camera::Impl::Impl(Object& ball_reference, Object& goal_)
+    : ball(ball_reference), goal(goal_) {
   const int radius = config.tracking.radius,
             disabled_radius = config.tracking.disabled_radius;
   mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
@@ -47,15 +49,21 @@ Camera::Impl::Impl(Ball& ball_reference) : ball(ball_reference) {
   circle(mask, {radius, radius}, disabled_radius, 0, -1);
 }
 
-Camera::Camera(Ball& b) : ball(b) { impl = make_unique<Impl>(ball); }
+Camera::Camera(Object& b, Object& goal_) : ball(b), goal(goal_) {
+  impl = make_unique<Impl>(ball, goal);
+}
 Camera::~Camera() = default;
 
-void Camera::Impl::analyze() { ball.find(hsv_frame); }
+void Camera::Impl::analyze() {
+  ball.find(hsv_frame);
+  goal.find(hsv_frame);
+}
 
 void Camera::Impl::draw() {
   preview_ready = false;
   preview_image = frame;
   ball.draw(preview_image);
+  goal.draw(preview_image);
   preview_ready = true;
 }
 

@@ -4,7 +4,7 @@
 
 #include "robot.h"
 #include "strategy/field.h"
-#include "tracking/ball.h"
+#include "tracking/object.h"
 
 enum State { INITIAL };
 
@@ -17,14 +17,16 @@ class Strategy {
   int last_ball_visible = 0;
   bool active_def = false;
   bool curve_kick = false;
+  double goal_direction = -10;
+  long long throttle = -1;
 
-  void run_keeper(Robot& robot, Ball& ball);
-  void run_attacker(Robot& robot, Ball& ball);
+  void run_keeper(Robot& robot, Object& ball, Object& goal);
+  void run_attacker(Robot& robot, Object& ball);
 
   queue<Vec> q;
 
  public:
   State state = INITIAL;
-  void run(Robot& robot, Ball& ball, const Field& field);
+  void run(Robot& robot, Object& ball, Object& goal, const Field& field);
   Strategy();
 };

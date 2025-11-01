@@ -7,9 +7,11 @@ class Segment {
  private:
   Vec a, b;
   bool is_inside(Robot&);
-  double dist(Vec&);
+  double dist(const Vec&);
 
  public:
   Segment(const Vec&, const Vec&);
+  bool proection(const Vec&);
+  double total_dist(const Vec&);
   void apply(Robot&);
 };

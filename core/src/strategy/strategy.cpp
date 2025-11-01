@@ -50,7 +50,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   robot.dribling = 0;
 
   if (role == "attacker") {
-    run_attacker(robot, ball);
+    run_attacker(robot, ball, goal);
   } else {
     run_keeper(robot, ball, goal);
   }

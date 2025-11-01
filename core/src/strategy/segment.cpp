@@ -8,14 +8,32 @@ bool Segment::is_inside(Robot& robot) {
   return (f % l) > 0;
 }
 
-double Segment::dist(Vec& p) {
+double Segment::dist(const Vec& p) {
   Vec l = b - a;
   double S = (b - p) % (a - p);
   double h = S / l.len();
   return h;
 }
 
+bool Segment::proection(const Vec& p) {
+  auto v1 = (b - a) * (p - a);
+  if (v1 < 0) return false;
+  auto v2 = (a - b) * (p - b);
+  if (v2 < 0) return false;
+  return true;
+}
+
+double Segment::total_dist(const Vec& p) {
+  if (proection(p)) {
+    return dist(p);
+  }
+  return min((p - a).len(), (p - b).len());
+}
+
 void Segment::apply(Robot& robot) {
+  if (total_dist(robot.position) > 5) {
+    return;
+  }
   double d = dist(robot.position);
   Vec ox = b - a;
   Vec oy = ox.turn_left();

@@ -2,7 +2,7 @@
   "tracking": {
     "enabled": true,
     "preview": {
-      "enabled": true,
+      "enabled": false,
       "window_name": "Camera"
     },
     "camera_id": 0,
@@ -18,8 +18,8 @@
       "y": 512
     },
     "ball": {
-      "setup": true,
-      "min_area": 4,
+      "setup": false,
+      "min_area": 10,
       "hsv_min": [
         95,
         104,
@@ -62,7 +62,7 @@
     }
   },
   "serial": {
-    "enabled": false,
+    "enabled": true,
     "device": "auto",
     "rate": 115200,
     "interference": false
@@ -90,11 +90,11 @@
     }
   },
   "lidar": {
-    "enabled": false,
+    "enabled": true,
     "path": "../lidar/build/bin/main"
   },
   "visualization": {
-    "enabled": false,
+    "enabled": true,
     "window_name": "Dream",
     "frames": 60,
     "interactive": false

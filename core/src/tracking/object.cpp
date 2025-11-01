@@ -98,7 +98,7 @@ void Object::draw(cv::Mat& frame) {
     return;
   }
   if (!visible) {
-    spdlog::info("Object not visible");
+    // spdlog::info("Object not visible");
     return;
   }
   cv::circle(frame, center, radius, 100, 10);
@@ -117,4 +117,8 @@ void Object::compute_field_position(const Robot& robot) {
   double ball_angle = robot.field_angle + relative_angle;
   Vec offset{-1 * sin(ball_angle) * get_cm(), cos(ball_angle) * get_cm()};
   field_position = robot.position + offset;
+  if (field_position.x < -5 || field_position.x > 200 ||
+      field_position.y < -5 || field_position.y > 300) {
+    visible = false;
+  }
 }

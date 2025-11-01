@@ -15,10 +15,12 @@ class Strategy {
   string role;
 
   int last_ball_visible = 0;
+  Vec last_ball;
   bool active_def = false;
   bool curve_kick = false;
-  double goal_direction = -10;
+  double target_angle = -10;
   long long throttle = -1;
+  long long fired = -1;
 
   void run_keeper(Robot& robot, Object& ball, Object& goal);
   void run_attacker(Robot& robot, Object& ball);

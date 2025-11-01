@@ -14,6 +14,7 @@ class Field {
   vector<Vec> points;
 
  public:
+  bool inside(Robot&) const;
   Field(const vector<Vec>&);
   void apply(Robot&) const;
 

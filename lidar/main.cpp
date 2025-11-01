@@ -564,7 +564,7 @@ int main(int argc, const char* argv[]) {
     preview = atoi(argv[1]);
     port = argv[2];
   } else {
-    preview = 0;
+    preview = false;
     // port = "/dev/cu.usbserial-110";
     port = "/dev/ttyUSB1";
   }
@@ -707,7 +707,7 @@ int main(int argc, const char* argv[]) {
         draw_convex(*window, result_data[i].corners,
                     i ? sf::Color::Red : sf::Color::Green);
       draw_convex(*window, inner.corners, sf::Color::White);
-      draw_dots(*window, outside, sf::Color::Green);
+      draw_dots(*window, outside, sf::Color::Red);
       draw_dots(*window, inside, sf::Color::White);
       window->display();
     }

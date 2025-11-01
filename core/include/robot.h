@@ -2,8 +2,8 @@
 
 #include "gpio/buzzer.h"
 #include "gpio/display.h"
-#include "tracking/ball.h"
 #include "tracking/camera.h"
+#include "tracking/object.h"
 #include "utils/lidar.h"
 #include "utils/uart.h"
 #include "utils/vec.h"
@@ -12,7 +12,7 @@ using namespace LibSerial;
 
 class Robot {
  private:
-  void init_camera(Ball&);
+  void init_camera(Object&, Object&);
   void init_buzzer();
   void init_buttons();
   void init_uart();
@@ -58,7 +58,7 @@ class Robot {
   int kicker_force = 0;
   bool rgb_led = false;
 
-  void init_hardware(Ball& ball);
+  void init_hardware(Object& ball, Object& goal);
 
   bool compute_lidar();
   void compute_gyro_angle();

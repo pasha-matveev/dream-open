@@ -46,7 +46,6 @@ void load_config() {
   const auto& preview = tracking["preview"];
   loaded.tracking.preview.enabled = preview["enabled"].GetBool();
   loaded.tracking.preview.window_name = preview["window_name"].GetString();
-  loaded.tracking.preview.setup = preview["setup"].GetBool();
   loaded.tracking.camera_id = tracking["camera_id"].GetInt();
   loaded.tracking.retries = tracking["retries"].GetInt();
   loaded.tracking.fps = tracking["fps"].GetInt();
@@ -59,8 +58,25 @@ void load_config() {
   loaded.tracking.center.x = center["x"].GetInt();
   loaded.tracking.center.y = center["y"].GetInt();
   const auto& ball = tracking["ball"];
+  loaded.tracking.ball.setup = ball["setup"].GetBool();
+  loaded.tracking.ball.min_area = ball["min_area"].GetInt();
   loaded.tracking.ball.hsv_min = to_int_vector(ball["hsv_min"].GetArray());
   loaded.tracking.ball.hsv_max = to_int_vector(ball["hsv_max"].GetArray());
+
+  const auto& goal = tracking["goal"];
+  loaded.tracking.goal.setup = goal["setup"].GetBool();
+  loaded.tracking.goal.type = goal["type"].GetString();
+  loaded.tracking.goal.min_area = goal["min_area"].GetInt();
+
+  const auto& yellow = goal["yellow"];
+  loaded.tracking.goal.yellow.hsv_min =
+      to_int_vector(yellow["hsv_min"].GetArray());
+  loaded.tracking.goal.yellow.hsv_max =
+      to_int_vector(yellow["hsv_max"].GetArray());
+
+  const auto& blue = goal["blue"];
+  loaded.tracking.goal.blue.hsv_min = to_int_vector(blue["hsv_min"].GetArray());
+  loaded.tracking.goal.blue.hsv_max = to_int_vector(blue["hsv_max"].GetArray());
 
   const auto& serial = doc["serial"];
   loaded.serial.enabled = serial["enabled"].GetBool();

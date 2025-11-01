@@ -52,7 +52,8 @@ void Visualization::draw_field(const Field& field) {
   window.draw(shape);
 }
 
-void Visualization::run(Robot& robot, Ball& ball, const Field& field) {
+void Visualization::run(Robot& robot, Object& ball, Object& goal,
+                        const Field& field) {
   if (!window.isOpen()) {
     spdlog::info("Window is already closed, visualization not available");
     closed = true;

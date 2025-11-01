@@ -11,7 +11,6 @@ struct Config {
     struct Preview {
       bool enabled = false;
       string window_name;
-      bool setup = false;
     } preview;
     int camera_id = 0;
     int retries = 0;
@@ -26,9 +25,24 @@ struct Config {
       int y = 0;
     } center;
     struct Ball {
+      bool setup;
+      int min_area;
       vector<int> hsv_min;
       vector<int> hsv_max;
     } ball;
+
+    struct Goal {
+      struct Hsv {
+        vector<int> hsv_min;
+        vector<int> hsv_max;
+      };
+
+      string type;
+      bool setup;
+      int min_area;
+      Hsv yellow;
+      Hsv blue;
+    } goal;
   } tracking;
 
   struct Serial {

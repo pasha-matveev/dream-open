@@ -4,7 +4,8 @@
 
 #include "strategy/strategy.h"
 
-void Strategy::run_keeper(Robot& robot, Ball& ball) {
+void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
+  // return;
   if (millis() - last_ball_visible < 1000) {
     if (ball.field_position.y < 100) {
       active_def = true;
@@ -22,19 +23,33 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
           robot.vel = ball.field_position - robot.position;
           robot.vel = robot.vel.resize(10);
           robot.rotation_limit = 0;
+          goal_direction = -10;
         } else {
           robot.rotation_limit = 10;
           robot.vel = robot.vel.resize(0);
 
           Vec target{91, 237};
           Vec route = target - robot.position;
-          double target_angle = route.field_angle();
+          double target_angle;
+          if (goal_direction != -10) {
+            target_angle = goal_direction;
+          } else if (goal.visible) {
+            target_angle = goal.relative_angle + robot.gyro_angle;
+            goal_direction = target_angle;
+          } else {
+            target_angle =
+                route.field_angle() - robot.field_angle + robot.gyro_angle;
+            goal_direction = target_angle;
+          }
 
-          if (abs(robot.field_angle - target_angle) <= 0.1) {
+          cout << "diff: " << abs(target_angle - robot.gyro_angle) << endl;
+          if (abs(target_angle - robot.gyro_angle) <= 0.1) {
+            cout << "fire !" << endl;
             robot.kicker_force = 70;  // здесь было 100
             robot.rotation = robot.field_angle;
+            throttle = millis() + 1000;
           } else {
-            robot.rotation = target_angle - robot.field_angle;
+            robot.rotation = target_angle - robot.gyro_angle;
           }
         }
       } else {
@@ -89,7 +104,7 @@ void Strategy::run_keeper(Robot& robot, Ball& ball) {
   }
 }
 
-// void Strategy::run_keeper(Robot& robot, Ball& ball) {
+// void Strategy::run_keeper(Robot& robot, Object& ball) {
 //   if (!ball.visible) {
 //     robot.speed = 0;
 //     robot.rotation = 0;

@@ -11,12 +11,12 @@ aux_source_directory(src/strategy STRATEGY_FILES)
 
 if(APPLE)
 
-set(TRACKING_FILES src/tracking/ball.cpp src/tracking/camera_mock.cpp src/tracking/object.cpp)
+set(TRACKING_FILES src/tracking/camera_mock.cpp src/tracking/object.cpp)
 aux_source_directory(src/gpio_mock GPIO_FILES)
 
 elseif(UNIX)
 
-set(TRACKING_FILES src/tracking/ball.cpp src/tracking/camera.cpp src/tracking/object.cpp)
+set(TRACKING_FILES src/tracking/camera.cpp src/tracking/object.cpp)
 aux_source_directory(src/gpio GPIO_FILES)
 
 endif()

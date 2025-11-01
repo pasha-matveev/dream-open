@@ -6,9 +6,9 @@
 
 void Strategy::run_keeper(Robot& robot, Object& __, Object& goal) {
   if (millis() - last_ball_visible < 1000 || robot.emitter) {
-    if (last_ball.y < 100) {
+    if (last_ball.y < 90) {
       active_def = true;
-    } else if (last_ball.y > 110) {
+    } else if (last_ball.y > 95) {
       active_def = false;
     }
 

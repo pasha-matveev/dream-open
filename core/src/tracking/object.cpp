@@ -118,7 +118,7 @@ void Object::compute_field_position(const Robot& robot) {
   Vec offset{-1 * sin(ball_angle) * get_cm(), cos(ball_angle) * get_cm()};
   field_position = robot.position + offset;
   if (field_position.x < -5 || field_position.x > 200 ||
-      field_position.y < -5 || field_position.y > 300) {
+      field_position.y < -5 || field_position.y > 250) {
     visible = false;
   }
 }

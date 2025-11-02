@@ -42,8 +42,8 @@ void Object::find(const cv::Mat& frame) {
   cv::inRange(frame, cv::Scalar(h_min, s_min, v_min),
               cv::Scalar(h_max, s_max, v_max), mask);
 
-  cv::erode(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
-  cv::dilate(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
+  // cv::erode(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
+  // cv::dilate(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
 
   std::vector<std::vector<cv::Point>> contours;
   cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
@@ -109,7 +109,7 @@ float Object::get_cm() {
     return override_dist;
   }
   // cout << "pixels " << get_pixels_dist() << endl;
-  double old_pixels = get_pixels_dist() * 800 * 1.45 / config.tracking.width;
+  double old_pixels = get_pixels_dist() * 800 * 1.3 / config.tracking.width;
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
 }
 
@@ -117,8 +117,9 @@ void Object::compute_field_position(const Robot& robot) {
   double ball_angle = robot.field_angle + relative_angle;
   Vec offset{-1 * sin(ball_angle) * get_cm(), cos(ball_angle) * get_cm()};
   field_position = robot.position + offset;
-  if (field_position.x < -5 || field_position.x > 200 ||
-      field_position.y < -5 || field_position.y > 250) {
+  if (field_position.x < -200 || field_position.x > 350 ||
+      field_position.y < -50 || field_position.y > 300) {
+    cout << "wrong " << field_position.x << " " << field_position.y << endl;
     visible = false;
   }
 }

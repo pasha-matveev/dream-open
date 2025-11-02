@@ -26,9 +26,9 @@ void Dribling::set_speed(int rotation) { desired_speed = (float)rotation; }
 void Dribling::run() {
   if (lst_tm + 100 < millis()) {
     if (current_speed < desired_speed)
-      current_speed += 5;
+      current_speed += 20;
     else if (current_speed > desired_speed)
-      current_speed -= 5;
+      current_speed -= 20;
     lst_tm = millis();
   }
 

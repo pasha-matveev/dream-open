@@ -85,7 +85,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
       target_status = "ac";
     }
     robot.rotation = delta;
-    robot.rotation_limit = 15;
+    robot.rotation_limit = 12;
     robot.dribling = 60;
     robot.vel = {0, 0};
   } else if (target_status == "ac") {
@@ -102,7 +102,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
       robot.vel = {0, 0};
     } else {
       robot.rotation = delta;
-      robot.rotation_limit = 15;
+      robot.rotation_limit = 12;
       robot.dribling = 70;
       robot.vel = {0, 0};
     }

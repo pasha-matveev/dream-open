@@ -7,9 +7,9 @@
 
 void Strategy::run_keeper(Robot& robot, Object& __, Object& goal) {
   if (millis() - last_ball_visible < 1000 || robot.emitter) {
-    if (last_ball.y < 90) {
+    if (last_ball.y < 95) {
       active_def = true;
-    } else if (last_ball.y > 95) {
+    } else if (last_ball.y > 100) {
       active_def = false;
     }
 
@@ -28,9 +28,9 @@ void Strategy::run_keeper(Robot& robot, Object& __, Object& goal) {
         //            max(10.0, last_ball.y)};
         Vec vel = last_ball - robot.position;
         if (vel.len() <= 7) {
-          vel = vel.resize(1);
+          vel = vel.resize(5);
         } else {
-          vel = vel.resize(min(vel.len() * 2, 50.0));
+          vel = vel.resize(min(vel.len() * 2, 80.0));
         }
 
         robot.vel = vel;

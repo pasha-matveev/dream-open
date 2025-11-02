@@ -20,40 +20,7 @@ void Strategy::run_keeper(Robot& robot, Object& __, Object& goal) {
     if (active_def) {
       robot.dribling = 60;
       if (robot.emitter) {
-        if (millis() - robot.first_time < 300) {
-          cout << "DELAY" << endl;
-          robot.vel = last_ball - robot.position;
-          robot.vel = robot.vel.resize(10);
-          robot.rotation_limit = 0;
-          target_angle = -10;
-        } else {
-          robot.rotation_limit = 10;
-          robot.vel = robot.vel.resize(0);
-
-          if (target_angle == -10) {
-            if (goal.visible) {
-              target_angle = goal.relative_angle + robot.gyro_angle;
-            } else {
-              Vec target{91, 237};
-              Vec route = target - robot.position;
-              target_angle =
-                  route.field_angle() - robot.field_angle + robot.gyro_angle;
-            }
-          }
-
-          double delta = normalize_angle(target_angle - robot.gyro_angle);
-
-          if (abs(delta) <= 0.1) {
-            cout << "FIRE" << endl;
-            robot.kicker_force = 70;  // здесь было 100
-            robot.rotation = 0;
-            // throttle = millis() + 1000;
-            fired = millis();
-          } else {
-            cout << "ROTATION " << abs(delta) << endl;
-            robot.rotation = target_angle - robot.gyro_angle;
-          }
-        }
+        hit(robot, goal, false, 70);
       } else {
         cout << "TAKE" << endl;
         cout << last_ball.x << " " << last_ball.y << endl;

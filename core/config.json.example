@@ -101,6 +101,7 @@
   },
   "strategy": {
     "role": "keeper",
-    "fps": 120
+    "fps": 120,
+    "enabled": true
   }
 }

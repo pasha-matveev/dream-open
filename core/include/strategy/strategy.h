@@ -25,7 +25,7 @@ class Strategy {
   long long throttle = -1;
   long long fired = -1;
 
-  void hit(Robot& robot, Object& goal, bool slow);
+  void hit(Robot& robot, Object& goal, bool slow, int power);
   void run_keeper(Robot& robot, Object& ball, Object& goal);
   void run_attacker(Robot& robot, Object& ball, Object& goal);
 

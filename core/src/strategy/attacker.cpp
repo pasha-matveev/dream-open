@@ -19,7 +19,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
       robot.rotation_limit = 30;
       robot.dribling = 60;
     } else {
-      hit(robot, goal, true);
+      hit(robot, goal, true, 40);
     }
   } else {
     Vec target{91, 121};

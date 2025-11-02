@@ -61,24 +61,24 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   }
 }
 
-void Strategy::hit(Robot& robot, Object& goal, bool slow) {
+void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
   reset_target = false;
   if (target_status == "none") {
     Vec vel{-1 * sin(robot.field_angle) * 10.0, cos(robot.field_angle) * 10.0};
     robot.vel = vel;
     robot.dribling = 60;
     robot.rotation_limit = 0;
-    if (millis() > robot.first_time + 300) {
+    if (millis() > robot.first_time + 500) {
       target_status = "rotate";
     }
   } else if (target_status == "rotate") {
     if (goal.visible) {
-      target_angle = goal.relative_angle + robot.gyro_angle;
+      target_angle = normalize_angle(goal.relative_angle + robot.gyro_angle);
     } else {
       Vec center{91, 237};
       Vec simple_route = center - robot.position;
-      target_angle =
-          simple_route.field_angle() - robot.field_angle + robot.gyro_angle;
+      target_angle = normalize_angle(simple_route.field_angle() -
+                                     robot.field_angle + robot.gyro_angle);
     }
     double delta = normalize_angle(target_angle - robot.gyro_angle);
     if (abs(delta) <= M_PI / 3) {
@@ -86,7 +86,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow) {
     }
     robot.rotation = delta;
     robot.rotation_limit = 15;
-    robot.dribling = 70;
+    robot.dribling = 60;
     robot.vel = {0, 0};
   } else if (target_status == "ac") {
     double delta = normalize_angle(target_angle - robot.gyro_angle);
@@ -114,7 +114,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow) {
       target_status = "kick";
     }
   } else if (target_status == "kick") {
-    robot.kicker_force = 70;
+    robot.kicker_force = power;
     robot.dribling = 0;
     robot.rotation = 0;
     robot.vel = {0, 0};

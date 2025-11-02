@@ -12,9 +12,9 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
   cout << "last_y " << last_ball.y << endl;
 
   if (millis() - last_ball_visible < 1000 || robot.emitter) {
-    if (last_ball.y < 105) {
+    if (last_ball.y < 90) {
       active_def = true;
-    } else if (last_ball.y > 110) {
+    } else if (last_ball.y > 95) {
       active_def = false;
     }
 

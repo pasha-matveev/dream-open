@@ -36,9 +36,6 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
     last_ball_visible = millis();
     last_ball = ball.field_position;
   }
-  if (last_ball.x == 0 && last_ball.y == 0) {
-    last_ball_visible = -1;
-  }
 
   if (robot.emitter && !robot.prev_emitter) {
     robot.first_time = millis();
@@ -84,7 +81,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
                                      robot.field_angle + robot.gyro_angle);
     }
     double delta = normalize_angle(target_angle - robot.gyro_angle);
-    if (abs(delta) <= M_PI / 5) {
+    if (abs(delta) <= M_PI / 3) {
       target_status = "ac";
     }
     robot.rotation = delta;
@@ -93,15 +90,16 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
     robot.vel = {0, 0};
   } else if (target_status == "ac") {
     double delta = normalize_angle(target_angle - robot.gyro_angle);
-    if (abs(delta) <= 0.05) {
+    if (abs(delta) <= 0.08) {
       if (slow) {
         target_status = "slow";
+        robot.dribling = 15;
         slow_tm = millis() + 400;
       } else {
         target_status = "kick";
+        robot.dribling = 0;
       }
       robot.rotation = 0;
-      robot.dribling = 0;
       robot.vel = {0, 0};
     } else {
       robot.rotation = delta;
@@ -111,7 +109,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
     }
   } else if (target_status == "slow") {
     robot.rotation = 0;
-    robot.dribling = 0;
+    robot.dribling = 15;
     robot.vel = {0, 0};
     if (slow_tm < millis()) {
       target_status = "kick";

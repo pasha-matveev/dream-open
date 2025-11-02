@@ -10,7 +10,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
     if (!robot.emitter) {
       Vec target = last_ball;
       if (last_ball.y < BORDER) {
-        target = {20, 120};
+        target = {160, 120};
       }
       robot.vel = last_ball - robot.position;
       robot.vel *= 3;

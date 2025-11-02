@@ -28,6 +28,7 @@ class Strategy {
   void hit(Robot& robot, Object& goal, bool slow, int power);
   void run_keeper(Robot& robot, Object& ball, Object& goal);
   void run_attacker(Robot& robot, Object& ball, Object& goal);
+  void run_challenge(Robot& robot, Object& ball, Object& goal);
 
   queue<Vec> q;
 

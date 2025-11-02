@@ -49,8 +49,10 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
     reset_target = true;
     if (role == "attacker") {
       run_attacker(robot, ball, goal);
-    } else {
+    } else if (role == "keeper") {
       run_keeper(robot, ball, goal);
+    } else {
+      run_challenge(robot, ball, goal);
     }
     if (reset_target) {
       target_status = "none";

@@ -2,7 +2,7 @@
 
 struct Camera::Impl {};
 
-Camera::Camera(Object& b) : ball(b) {};
+Camera::Camera(Object& ball_, Object& goal_) : ball(ball_), goal(goal_) {};
 Camera::~Camera() = default;
 
 void Camera::start() {}

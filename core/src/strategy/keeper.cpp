@@ -25,7 +25,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
     if (active_def) {
       robot.dribling = 60;
       if (robot.emitter) {
-        hit(robot, goal, false, 70);
+        hit(robot, goal, false, 70, false);
       } else {
         cout << "TAKE" << endl;
         cout << last_ball.x << " " << last_ball.y << endl;

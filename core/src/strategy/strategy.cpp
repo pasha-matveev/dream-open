@@ -63,12 +63,13 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   }
 }
 
-void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
+void Strategy::hit(Robot& robot, Object& goal, bool slow, int power,
+                   bool rotation_curve) {
   reset_target = false;
   if (target_status == "none") {
     Vec vel{-1 * sin(robot.field_angle) * 10.0, cos(robot.field_angle) * 10.0};
     robot.vel = vel;
-    robot.dribling = 60;
+    robot.dribling = 100;
     robot.rotation_limit = 0;
     if (millis() > robot.first_time + 500) {
       target_status = "rotate";
@@ -86,10 +87,20 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
     if (abs(delta) <= M_PI / 3) {
       target_status = "ac";
     }
-    robot.rotation = delta;
-    robot.rotation_limit = 12;
-    robot.dribling = 60;
-    robot.vel = {0, 0};
+    if (rotation_curve) {
+      // robot.rotation = (delta < 0) ? -M_PI / 2 : M_PI / 2;
+      robot.rotation = delta;
+      robot.rotation_limit = 25;
+      robot.dribling = 100;
+      // robot.vel = {0, -25};
+      robot.vel = {-30, 0};
+    } else {
+      robot.rotation = delta;
+      robot.rotation_limit = 12;
+      robot.dribling = 100;
+      robot.vel = {0, 0};
+    }
+
   } else if (target_status == "ac") {
     double delta = normalize_angle(target_angle - robot.gyro_angle);
     if (abs(delta) <= 0.09) {
@@ -106,7 +117,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
     } else {
       robot.rotation = delta;
       robot.rotation_limit = 12;
-      robot.dribling = 70;
+      robot.dribling = 100;
       robot.vel = {0, 0};
     }
   } else if (target_status == "slow") {

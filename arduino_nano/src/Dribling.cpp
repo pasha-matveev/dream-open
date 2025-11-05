@@ -24,11 +24,16 @@ void Dribling::init() {
 void Dribling::set_speed(int rotation) { desired_speed = (float)rotation; }
 
 void Dribling::run() {
-  if (lst_tm + 100 < millis()) {
-    if (current_speed < desired_speed)
-      current_speed += 20;
-    else if (current_speed > desired_speed)
-      current_speed -= 20;
+  double k = 20.0 / 100;
+  int delta = millis() - lst_tm;
+  if (delta >= 10) {
+    int diff = abs(current_speed - desired_speed);
+    if (current_speed < desired_speed) {
+      current_speed += min(delta * k, diff);
+    } else if (current_speed > desired_speed) {
+      current_speed -= min(delta * k, diff);
+    }
+
     lst_tm = millis();
   }
 

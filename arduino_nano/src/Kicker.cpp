@@ -21,7 +21,7 @@ void Kicker::kick(int power) {
     delayMicroseconds(map(power, 1, 100, min_delay, max_delay));
     digitalWrite(kick_pin, 0);
     delay(1);
-    charge_tm = millis() + (float)power * 31.38 * 2 + 1000;
+    charge_tm = millis() + (float)power * 31.38 * 2 + 2000;
     kick_tm = millis() + min_kick_delay;
     force = 0;
   }

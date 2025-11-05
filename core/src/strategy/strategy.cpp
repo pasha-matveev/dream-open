@@ -92,7 +92,7 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power) {
     robot.vel = {0, 0};
   } else if (target_status == "ac") {
     double delta = normalize_angle(target_angle - robot.gyro_angle);
-    if (abs(delta) <= 0.08) {
+    if (abs(delta) <= 0.09) {
       if (slow) {
         target_status = "slow";
         robot.dribling = 15;

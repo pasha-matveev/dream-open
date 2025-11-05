@@ -2,7 +2,7 @@
 #include "utils/millis.h"
 
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
-  const int BORDER = 100;
+  const int BORDER = 93;
   bool straight_path = true;
   bool reset_target = true;
 
@@ -12,14 +12,22 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
       if (last_ball.y < BORDER) {
         target = {160, 120};
       }
-      robot.vel = last_ball - robot.position;
-      robot.vel *= 3;
+      robot.vel = target - robot.position;
+      robot.vel *= 4;
       robot.rotation =
-          (last_ball - robot.position).field_angle() - robot.field_angle;
+          (target - robot.position).field_angle() - robot.field_angle;
       robot.rotation_limit = 30;
       robot.dribling = 60;
     } else {
-      hit(robot, goal, true, 40);
+      int power;
+      if (robot.position.y < 146) {
+        power = 50;
+      } else if (robot.position.y < 180) {
+        power = 30;
+      } else {
+        power = 10;
+      }
+      hit(robot, goal, true, power);
     }
   } else {
     Vec target{91, 121};

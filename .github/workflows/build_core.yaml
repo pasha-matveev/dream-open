@@ -34,7 +34,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          make
+          make -j
           sudo make install
       - name: Build & Install WiringPi
         run: |

@@ -43,5 +43,7 @@ jobs:
           ./build debian
           mv debian-template/*.deb wiringpi.deb
           sudo apt install ./wiringpi.deb
+      - name: Install dependencies for core
+        run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev rapidjson-dev libcamera-dev libspdlog-dev libx11-dev libxrandr-dev libxcursor-dev libxi-dev libgl1-mesa-dev libudev-dev libfreetype6-dev libogg-dev libvorbis-dev libflac-dev
       - name: Build core
         run: mkdir build && cd build && cmake .. && make -j

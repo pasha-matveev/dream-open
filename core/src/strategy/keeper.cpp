@@ -20,7 +20,6 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
     }
 
     if (active_def) {
-      robot.dribling = 60;
       if (robot.emitter) {
         spdlog::info("HIT");
         hit(robot, goal);
@@ -43,6 +42,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
         target = {clamp(last_ball.x, 50.0, 130.0), 52.0};
       }
       drive_target(robot, target, 3);
+      robot.rotation =
+          (last_ball - robot.position).field_angle() - robot.field_angle;
     }
   } else {
     spdlog::info("CONTR");

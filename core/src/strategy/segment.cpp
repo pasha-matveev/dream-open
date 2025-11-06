@@ -1,5 +1,7 @@
 #include "strategy/segment.h"
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 
 #include "robot.h"
@@ -12,12 +14,16 @@ Line::Line(const Vec& s, const Vec& f) {
   a = normal.x;
   b = normal.y;
   c = -a * s.x - b * s.y;
-  assert(abs(a * f.x + b * f.y + c) <= EPS);
+  double val = a * f.x + b * f.y + c;
+  if (abs(val) > EPS) {
+    spdlog::error("Nonzero val: {}", val);
+    assert(false);
+  }
 }
 
 Vec operator*(const Line& a, const Line& b) {
   double D = a.a * b.b - b.a * a.b;
-  assert(D > Line::EPS);
+  assert(abs(D) > Line::EPS);
   double x = (a.b * b.c - b.b * a.c) / D;
   double y = (a.c * b.a - b.c * a.a) / D;
   return {x, y};

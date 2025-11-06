@@ -6,7 +6,7 @@ class Robot;
 
 class Line {
  private:
-  static constexpr double EPS = 1e-8;
+  static constexpr double EPS = 1e-7;
 
  public:
   double a, b, c;
@@ -16,7 +16,7 @@ class Line {
 
 class Segment {
  private:
-  static constexpr double EPS = 1e-8;
+  static constexpr double EPS = 1e-7;
 
   bool is_proection(const Vec& p) const;
 

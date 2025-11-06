@@ -42,13 +42,13 @@ double Segment::normal_dist(const Vec& p) const {
 
 double Segment::dist(const Vec& p) const {
   if (is_proection(p)) {
-    return normal_dist(p);
+    return abs(normal_dist(p));
   }
   return min((p - a).len(), (p - b).len());
 }
 
 void Segment::apply(Robot& robot) const {
-  double d = dist(robot.position);
+  double d = normal_dist(robot.position);
   Vec ox = b - a;
   Vec oy = ox.turn_left();
 

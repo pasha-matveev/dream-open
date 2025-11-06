@@ -18,7 +18,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Install libraries for libcamera
-        run: sudo apt update && sudo apt install -y libboost-dev libgnutls28-dev openssl libtiff-dev pybind11-dev qtbase5-dev libqt5core5a libqt5widgets5 meson cmake python3-yaml python3-ply libglib2.0-dev libgstreamer-plugins-base1.0-dev python3-jinja2
+        run: sudo apt update && sudo apt install -y libboost-dev libgnutls28-dev openssl libtiff-dev pybind11-dev qtbase5-dev libqt5core5a libqt5widgets5 meson python3-yaml python3-ply libglib2.0-dev libgstreamer-plugins-base1.0-dev python3-jinja2
       - name: Build and install libcamera
         run: |
           git clone https://github.com/raspberrypi/libcamera.git
@@ -26,7 +26,7 @@ jobs:
           meson setup build --buildtype=release -Dpipelines=rpi/vc4,rpi/pisp -Dipas=rpi/vc4,rpi/pisp -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled
           sudo ninja -C build install
       - name: Install libraries for LCCV
-        run: sudo apt update && sudo apt install -y build-essential cmake libopencv-dev
+        run: sudo apt update && sudo apt install -y build-essential libopencv-dev
       - name: Build & Install LCCV
         run: |
           git clone https://github.com/kbarni/LCCV.git

@@ -50,6 +50,7 @@ void Field::apply(Robot& robot) const {
       if (idx == -1 ||
           (p - robot.position).len2() < (np - robot.position).len2()) {
         idx = i;
+        np = p;
       }
     }
     assert(idx != -1);

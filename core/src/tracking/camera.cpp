@@ -1,7 +1,6 @@
 #include "tracking/camera.h"
 
 #include <assert.h>
-#include <libcamera/libcamera.h>
 #include <spdlog/spdlog.h>
 #include <sys/mman.h>
 
@@ -12,6 +11,7 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
+#include "tracking/object.h"
 #include "utils/config.h"
 #include "utils/millis.h"
 

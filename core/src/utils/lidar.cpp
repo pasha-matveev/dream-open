@@ -1,5 +1,10 @@
 #include "utils/lidar.h"
 
+#include <cmath>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
+
 #include <spdlog/spdlog.h>
 
 #include "robot.h"

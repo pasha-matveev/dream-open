@@ -1,17 +1,11 @@
 #pragma once
 
 #include <atomic>
-#include <cmath>
 #include <cstdio>
-#include <iostream>
 #include <mutex>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include "config.h"
 #include "utils/vec.h"
 
 class Robot;

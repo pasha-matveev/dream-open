@@ -1,10 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <opencv2/opencv.hpp>
 #include <thread>
 
-#include "tracking/object.h"
+class Object;
 
 class Camera {
  public:

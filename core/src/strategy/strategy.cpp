@@ -63,15 +63,37 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   }
 }
 
-void Strategy::hit(Robot& robot, Object& goal, bool slow, int power,
-                   bool rotation_curve) {
+void Strategy::drive_target(Robot& robot, const Vec& target, double k) {
+  Vec vel = target - robot.position;
+  robot.rotation = vel.field_angle() - robot.field_angle;
+  vel *= k;
+  vel = vel.resize(min(vel.len(), 120.0));
+  robot.vel = vel;
+}
+
+void Strategy::drive_ball(Robot& robot, const Vec& ball) {
+  double k;
+  double dist = (ball - robot.position).len();
+  if (dist < 35) {
+    k = 3;
+  } else {
+    k = 4;
+  }
+  drive_target(robot, ball, k);
+  robot.dribling = 50;
+  robot.rotation_limit = 40;
+}
+
+void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
+                   bool curved_rotation, double rotation_speed,
+                   int kick_timeout, int power, double precision) {
   reset_target = false;
   if (target_status == "none") {
     Vec vel{-1 * sin(robot.field_angle) * 10.0, cos(robot.field_angle) * 10.0};
     robot.vel = vel;
     robot.dribling = 100;
     robot.rotation_limit = 0;
-    if (millis() > robot.first_time + 500) {
+    if (millis() > robot.first_time + forward_timeout) {
       target_status = "rotate";
     }
   } else if (target_status == "rotate") {
@@ -87,27 +109,25 @@ void Strategy::hit(Robot& robot, Object& goal, bool slow, int power,
     if (abs(delta) <= M_PI / 3) {
       target_status = "ac";
     }
-    if (rotation_curve) {
-      // robot.rotation = (delta < 0) ? -M_PI / 2 : M_PI / 2;
+    if (curved_rotation) {
       robot.rotation = delta;
-      robot.rotation_limit = 25;
+      robot.rotation_limit = rotation_speed;
       robot.dribling = 100;
-      // robot.vel = {0, -25};
       robot.vel = {-30, 0};
     } else {
       robot.rotation = delta;
-      robot.rotation_limit = 12;
+      robot.rotation_limit = rotation_speed;
       robot.dribling = 100;
       robot.vel = {0, 0};
     }
 
   } else if (target_status == "ac") {
     double delta = normalize_angle(target_angle - robot.gyro_angle);
-    if (abs(delta) <= 0.09) {
-      if (slow) {
+    if (abs(delta) <= precision) {
+      if (kick_timeout) {
         target_status = "slow";
         robot.dribling = 15;
-        slow_tm = millis() + 400;
+        slow_tm = millis() + kick_timeout;
       } else {
         target_status = "kick";
         robot.dribling = 0;

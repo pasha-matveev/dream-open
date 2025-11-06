@@ -23,22 +23,10 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
       robot.dribling = 60;
       if (robot.emitter) {
         spdlog::info("HIT");
-        hit(robot, goal, false, 70, false);
+        hit(robot, goal);
       } else {
         spdlog::info("DRIVE");
-        // Vec target{clamp(last_ball.x, 15.0, 160.0),
-        //            max(10.0, last_ball.y)};
-        Vec vel = last_ball - robot.position;
-        if (vel.len() <= 7) {
-          vel = vel.resize(5);
-        } else {
-          vel = vel.resize(min(vel.len() * 2, 80.0));
-        }
-
-        robot.vel = vel;
-        robot.dribling = 60;
-        robot.rotation = vel.field_angle() - robot.field_angle;
-        robot.rotation_limit = 30;
+        drive_ball(robot, last_ball);
       }
     } else {
       spdlog::info("PASSIVE");
@@ -54,15 +42,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
       } else {
         target = {clamp(last_ball.x, 50.0, 130.0), 52.0};
       }
-
-      Vec vel = target - robot.position;
-      vel *= 3;
-      robot.dribling = 0;
-      vel = vel.resize(min(vel.len(), 80.0));
-      robot.vel = vel;
-      robot.rotation =
-          (last_ball - robot.position).field_angle() - robot.field_angle;
-      robot.rotation_limit = 20;
+      drive_target(robot, target, 3);
     }
   } else {
     spdlog::info("CONTR");
@@ -84,12 +64,6 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
     } else {
       target = {nearest_obstacle->x, 35.0};
     }
-    Vec vel = target - robot.position;
-    vel *= 4;
-    robot.dribling = 0;
-    vel = vel.resize(min(vel.len(), 100.0));
-    robot.vel = vel;
-    robot.rotation = -1 * robot.field_angle;
-    robot.rotation_limit = 20;
+    drive_target(robot, target, 3);
   }
 }

@@ -110,7 +110,6 @@ Vec Segment::nearest_point(const Vec& p) const {
     }
     normal = normal.resize(normal_dist(p));
     Vec q = p + normal;
-    // assert(has_point(q));
     return q;
   } else {
     if ((p - a).len2() < (p - b).len2()) {

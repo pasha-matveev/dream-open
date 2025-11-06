@@ -59,12 +59,14 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
     }
     Vec target;
     if (!nearest_obstacle.has_value() ||
-        (*nearest_obstacle - robot.position).len() > 70 ||
-        nearest_obstacle->y < 30) {
-      target = {91.0, 35.0};
+        (*nearest_obstacle - robot.position).len() > 160 ||
+        nearest_obstacle->y > 80 || nearest_obstacle->y < 30) {
+      target = {91.0, 52.0};
     } else {
       target = {nearest_obstacle->x, 35.0};
     }
+    cout << target.x << " " << target.y << endl;
     drive_target(robot, target, 3);
+    robot.rotation = -robot.field_angle;
   }
 }

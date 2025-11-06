@@ -109,7 +109,10 @@ Robot::~Robot() {
   if (lidar != nullptr) delete lidar;
 }
 
-void Robot::init_gyro() { top_angle = normalize_angle2(gyro_angle + M_PI / 2); }
+void Robot::init_gyro() {
+  // top_angle = normalize_angle2(gyro_angle + M_PI / 2);
+  top_angle = normalize_angle2(gyro_angle);
+}
 
 bool Robot::compute_lidar() {
   if (!lidar) return false;

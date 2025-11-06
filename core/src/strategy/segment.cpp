@@ -60,16 +60,11 @@ void Segment::apply(Robot& robot) const {
 
   double vx = robot.vel.proection(ox);
   double vy = robot.vel.proection(oy);
-  if (d <= -1.7) {
-    // робот снаружи, почти касается
-    // значит, больше не можем удаляться от поля
+  if (d <= 2) {
     vy = min(vy, 0.0);
-  } else if (d <= 0) {
-    // робот снаружи, но не сильно
-    // едем медленно
-    vy = min(vy, 5.0);
   } else if (d <= 10) {
-    // робот близко к границе
+    vy = min(vy, 5.0);
+  } else if (d <= 15) {
     vy = min(vy, 30.0);
   }
 

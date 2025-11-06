@@ -124,6 +124,7 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
       target_angle = normalize_angle(simple_route.field_angle() -
                                      robot.field_angle + robot.gyro_angle);
     }
+    target_angle -= 0.01;
     double delta = normalize_angle(target_angle - robot.gyro_angle);
 
     if (abs(delta) <= precision) {
@@ -144,6 +145,9 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
       } else {
         robot.vel = {0, 0};
         robot.rotation_limit = 15;
+      }
+      if (abs(delta) <= 0.05) {
+        robot.rotation_limit = 5;
       }
       robot.rotation = delta;
       accelerated_dribbling(robot);

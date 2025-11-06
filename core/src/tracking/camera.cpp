@@ -93,7 +93,7 @@ void Camera::Impl::start() {
 
   while (true) {
     if (!cam.getVideoFrame(frame, 1000)) {
-      spdlog::warn("Camera frame timeout")
+      spdlog::warn("Camera frame timeout");
     } else {
       if (frame.size().width != config.tracking.width) {
         spdlog::error("Bad frame. Resolution: {} {}", frame.size().width,

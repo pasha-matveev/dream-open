@@ -12,7 +12,7 @@ Line::Line(const Vec& s, const Vec& f) {
   a = normal.x;
   b = normal.y;
   c = -a * s.x - b * s.y;
-  assert(a * f.x + b * f.y + c <= EPS);
+  assert(abs(a * f.x + b * f.y + c) <= EPS);
 }
 
 Vec operator*(const Line& a, const Line& b) {
@@ -108,7 +108,7 @@ Vec Segment::nearest_point(const Vec& p) const {
     if (!right) {
       normal *= -1;
     }
-    normal = normal.resize(normal_dist(p));
+    normal = normal.resize(abs(normal_dist(p)));
     Vec q = p + normal;
     return q;
   } else {

@@ -84,6 +84,11 @@ void Strategy::drive_ball(Robot& robot, const Vec& ball) {
   robot.rotation_limit = 40;
 }
 
+void Strategy::accelerated_dribbling(Robot& robot) {
+  robot.dribling =
+      min(100.0, 50 + 50 * ((millis() - robot.first_time) / dribling_duration));
+}
+
 void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
                    bool curved_rotation, double rotation_speed,
                    int kick_timeout, int power, double precision) {
@@ -91,11 +96,12 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
   if (target_status == "none") {
     Vec vel{-1 * sin(robot.field_angle) * 10.0, cos(robot.field_angle) * 10.0};
     robot.vel = vel;
-    robot.dribling = 100;
+    accelerated_dribbling(robot);
     robot.rotation_limit = 0;
     if (millis() > robot.first_time + forward_timeout) {
       target_status = "rotate";
     }
+
   } else if (target_status == "rotate") {
     if (goal.visible) {
       target_angle = normalize_angle(goal.relative_angle + robot.gyro_angle);
@@ -110,16 +116,13 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
       target_status = "ac";
     }
     if (curved_rotation) {
-      robot.rotation = delta;
-      robot.rotation_limit = rotation_speed;
-      robot.dribling = 100;
       robot.vel = {-30, 0};
     } else {
-      robot.rotation = delta;
-      robot.rotation_limit = rotation_speed;
-      robot.dribling = 100;
       robot.vel = {0, 0};
     }
+    robot.rotation = delta;
+    robot.rotation_limit = rotation_speed;
+    accelerated_dribbling(robot);
 
   } else if (target_status == "ac") {
     double delta = normalize_angle(target_angle - robot.gyro_angle);
@@ -137,9 +140,10 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
     } else {
       robot.rotation = delta;
       robot.rotation_limit = 12;
-      robot.dribling = 100;
+      accelerated_dribbling(robot);
       robot.vel = {0, 0};
     }
+
   } else if (target_status == "slow") {
     robot.rotation = 0;
     robot.dribling = 15;
@@ -147,6 +151,7 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
     if (slow_tm < millis()) {
       target_status = "kick";
     }
+
   } else if (target_status == "kick") {
     robot.kicker_force = power;
     robot.dribling = 0;

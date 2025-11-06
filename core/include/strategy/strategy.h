@@ -8,6 +8,8 @@
 
 class Strategy {
  private:
+  static constexpr double dribling_duration = 400;
+
   string role;
 
   int last_ball_visible = 0;
@@ -26,7 +28,8 @@ class Strategy {
   // common actions
   void drive_target(Robot& robot, const Vec& target, double k);
   void drive_ball(Robot& robot, const Vec& ball);
-  void hit(Robot& robot, Object& goal, int forward_timeout = 0,
+  void accelerated_dribbling(Robot& robot);
+  void hit(Robot& robot, Object& goal, int forward_timeout = 200,
            bool curved_rotation = true, double rotation_speed = 25,
            int kick_timeout = 0, int power = 70, double precision = 0.09);
 

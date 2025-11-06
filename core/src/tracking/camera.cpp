@@ -92,11 +92,12 @@ void Camera::Impl::start() {
   int cnt = 0;
 
   while (true) {
-    if (!cam.getVideoFrame(frame, 100)) {
-      cout << "Timeout" << endl;
+    if (!cam.getVideoFrame(frame, 1000)) {
+      spdlog::warn("Camera frame timeout")
     } else {
       if (frame.size().width != config.tracking.width) {
-        cout << "Bad frame " << clock() << endl;
+        spdlog::error("Bad frame. Resolution: {} {}", frame.size().width,
+                      frame.size().height);
         continue;
       }
       const int radius = config.tracking.radius;

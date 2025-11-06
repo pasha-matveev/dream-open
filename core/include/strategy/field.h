@@ -12,11 +12,12 @@ using namespace std;
 class Field {
  private:
   vector<Vec> points;
+  void apply_seg(int i, Robot& robot) const;
 
  public:
-  bool inside(Robot&) const;
+  bool inside(Robot& robot) const;
   Field(const vector<Vec>&);
-  void apply(Robot&) const;
+  void apply(Robot& robot) const;
 
   friend class Visualization;
 };

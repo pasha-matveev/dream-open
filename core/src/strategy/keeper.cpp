@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <cmath>
 #include <optional>
@@ -6,11 +8,6 @@
 #include "utils/millis.h"
 
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
-  cout << "emitter: " << robot.emitter << endl;
-  cout << "visible: " << ball.visible << endl;
-  cout << "last_visible " << last_ball_visible << endl;
-  cout << "last_y " << last_ball.y << endl;
-
   if (millis() - last_ball_visible < 1000 || robot.emitter) {
     if (last_ball.y < 90) {
       active_def = true;
@@ -25,10 +22,10 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
     if (active_def) {
       robot.dribling = 60;
       if (robot.emitter) {
+        spdlog::info("HIT");
         hit(robot, goal, false, 70, false);
       } else {
-        cout << "TAKE" << endl;
-        cout << last_ball.x << " " << last_ball.y << endl;
+        spdlog::info("DRIVE");
         // Vec target{clamp(last_ball.x, 15.0, 160.0),
         //            max(10.0, last_ball.y)};
         Vec vel = last_ball - robot.position;
@@ -44,7 +41,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
         robot.rotation_limit = 30;
       }
     } else {
-      cout << "PASSIVE" << endl;
+      spdlog::info("PASSIVE");
       Vec target;
       if (last_ball.y > 50.0) {
         Vec our{91, 0};
@@ -68,7 +65,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
       robot.rotation_limit = 20;
     }
   } else {
-    cout << "CONTR" << endl;
+    spdlog::info("CONTR");
     optional<Vec> nearest_obstacle;
     if (robot.lidar) {
       for (const auto& obstacle : robot.lidar->obstacles_data) {

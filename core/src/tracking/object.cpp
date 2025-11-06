@@ -11,7 +11,7 @@ using namespace std;
 
 Object::~Object() {};
 
-float Object::get_pixels_dist() {
+double Object::get_pixels_dist() {
   int radius = config.tracking.radius;
   Vec mirror_center = {radius, radius};
   return (center - mirror_center).len();
@@ -26,7 +26,6 @@ Object::Object(const vector<int>& hsv_min, const vector<int>& hsv_max,
   h_max = hsv_max[0];
   s_max = hsv_max[1];
   v_max = hsv_max[2];
-  cout << "HSV min " << h_min << " " << s_min << " " << v_min << endl;
   if (config.tracking.preview.enabled && setup_mode) {
     string window_name = config.tracking.preview.window_name;
     cv::createTrackbar("H min", window_name, &h_min, 179);
@@ -104,7 +103,7 @@ void Object::draw(cv::Mat& frame) {
   cv::circle(frame, center, radius, 100, 10);
 }
 
-float Object::get_cm() {
+double Object::get_cm() {
   if (override_dist != -1) {
     return override_dist;
   }

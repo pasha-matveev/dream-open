@@ -17,7 +17,7 @@ class Object {
   bool visible = false;
   double radius;
   Vec camera_point;
-  float relative_angle;
+  double relative_angle;
   Vec field_position{0, 0};
 
   int h_min, s_min, v_min;
@@ -33,8 +33,8 @@ class Object {
   void draw(cv::Mat& frame);
   void compute_field_position(const Robot& robot);
 
-  float get_pixels_dist();
-  float get_cm();
+  double get_pixels_dist();
+  double get_cm();
 
   virtual ~Object();
 };

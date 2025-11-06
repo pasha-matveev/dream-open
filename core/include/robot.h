@@ -22,8 +22,8 @@ class Robot {
 
   double top_angle;
 
-  float direction = 0;
-  float speed = 0;
+  double direction = 0;
+  double speed = 0;
   bool applied_goal = false;
 
  public:
@@ -44,17 +44,17 @@ class Robot {
   // 0 - на ворота противника
   // P/2 - налево
   // -P/2 - направо
-  float field_angle = M_PI / 2;
+  double field_angle = M_PI / 2;
 
-  float gyro_angle = 0;
+  double gyro_angle = 0;
   bool emitter = false;
   bool prev_emitter = false;
   int first_time = 0;
   bool kicker_charged = false;
 
   Vec vel{0, 0};
-  float rotation = 0;
-  float rotation_limit = 100;
+  double rotation = 0;
+  double rotation_limit = 100;
   int dribling = 0;
   int kicker_force = 0;
   bool rgb_led = false;

@@ -31,9 +31,9 @@ class Strategy {
   void drive_target(Robot& robot, const Vec& target, double k);
   void drive_ball(Robot& robot, const Vec& ball);
   void accelerated_dribbling(Robot& robot);
-  void hit(Robot& robot, Object& goal, int forward_timeout = 600,
-           bool curved_rotation = true, int kick_timeout = 0, int power = 70,
-           double precision = 0.01);
+  void hit(Robot& robot, Object& goal, int power = 70,
+           int forward_timeout = 600, bool curved_rotation = true,
+           int kick_timeout = 0, double precision = 0.01);
 
   // different strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal);

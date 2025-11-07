@@ -102,9 +102,8 @@ void Strategy::accelerated_dribbling(Robot& robot) {
                          ((millis() - robot.first_time) / dribling_duration));
 }
 
-void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
-                   bool curved_rotation, int kick_timeout, int power,
-                   double precision) {
+void Strategy::hit(Robot& robot, Object& goal, int power, int forward_timeout,
+                   bool curved_rotation, int kick_timeout, double precision) {
   reset_target = false;
   if (target_status == "none") {
     spdlog::info("NONE");
@@ -149,7 +148,10 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
       robot.vel = {0, 0};
     } else {
       if (curved_rotation) {
-        robot.vel = {-5, -5};
+        Vec vel{robot.field_angle};
+        vel *= -1;
+        vel = vel.resize(7);
+        robot.vel = vel;
         robot.rotation_limit = 15;
       } else {
         robot.vel = {0, 0};

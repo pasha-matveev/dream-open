@@ -13,7 +13,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
     } else {
       power = 15;
     }
-    hit(robot, goal, power = power);
+    hit(robot, goal, power);
   } else {
     if (millis() - last_ball_visible < 3000) {
       if (last_ball.y < BORDER) {

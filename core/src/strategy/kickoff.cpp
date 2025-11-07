@@ -8,6 +8,7 @@ static bool shot = false;
 static bool fw = false;
 static bool has_target = false;
 static double target = 0;
+static long long go_time = -1;
 
 static void finish(Robot& robot) {
   robot.state = RobotState::PAUSE;
@@ -16,6 +17,7 @@ static void finish(Robot& robot) {
   fw = false;
   has_target = false;
   target = 0;
+  go_time = -1;
 }
 
 void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
@@ -29,7 +31,7 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
     finish(robot);
     return;
   }
-  if (robot.emitter) {
+  if (robot.emitter && go_time != -1 && go_time <= millis()) {
     // Мячик в лунке, бьем
     robot.kicker_force = 70;
     shot = true;
@@ -52,15 +54,25 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
     }
 
     double delta = normalize_angle(target - robot.gyro_angle);
-    cout << target << " " << delta << endl;
 
     if (abs(delta) <= 0.05 || fw) {
       // Повернулись, едем вперед
       fw = true;
-      robot.rotation = delta;
 
-      Vec vel{M_PI / 4};
-      vel = vel.resize(20);
+      if (go_time == -1) {
+        go_time = millis() + 30;
+      }
+      Vec vel;
+      if (go_time <= millis()) {
+        robot.rotation = ball.relative_angle;
+        vel = Vec{ball.relative_angle + robot.field_angle};
+        vel = vel.resize(15);
+      } else {
+        robot.rotation = delta;
+        // vel = Vec{alpha};
+        vel = {0, 0};
+      }
+      robot.rotation_limit = 30;
       robot.vel = vel;
     } else {
       // Поворачиваемся
@@ -68,12 +80,13 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
       vel = vel.turn_right();
 
       vel = vel.resize(45);
+      vel = vel.rotate(0.18);
       // 50 30 5 80
       double ma = 30;
       double mi = 5;
       double duration = 80;
       robot.rotation_limit = min(ma, (ma - mi) * (elapsed / duration) + mi);
-      robot.rotation = (delta < 0) ? -M_PI / 2 : M_PI / 2;
+      robot.rotation = M_PI / 2;
       robot.vel = vel;
     }
   }

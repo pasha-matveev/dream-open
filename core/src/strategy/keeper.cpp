@@ -7,8 +7,48 @@
 #include "strategy/strategy.h"
 #include "utils/millis.h"
 
+using namespace std;
+
+static optional<Vec> nearest_obstacle(Robot& robot) {
+  optional<Vec> nearest_obstacle;
+  if (robot.lidar) {
+    for (const auto& obstacle : robot.lidar->obstacles_data) {
+      if (obstacle.y < 10 || obstacle.y > 80) {
+        continue;
+      }
+      if (!nearest_obstacle.has_value() || obstacle.y < nearest_obstacle->y) {
+        nearest_obstacle = obstacle;
+      }
+    }
+  }
+  return nearest_obstacle;
+}
+
+static long long last_piter_visible = LONG_LONG_MIN;
+static Vec last_piter;
+
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
-  if (millis() - last_ball_visible < 1000 || robot.emitter) {
+  auto obstacle = nearest_obstacle(robot);
+
+  if (obstacle.has_value()) {
+    last_piter_visible = millis();
+    last_piter = *obstacle;
+  }
+
+  long long ball_visible_tm = millis() - last_ball_visible;
+  long long piter_visible_tm = millis() - last_piter_visible;
+  bool ball_ok = ball_visible_tm <= 2000;
+  bool piter_ok = piter_visible_tm <= 2000;
+
+  bool is_piter;
+  if (ball.visible) {
+    is_piter = false;
+  } else if (!piter_ok && ball_ok) {
+    is_piter = false;
+  } else {
+    is_piter = true;
+  }
+  if (!is_piter) {
     if (last_ball.y < 90) {
       active_def = true;
     } else if (last_ball.y > 95) {
@@ -47,25 +87,12 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal) {
     }
   } else {
     spdlog::info("CONTR");
-    optional<Vec> nearest_obstacle;
-    if (robot.lidar) {
-      for (const auto& obstacle : robot.lidar->obstacles_data) {
-        if (!nearest_obstacle.has_value() ||
-            (obstacle - robot.position).len() <
-                (*nearest_obstacle - robot.position).len()) {
-          nearest_obstacle = obstacle;
-        }
-      }
-    }
     Vec target;
-    if (!nearest_obstacle.has_value() ||
-        (*nearest_obstacle - robot.position).len() > 160 ||
-        nearest_obstacle->y > 80 || nearest_obstacle->y < 30) {
-      target = {91.0, 52.0};
+    if (piter_ok) {
+      target = {last_piter.x, 35.0};
     } else {
-      target = {nearest_obstacle->x, 35.0};
+      target = {91.0, 52.0};
     }
-    cout << target.x << " " << target.y << endl;
     drive_target(robot, target, 3);
     robot.rotation = -robot.field_angle;
   }

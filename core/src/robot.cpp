@@ -31,6 +31,7 @@ void Robot::write_to_arduino() {
   uart->write_data<int32_t>(dribling);
   uart->write_data<int32_t>(kicker_force);
   uart->write_data<bool>(rgb_led);
+  uart->write_data<bool>(pause);
 }
 
 void Robot::init_camera(Object& ball, Object& goal) {
@@ -40,7 +41,7 @@ void Robot::init_camera(Object& ball, Object& goal) {
 
 void Robot::init_buzzer() { buzzer = new Buzzer(config.gpio.buzzer.pin); }
 
-void Robot::init_buttons() { setup_buttons(buzzer); }
+void Robot::init_buttons() { setup_buttons(this); }
 
 void Robot::init_uart() {
   uart = new UART();

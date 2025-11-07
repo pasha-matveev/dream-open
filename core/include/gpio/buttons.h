@@ -1,5 +1,5 @@
 #pragma once
 
-#include "gpio/buzzer.h"
+class Robot;
 
-void setup_buttons(Buzzer *);
+void setup_buttons(Robot*);

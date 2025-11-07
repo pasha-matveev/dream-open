@@ -12,7 +12,7 @@ Adafruit_NeoPixel pixels(2, 9, NEO_GRB + NEO_KHZ800);
 unsigned long long alive_tm;
 unsigned long long test_tm;
 bool rgb_led = false;
-bool prog_running = false;
+// bool prog_running = false;
 long long cooldown = 0;
 
 template <typename T>
@@ -92,6 +92,7 @@ void loop() {
       robot.dribling.set_speed(read_data<int32_t>());
       robot.kicker_force = read_data<int32_t>();
       rgb_led = read_data<bool>();
+      robot.pause = read_data<bool>();
       robot.kicker.set_force(robot.kicker_force);
     }
 
@@ -103,13 +104,13 @@ void loop() {
     alive_tm = millis() + 1000;
   }
 
-  if (robot.button.state() && millis() > cooldown) {
-    cooldown = millis() + 1000;
-    prog_running = !prog_running;
-    robot.button.was_pressed = false;
-  } else {
-    robot.button.was_pressed = false;
-  }
+  // if (robot.button.state() && millis() > cooldown) {
+  //   cooldown = millis() + 1000;
+  //   prog_running = !prog_running;
+  //   robot.button.was_pressed = false;
+  // } else {
+  //   robot.button.was_pressed = false;
+  // }
 
   if (alive_tm > millis() && robot.init_kicker) {
     robot.kicker.charge();
@@ -120,17 +121,17 @@ void loop() {
     robot.kicker.charge(false);
   }
 
-  if (alive_tm > millis() && prog_running) {
+  if (alive_tm > millis() && !robot.pause) {
     robot.run();
   } else {
     robot.stop();
   }
 
-  if (alive_tm <= millis()) {
-    rgb_led = false;
-    robot.button.was_pressed = false;
-    prog_running = false;
-  }
+  // if (alive_tm <= millis()) {
+  //   rgb_led = false;
+  //   robot.button.was_pressed = false;
+  //   prog_running = false;
+  // }
 
   if (rgb_led) {
     pixels.setPixelColor(1, pixels.ColorHSV(millis() * 80 % 65535, 255, 255));

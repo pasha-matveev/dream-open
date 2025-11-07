@@ -33,6 +33,7 @@ class Robot {
   float rotation_limit = -1;
   int dribling_speed = 0;
   int kicker_force = 0;
+  bool pause = false;
 
   const bool init_gyro = true, init_motors = true, init_kicker = true,
              init_dribling = true, init_emitter = true, init_button = true;

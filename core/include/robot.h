@@ -59,6 +59,8 @@ class Robot {
   int kicker_force = 0;
   bool rgb_led = false;
 
+  bool pause = true;
+
   void init_hardware(Object& ball, Object& goal);
 
   bool compute_lidar();

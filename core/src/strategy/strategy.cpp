@@ -44,8 +44,10 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
 
   robot.kicker_force = 0;
   robot.dribling = 0;
+  robot.rotation = 0;
+  robot.vel = {0, 0};
 
-  if (config.strategy.enabled) {
+  if (config.strategy.enabled && !robot.pause) {
     reset_target = true;
     if (role == "attacker") {
       run_attacker(robot, ball, goal);

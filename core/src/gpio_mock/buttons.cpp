@@ -5,8 +5,8 @@
 
 using namespace std;
 
-void run_music(Buzzer *b) {}
+void run_music(Buzzer* b) {}
 
-void setup_music_button(Buzzer *buzzer) {}
+void setup_music_button(Buzzer* buzzer) {}
 
-void setup_buttons(Buzzer *buzzer) {}
+void setup_buttons(Robot* robot) {}

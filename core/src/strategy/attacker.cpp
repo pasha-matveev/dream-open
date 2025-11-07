@@ -2,7 +2,7 @@
 #include "utils/millis.h"
 
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
-  const int BORDER = 0;
+  const int BORDER = 80;
 
   if (millis() - last_ball_visible < 3000) {
     if (robot.emitter) {

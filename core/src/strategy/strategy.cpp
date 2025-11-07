@@ -65,7 +65,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
 
 void Strategy::drive_target(Robot& robot, const Vec& target, double k) {
   Vec vel = target - robot.position;
-  robot.rotation = vel.field_angle() - robot.field_angle;
+  robot.rotation = normalize_angle(vel.field_angle() - robot.field_angle);
   vel *= k;
   vel = vel.resize(min(vel.len(), 120.0));
   robot.vel = vel;
@@ -99,8 +99,8 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
   reset_target = false;
   if (target_status == "none") {
     spdlog::info("NONE");
-    int passed_time = millis() - robot.first_time;
-    int left_time = forward_timeout - passed_time;
+    long long passed_time = millis() - robot.first_time;
+    long long left_time = forward_timeout - passed_time;
     if (left_time <= 0) {
       target_status = "rotate";
     } else {

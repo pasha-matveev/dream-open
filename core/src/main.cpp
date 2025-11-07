@@ -9,6 +9,7 @@
 #include "strategy/visualization.h"
 #include "tracking/object.h"
 #include "utils/config.h"
+#include "utils/millis.h"
 
 using namespace std;
 
@@ -65,8 +66,21 @@ int main() {
     visualization = new Visualization();
   }
 
-  // int delay = 1000 / config.strategy.fps / 10;
+  int delay = 1000 / config.strategy.fps;
+
+  auto compute_delay = [&](long long cycle_start) -> long long {
+    long long elapsed = millis() - cycle_start;
+    long long actual_delay = delay - elapsed;
+    if (actual_delay <= 0) {
+      spdlog::error("Strategy FPS not achievable: cycle took {} out of {}",
+                    elapsed, delay);
+      actual_delay = 0;
+    }
+    return actual_delay;
+  };
+
   while (true) {
+    long long cycle_start = millis();
     if (config.serial.enabled) {
       robot.read_from_arduino();
     }
@@ -88,11 +102,11 @@ int main() {
         robot.camera->show_preview();
       } catch (...) {
       }
-      if (cv::waitKey(5) == 27) {
+      if (cv::waitKey(compute_delay(cycle_start)) == 27) {
         break;
       }
     } else {
-      this_thread::sleep_for(chrono::milliseconds(5));
+      this_thread::sleep_for(chrono::milliseconds(compute_delay(cycle_start)));
     }
   }
 }

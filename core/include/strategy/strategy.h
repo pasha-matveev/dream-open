@@ -14,7 +14,7 @@ class Strategy {
 
   string role;
 
-  int last_ball_visible = 0;
+  long long last_ball_visible = 0;
   Vec last_ball;
   bool active_def = false;
   bool curve_kick = false;

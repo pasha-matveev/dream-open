@@ -67,10 +67,12 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
       Vec vel{robot.field_angle};
       vel = vel.turn_right();
 
-      vel = vel.resize(50);
-      double max_rotation = 30;
-      robot.rotation_limit =
-          min(max_rotation, (30 - 10) * (50.0 / elapsed) + 10);
+      vel = vel.resize(45);
+      // 50 30 5 80
+      double ma = 30;
+      double mi = 5;
+      double duration = 80;
+      robot.rotation_limit = min(ma, (ma - mi) * (elapsed / duration) + mi);
       robot.rotation = (delta < 0) ? -M_PI / 2 : M_PI / 2;
       robot.vel = vel;
     }

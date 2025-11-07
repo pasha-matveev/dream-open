@@ -29,6 +29,7 @@ Vec::Vec(int x, int y) : x(x), y(y) {}
 Vec::Vec(cv::Point2f p) : x(p.x), y(p.y) {}
 Vec::Vec(sf::Vector2f v) : x(v.x), y(v.y) {}
 Vec::Vec(sf::Vector2i v) : x(v.x), y(v.y) {}
+Vec::Vec(double angle) : x(-1 * sin(angle)), y(cos(angle)) {}
 Vec::operator cv::Point() const { return {(int)x, (int)y}; }
 Vec::operator sf::Vector2f() const { return {(float)x, (float)y}; }
 double Vec::len() const { return sqrt(x * x + y * y); }
@@ -70,3 +71,4 @@ double Vec::proection(const Vec& v) const {
   return l;
 }
 Vec Vec::turn_left() const { return {-y, x}; }
+Vec Vec::turn_right() const { return {y, -x}; }

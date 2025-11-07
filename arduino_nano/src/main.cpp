@@ -95,14 +95,13 @@ void loop() {
       robot.pause = read_data<bool>();
       robot.kicker.set_force(robot.kicker_force);
     }
-
-    // if (millis() - robot.emitter.first_tm > 100) {
-    //   robot.emitter.reset();
-    //   robot.kicker.set_force(robot.kicker_force);
-    // }
-
     alive_tm = millis() + 1000;
   }
+
+  // if (millis() - robot.emitter.first_tm > 100) {
+  //   robot.emitter.reset();
+  //   robot.kicker.set_force(robot.kicker_force);
+  // }
 
   // if (robot.button.state() && millis() > cooldown) {
   //   cooldown = millis() + 1000;
@@ -125,6 +124,7 @@ void loop() {
     robot.run();
   } else {
     robot.stop();
+    robot.reset();
   }
 
   // if (alive_tm <= millis()) {

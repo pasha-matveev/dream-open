@@ -15,6 +15,7 @@ class Vec {
   Vec(cv::Point2f);
   Vec(sf::Vector2f);
   Vec(sf::Vector2i);
+  Vec(double);
   operator cv::Point() const;
   operator sf::Vector2f() const;
   Vec operator*(double);
@@ -34,4 +35,5 @@ class Vec {
   Vec resize(double) const;
   double proection(const Vec&) const;
   Vec turn_left() const;
+  Vec turn_right() const;
 };

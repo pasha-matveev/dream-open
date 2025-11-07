@@ -18,6 +18,8 @@ void Robot::read_from_arduino() {
   kicker_charged = uart->read_data<bool>();
 }
 
+static bool written = false;
+
 void Robot::write_to_arduino() {
   speed = vel.len();
   direction = vel.field_angle() - field_angle;
@@ -31,7 +33,7 @@ void Robot::write_to_arduino() {
   uart->write_data<int32_t>(dribling);
   uart->write_data<int32_t>(kicker_force);
   uart->write_data<bool>(rgb_led);
-  uart->write_data<bool>(pause);
+  uart->write_data<bool>(state == RobotState::PAUSE);
 }
 
 void Robot::init_camera(Object& ball, Object& goal) {

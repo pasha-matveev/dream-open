@@ -47,15 +47,22 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   robot.rotation = 0;
   robot.vel = {0, 0};
 
-  if (config.strategy.enabled && !robot.pause) {
+  if (config.strategy.enabled) {
     reset_target = true;
-    if (role == "attacker") {
-      run_attacker(robot, ball, goal);
-    } else if (role == "keeper") {
-      run_keeper(robot, ball, goal);
-    } else {
-      run_challenge(robot, ball, goal);
+    if (robot.state == RobotState::RUNNING) {
+      if (role == "attacker") {
+        run_attacker(robot, ball, goal);
+      } else if (role == "keeper") {
+        run_keeper(robot, ball, goal);
+      } else {
+        run_challenge(robot, ball, goal);
+      }
+    } else if (robot.state == KICKOFF_LEFT) {
+      run_kickoff(robot, ball, goal, true);
+    } else if (robot.state == KICKOFF_RIGHT) {
+      run_kickoff(robot, ball, goal, false);
     }
+
     if (reset_target) {
       target_status = "none";
       target_angle = -1;
@@ -142,7 +149,7 @@ void Strategy::hit(Robot& robot, Object& goal, int forward_timeout,
       robot.vel = {0, 0};
     } else {
       if (curved_rotation) {
-        robot.vel = {-10, -10};
+        robot.vel = {-5, -5};
         robot.rotation_limit = 15;
       } else {
         robot.vel = {0, 0};

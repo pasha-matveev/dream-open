@@ -10,6 +10,8 @@
 
 using namespace LibSerial;
 
+enum RobotState { RUNNING, PAUSE, KICKOFF_LEFT, KICKOFF_RIGHT };
+
 class Robot {
  private:
   void init_camera(Object&, Object&);
@@ -59,7 +61,7 @@ class Robot {
   int kicker_force = 0;
   bool rgb_led = false;
 
-  bool pause = true;
+  RobotState state = RobotState::PAUSE;
 
   void init_hardware(Object& ball, Object& goal);
 

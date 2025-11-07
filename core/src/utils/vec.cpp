@@ -72,3 +72,8 @@ double Vec::proection(const Vec& v) const {
 }
 Vec Vec::turn_left() const { return {-y, x}; }
 Vec Vec::turn_right() const { return {y, -x}; }
+Vec Vec::rotate(double angle) const {
+  const double cs = cos(angle);
+  const double sn = sin(angle);
+  return {x * cs - y * sn, x * sn + y * cs};
+}

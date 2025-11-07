@@ -36,4 +36,5 @@ class Vec {
   double proection(const Vec&) const;
   Vec turn_left() const;
   Vec turn_right() const;
+  Vec rotate(double angle) const;
 };

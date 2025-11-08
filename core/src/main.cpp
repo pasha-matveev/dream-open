@@ -67,13 +67,19 @@ int main() {
   }
 
   int delay = 1000 / config.strategy.fps;
+  int read_time = 0;
+  int strategy_time = 0;
+  int write_time = 0;
+  long long st = 0;
 
   auto compute_delay = [&](long long cycle_start) -> long long {
     long long elapsed = millis() - cycle_start;
     long long actual_delay = delay - elapsed;
     if (actual_delay <= 0) {
-      spdlog::error("Strategy FPS not achievable: cycle took {} out of {}",
-                    elapsed, delay);
+      spdlog::error(
+          "Strategy FPS not achievable: cycle took {} out of {}. Read: {}; "
+          "Strategy: {}; Write: {}",
+          elapsed, delay, read_time, strategy_time, write_time);
       actual_delay = 0;
     }
     return actual_delay;
@@ -81,14 +87,20 @@ int main() {
 
   while (true) {
     long long cycle_start = millis();
+    st = millis();
     if (config.serial.enabled) {
       robot.read_from_arduino();
     }
+    read_time = millis() - st;
     // ... strategy ...
+    st = millis();
     strategy.run(robot, ball, goal, field);
+    strategy_time = millis() - st;
+    st = millis();
     if (config.serial.enabled) {
       robot.write_to_arduino();
     }
+    write_time = millis() - st;
     // visualisation
     if (config.visualization.enabled) {
       visualization->run(robot, ball, goal, field);

@@ -35,6 +35,11 @@ void setup() {
   pixels.setPixelColor(1, pixels.Color(0, 0, 0));
   pixels.show();
   robot.init();
+  pixels.setPixelColor(0, pixels.Color(50, 50, 50));
+  pixels.show();
+  if (robot.init_gyro) robot.gyro.init();
+  pixels.setPixelColor(0, pixels.Color(0, 50, 0));
+  pixels.show();
   robot.stop();
   delay(1000);
   robot.motors.requestVoltageData();
@@ -123,8 +128,8 @@ void loop() {
   if (alive_tm > millis() && !robot.pause) {
     robot.run();
   } else {
-    robot.stop();
     robot.reset();
+    robot.stop();
   }
 
   // if (alive_tm <= millis()) {

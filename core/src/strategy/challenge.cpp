@@ -9,5 +9,9 @@ void Strategy::run_challenge(Robot& robot, Object& ball, Object& goal) {
     Vec vel = ball.field_position - robot.position;
     vel *= 2.5;
     robot.vel = vel;
+  } else {
+    Vec target{-100, 40};
+    robot.vel = target - robot.position;
+    robot.vel *= 3;
   }
 }

@@ -40,7 +40,9 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   if (robot.emitter && !robot.prev_emitter) {
     robot.first_time = millis();
   }
-  robot.prev_emitter = robot.emitter;
+  if (!robot.emitter) {
+    attacker_r = AttackerRStatus::NONE;
+  }
 
   robot.kicker_force = 0;
   robot.dribling = 0;
@@ -70,6 +72,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
     }
     field.apply(robot);
   }
+  robot.prev_emitter = robot.emitter;
 }
 
 void Strategy::drive_target(Robot& robot, const Vec& target, double k) {
@@ -100,6 +103,27 @@ void Strategy::accelerated_dribbling(Robot& robot) {
       base_dribling + (max_dribling - base_dribling) *
                           ((millis() - robot.first_time) / dribling_duration);
   robot.dribling = min(100.0, power);
+}
+
+double Strategy::compute_ricochet(Robot& robot, bool left) {
+  Vec ball_position = robot.ball_hole_position();
+  Vec target{91, 230};
+  double a;
+  if (left) {
+    a = ball_position.x;
+  } else {
+    a = 182 - ball_position.x;
+  }
+  double b = 217.5 - ball_position.y;
+  double c = b / 2;
+  // cout << ball_position.x << " " << ball_position.y << " "
+  //      << 243.0 - ball_position.y << endl;
+  // cout << a << " " << c << endl;
+  // exit(0);
+  double alpha = atan(a / c);
+  double s = (left) ? 1 : -1;
+  double res = alpha * s - robot.field_angle;
+  return res;
 }
 
 void Strategy::kick_dir(Robot& robot, double dir, int power,

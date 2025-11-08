@@ -23,7 +23,7 @@ Line::Line(const Vec& s, const Vec& f) {
 
 Vec operator*(const Line& a, const Line& b) {
   double D = a.a * b.b - b.a * a.b;
-  assert(abs(D) > Line::EPS);
+  // assert(abs(D) > Line::EPS);
   double x = (a.b * b.c - b.b * a.c) / D;
   double y = (a.c * b.a - b.c * a.a) / D;
   return {x, y};

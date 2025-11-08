@@ -4,19 +4,18 @@
 #include <vector>
 
 #include "robot.h"
+#include "utils/polygon.h"
 #include "utils/vec.h"
 
 using namespace std;
 
 // храним по часовой стрелке
-class Field {
+class Field : public Polygon {
  private:
-  vector<Vec> points;
   void apply_seg(int i, Robot& robot) const;
 
  public:
-  bool inside(Robot& robot) const;
-  Field(const vector<Vec>&);
+  Field(const vector<Vec>& points_);
   void apply(Robot& robot) const;
 
   friend class Visualization;

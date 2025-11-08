@@ -2,23 +2,7 @@
 
 #include "strategy/segment.h"
 
-Field::Field(const vector<Vec>& points_) : points(points_) {}
-
-bool Field::inside(Robot& robot) const {
-  double ang = 0;
-  for (int i = 0; i < points.size(); ++i) {
-    int j = (i + 1) % points.size();
-    Vec a = points[i] - robot.position;
-    Vec b = points[j] - robot.position;
-    double angle = normalize_angle(b.field_angle() - a.field_angle());
-    ang += angle;
-  }
-  ang = abs(ang);
-  if (ang > M_PI) {
-    return true;
-  }
-  return false;
-}
+Field::Field(const vector<Vec>& points_) : Polygon(points_) {}
 
 void Field::apply_seg(int i, Robot& robot) const {
   int j = (i + 1) % points.size();
@@ -31,7 +15,7 @@ void Field::apply(Robot& robot) const {
     // Не нужно ограничивать скорость
     return;
   }
-  if (inside(robot)) {
+  if (inside(robot.position)) {
     // 1. Ищем ближайшую точку пересечения вектора скорости и сторон
     // многоугольника
     // 2. Ограничиваем по соответствующему отрезку

@@ -167,3 +167,12 @@ void Robot::predict_position() {
   //     clamp(rotation / 60.0, -1.0 * rotation_limit / 60.0, rotation_limit
   //     / 60.0);
 }
+
+double Robot::relative_angle(const Vec& p) const {
+  return (p - position).field_angle() - field_angle;
+}
+
+Vec Robot::ball_hole_position() const {
+  Vec d = Vec{field_angle}.resize(9.5);
+  return position + d;
+}

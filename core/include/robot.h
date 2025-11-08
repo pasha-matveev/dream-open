@@ -73,4 +73,6 @@ class Robot {
   void write_to_arduino();
 
   void predict_position();
+  double relative_angle(const Vec& p) const;
+  Vec ball_hole_position() const;
 };

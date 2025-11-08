@@ -38,8 +38,8 @@ void Dribling::run() {
   }
 
   float sp1, sp2;
-  sp1 = current_speed ? map(current_speed, 0, 100, 1440, 1600) : 1450;
-  sp2 = current_speed ? map(current_speed, 0, 100, 1440, 1600) : 1450;
+  sp1 = current_speed ? map(current_speed, 0, 100, 1440, 1600) : 1440;
+  sp2 = current_speed ? map(current_speed, 0, 100, 1440, 1600) : 1440;
 
   ESC1.writeMicroseconds(sp1);
   ESC2.writeMicroseconds(sp2);

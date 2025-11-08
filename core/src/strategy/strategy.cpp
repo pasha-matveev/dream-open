@@ -139,23 +139,24 @@ void Strategy::kick_dir(Robot& robot, double dir, int power,
     } else {
       if (curved_rotation) {
         Vec vel{robot.field_angle};
-        // vel *= -1;
         if (dir > 0) {
-          vel.turn_right();
+          vel = vel.turn_right();
           vel = vel.rotate(0.1);
         } else {
-          vel.turn_left();
+          vel = vel.turn_left();
           vel = vel.rotate(-0.1);
         }
-        vel = vel.resize(13);
-        robot.vel = vel;
-        robot.rotation_limit = 15;
+        if (abs(dir) <= 0.05) {
+          robot.vel = {0, 0};
+          robot.rotation_limit = 15;
+        } else {
+          vel = vel.resize(17);
+          robot.vel = vel;
+          robot.rotation_limit = 15;
+        }
       } else {
         robot.vel = {0, 0};
         robot.rotation_limit = 15;
-      }
-      if (abs(dir) <= 0.05) {
-        robot.rotation_limit = 5;
       }
       robot.rotation = dir;
       accelerated_dribbling(robot);

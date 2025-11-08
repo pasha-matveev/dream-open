@@ -9,7 +9,7 @@
 class Strategy {
  private:
   static constexpr int base_dribling = 30;
-  static constexpr int max_dribling = 80;
+  static constexpr int max_dribling = 60;
   static constexpr double dribling_duration = 600;
 
   string role;

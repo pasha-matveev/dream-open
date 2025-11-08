@@ -33,9 +33,15 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
   }
   if (robot.emitter) {
     // 1.7
+    Vec ball_position = robot.position + Vec{robot.field_angle}.resize(9.5);
+    Vec target{91, 230};
+    double a = ball_position.x;
+    double b = 230 - ball_position.y;
+    double c = b / 2;
+    double alpha = atan(a / c);
     double s = (left) ? 1 : -1;
     cout << robot.field_angle << endl;
-    kick_dir(robot, 0.95 * s - robot.field_angle);
+    kick_dir(robot, alpha * s - robot.field_angle, 100, 600, true, 0, 0.01);
   } else {
     robot.vel = Vec{robot.field_angle + ball.relative_angle}.resize(5);
     robot.rotation = ball.relative_angle;

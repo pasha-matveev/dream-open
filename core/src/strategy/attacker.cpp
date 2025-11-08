@@ -18,11 +18,14 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
     if (millis() - last_ball_visible < 3000) {
       if (last_ball.y < BORDER) {
         drive_target(robot, {160, 120}, 4);
+        robot.rotation =
+            (last_ball - robot.position).field_angle() - robot.field_angle;
       } else {
         drive_ball(robot, last_ball);
       }
     } else {
       drive_target(robot, {91, 121}, 3);
+      robot.rotation = 0;
     }
   }
 

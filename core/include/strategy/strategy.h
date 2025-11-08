@@ -33,10 +33,10 @@ class Strategy {
   void accelerated_dribbling(Robot& robot);
   void kick_dir(Robot& robot, double dir, int power = 70,
                 int forward_timeout = 600, bool curved_rotation = true,
-                int kick_timeout = 0, double precision = 0.01);
+                int kick_timeout = 0, double precision = 0.015);
   void hit(Robot& robot, Object& goal, int power = 70,
            int forward_timeout = 600, bool curved_rotation = true,
-           int kick_timeout = 0, double precision = 0.01);
+           int kick_timeout = 0, double precision = 0.015);
 
   // different strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal);

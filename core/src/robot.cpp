@@ -155,7 +155,7 @@ void Robot::compute_gyro_angle() {
 
 void Robot::predict_position() {
   // Угол по гироскопу
-  field_angle = gyro_angle - top_angle;
+  field_angle = normalize_angle(gyro_angle - top_angle);
 
   // Позиция по логике
   double len = (double)speed / config.strategy.fps;

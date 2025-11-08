@@ -48,7 +48,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   robot.vel = {0, 0};
 
   if (config.strategy.enabled) {
-    reset_target = true;
+    reset_kick = true;
     if (robot.state == RobotState::RUNNING) {
       if (role == "attacker") {
         run_attacker(robot, ball, goal);
@@ -63,8 +63,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
       run_kickoff(robot, ball, goal, false);
     }
 
-    if (reset_target) {
-      target_status = "none";
+    if (reset_kick) {
+      kick_status = "none";
       target_angle = -1;
       slow_tm = -1;
     }
@@ -91,57 +91,47 @@ void Strategy::drive_ball(Robot& robot, const Vec& ball) {
     k = 4;
   }
   drive_target(robot, ball, k);
-  robot.dribling = 50;
+  robot.dribling = base_dribling;
   robot.rotation_limit = 40;
 }
 
 void Strategy::accelerated_dribbling(Robot& robot) {
-  robot.dribling =
-      min(100.0, base_dribling +
-                     (max_dribling - base_dribling) *
-                         ((millis() - robot.first_time) / dribling_duration));
+  double power =
+      base_dribling + (max_dribling - base_dribling) *
+                          ((millis() - robot.first_time) / dribling_duration);
+  robot.dribling = min(100.0, power);
 }
 
-void Strategy::hit(Robot& robot, Object& goal, int power, int forward_timeout,
-                   bool curved_rotation, int kick_timeout, double precision) {
-  reset_target = false;
-  if (target_status == "none") {
+void Strategy::kick_dir(Robot& robot, double dir, int power,
+                        int forward_timeout, bool curved_rotation,
+                        int kick_timeout, double precision) {
+  spdlog::warn("FW: {}", forward_timeout);
+  reset_kick = false;
+  if (kick_status == "none") {
     spdlog::info("NONE");
     long long passed_time = millis() - robot.first_time;
     long long left_time = forward_timeout - passed_time;
     if (left_time <= 0) {
-      target_status = "rotate";
+      kick_status = "rotate";
     } else {
       Vec vel{-1 * sin(robot.field_angle) * 10.0 * left_time / forward_timeout,
               cos(robot.field_angle) * 10.0 * left_time / forward_timeout};
       robot.vel = vel;
       accelerated_dribbling(robot);
       robot.rotation_limit = 0;
-      if (millis() > robot.first_time + forward_timeout) {
-        target_status = "rotate";
-      }
     }
 
-  } else if (target_status == "rotate") {
+  } else if (kick_status == "rotate") {
     spdlog::info("ROTATE");
-    if (goal.visible) {
-      target_angle = normalize_angle(goal.relative_angle + robot.gyro_angle);
-    } else {
-      Vec center{91, 237};
-      Vec simple_route = center - robot.position;
-      target_angle = normalize_angle(simple_route.field_angle() -
-                                     robot.field_angle + robot.gyro_angle);
-    }
-    target_angle -= 0.01;
-    double delta = normalize_angle(target_angle - robot.gyro_angle);
+    dir -= 0.01;
 
-    if (abs(delta) <= precision) {
+    if (abs(dir) <= precision) {
       if (kick_timeout) {
-        target_status = "slow";
+        kick_status = "slow";
         robot.dribling = 15;
         slow_tm = millis() + kick_timeout;
       } else {
-        target_status = "kick";
+        kick_status = "kick";
         robot.dribling = 0;
       }
       robot.rotation = 0;
@@ -149,72 +139,60 @@ void Strategy::hit(Robot& robot, Object& goal, int power, int forward_timeout,
     } else {
       if (curved_rotation) {
         Vec vel{robot.field_angle};
-        vel *= -1;
-        vel = vel.resize(7);
+        // vel *= -1;
+        if (dir > 0) {
+          vel.turn_right();
+          vel = vel.rotate(0.1);
+        } else {
+          vel.turn_left();
+          vel = vel.rotate(-0.1);
+        }
+        vel = vel.resize(13);
         robot.vel = vel;
         robot.rotation_limit = 15;
       } else {
         robot.vel = {0, 0};
         robot.rotation_limit = 15;
       }
-      if (abs(delta) <= 0.05) {
+      if (abs(dir) <= 0.05) {
         robot.rotation_limit = 5;
       }
-      robot.rotation = delta;
+      robot.rotation = dir;
       accelerated_dribbling(robot);
     }
 
-    // if (abs(delta) <= M_PI / 3) {
-    //   target_status = "ac";
-    // }
-    // if (curved_rotation) {
-    //   robot.vel = {-25, 0};
-    // } else {
-    //   robot.vel = {0, 0};
-    // }
-    // robot.rotation = delta;
-    // robot.rotation_limit = rotation_speed;
-    // accelerated_dribbling(robot);
-
-  } else if (target_status == "ac") {
-    spdlog::info("AC");
-    // double delta = normalize_angle(target_angle - robot.gyro_angle);
-    // if (abs(delta) <= precision) {
-    //   if (kick_timeout) {
-    //     target_status = "slow";
-    //     robot.dribling = 15;
-    //     slow_tm = millis() + kick_timeout;
-    //   } else {
-    //     target_status = "kick";
-    //     robot.dribling = 0;
-    //   }
-    //   robot.rotation = 0;
-    //   robot.vel = {0, 0};
-    // } else {
-    //   robot.rotation = delta;
-    //   robot.rotation_limit = 12;
-    //   accelerated_dribbling(robot);
-    //   robot.vel = {0, 0};
-    // }
-
-  } else if (target_status == "slow") {
+  } else if (kick_status == "slow") {
     spdlog::info("SLOW");
     robot.rotation = 0;
     robot.dribling = 15;
     robot.vel = {0, 0};
     if (slow_tm < millis()) {
-      target_status = "kick";
+      kick_status = "kick";
     }
 
-  } else if (target_status == "kick") {
+  } else if (kick_status == "kick") {
     spdlog::info("KICK");
     robot.kicker_force = power;
     if (kick_timeout) {
       robot.dribling = 0;
     } else {
-      robot.dribling = max_dribling;
+      robot.dribling = 15;
     }
     robot.rotation = 0;
     robot.vel = {0, 0};
   }
+}
+void Strategy::hit(Robot& robot, Object& goal, int power, int forward_timeout,
+                   bool curved_rotation, int kick_timeout, double precision) {
+  double target_angle;
+  if (goal.visible) {
+    target_angle = normalize_angle(goal.relative_angle);
+  } else {
+    Vec center{91, 237};
+    Vec simple_route = center - robot.position;
+    target_angle =
+        normalize_angle(simple_route.field_angle() - robot.field_angle);
+  }
+  kick_dir(robot, target_angle, power, forward_timeout, curved_rotation,
+           kick_timeout, precision);
 }

@@ -19,9 +19,9 @@ class Strategy {
   bool active_def = false;
   bool curve_kick = false;
 
-  string target_status = "none";
+  string kick_status = "none";
   double target_angle = -10;
-  bool reset_target = true;
+  bool reset_kick = true;
   long long slow_tm = -1;
 
   long long throttle = -1;
@@ -31,6 +31,9 @@ class Strategy {
   void drive_target(Robot& robot, const Vec& target, double k);
   void drive_ball(Robot& robot, const Vec& ball);
   void accelerated_dribbling(Robot& robot);
+  void kick_dir(Robot& robot, double dir, int power = 70,
+                int forward_timeout = 600, bool curved_rotation = true,
+                int kick_timeout = 0, double precision = 0.01);
   void hit(Robot& robot, Object& goal, int power = 70,
            int forward_timeout = 600, bool curved_rotation = true,
            int kick_timeout = 0, double precision = 0.01);

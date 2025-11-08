@@ -35,7 +35,12 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
     // 1.7
     Vec ball_position = robot.position + Vec{robot.field_angle}.resize(9.5);
     Vec target{91, 230};
-    double a = ball_position.x;
+    double a;
+    if (left) {
+      a = ball_position.x;
+    } else {
+      a = 182 - ball_position.x;
+    }
     double b = 230 - ball_position.y;
     double c = b / 2;
     double alpha = atan(a / c);

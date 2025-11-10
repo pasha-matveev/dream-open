@@ -5,6 +5,7 @@
 #include "robot.h"
 #include "strategy/field.h"
 #include "tracking/object.h"
+#include "utils/geo/polygon.h"
 
 class Visualization {
  private:
@@ -14,5 +15,5 @@ class Visualization {
   bool closed = false;
   Visualization();
   void run(Robot& robot, Object& ball, Object& goal, const Field&);
-  void draw_field(const Field&);
+  void draw_polygon(const Polygon&);
 };

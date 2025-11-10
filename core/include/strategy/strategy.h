@@ -6,6 +6,9 @@
 #include "strategy/field.h"
 #include "tracking/object.h"
 
+const Polygon left_attacker_r{{{0, 194}, {0, 243}, {63, 243}}};
+const Polygon right_attacker_r{{{119, 243}, {182, 243}, {182, 194}}};
+
 class Strategy {
  private:
   static constexpr int base_dribling = 30;
@@ -29,7 +32,7 @@ class Strategy {
 
   // common actions
   bool drive_target(Robot& robot, const Vec& target, double k,
-                    double max_speed = 120);
+                    double max_speed = 120, double min_speed = 1.0);
   void drive_ball(Robot& robot, const Vec& ball);
   void accelerated_dribbling(Robot& robot);
   void kick_dir(Robot& robot, double dir, int power = 70,

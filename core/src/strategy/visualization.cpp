@@ -5,6 +5,7 @@
 #include <cmath>
 #include <optional>
 
+#include "strategy/strategy.h"
 #include "utils/config.h"
 
 constexpr int REAL_WIDTH = 182;
@@ -45,7 +46,7 @@ constexpr int MAX_BALL_X = REAL_WIDTH - BALL_R;
 constexpr int MIN_BALL_Y = 0 + BALL_R;
 constexpr int MAX_BALL_Y = REAL_HEIGHT - BALL_R;
 
-void Visualization::draw_field(const Field& field) {
+void Visualization::draw_polygon(const Polygon& field) {
   sf::ConvexShape shape(field.points.size());
   for (int i = 0; i < field.points.size(); ++i) {
     shape.setPoint(i, toSFML(field.points[i]));
@@ -72,7 +73,9 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
   }
   window.clear({2, 179, 46});
 
-  draw_field(field);
+  draw_polygon(field);
+  draw_polygon(left_attacker_r);
+  draw_polygon(right_attacker_r);
 
   if (config.visualization.interactive &&
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {

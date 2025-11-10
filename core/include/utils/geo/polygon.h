@@ -14,4 +14,6 @@ class Polygon {
   Polygon(const vector<Vec>& points_);
   bool inside(const Vec& p) const;
   pair<Vec, int> find_intersection(const Vec& a, const Vec& dir) const;
+
+  friend class Visualization;
 };

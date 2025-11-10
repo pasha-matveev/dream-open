@@ -2,9 +2,6 @@
 #include "utils/geo/polygon.h"
 #include "utils/millis.h"
 
-static Polygon left_special{{{0, 194}, {0, 243}, {63, 243}}};
-static Polygon right_special{{{119, 243}, {182, 243}, {182, 194}}};
-
 enum class AttackerRSide { NONE, LEFT, RIGHT };
 enum class AttackerRStatus { NONE, TAKE_BALL, ROTATE_1, MOVE, ROTATE_2, KICK };
 
@@ -18,10 +15,10 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
     Vec hole_position = robot.ball_hole_position();
     if (!robot.prev_emitter) {
       // только что взяли мяч
-      if (left_special.inside(hole_position)) {
+      if (left_attacker_r.inside(hole_position)) {
         r_side = AttackerRSide::LEFT;
         r_status = AttackerRStatus::TAKE_BALL;
-      } else if (right_special.inside(hole_position)) {
+      } else if (right_attacker_r.inside(hole_position)) {
         r_side = AttackerRSide::RIGHT;
         r_status = AttackerRStatus::TAKE_BALL;
       }
@@ -64,7 +61,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
         target = Vec{182.0 - 45.0, 170.0};
         target_angle = -M_PI / 2;
       }
-      bool finished = drive_target(robot, target, 2, 15);
+      bool finished = drive_target(robot, target, 2, 20, 10);
       robot.rotation = normalize_angle(target_angle - robot.field_angle);
       if (finished) {
         r_status = AttackerRStatus::ROTATE_2;

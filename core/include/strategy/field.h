@@ -17,6 +17,4 @@ class Field : public Polygon {
  public:
   Field(const vector<Vec>& points_);
   void apply(Robot& robot) const;
-
-  friend class Visualization;
 };

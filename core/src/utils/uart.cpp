@@ -101,8 +101,6 @@ BaudRate int_to_baud(int baud) {
   switch (baud) {
     case 115200:
       return BaudRate::BAUD_115200;
-    case 460800:
-      return BaudRate::BAUD_460800;
     case 9600:
       return BaudRate::BAUD_9600;
     default:

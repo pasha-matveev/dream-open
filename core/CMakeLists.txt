@@ -7,8 +7,10 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 aux_source_directory(src SRC_FILES)
 aux_source_directory(src/utils UTILS_FILES)
+aux_source_directory(src/utils/geo GEO_FILES)
 aux_source_directory(src/media MEDIA_FILES)
 aux_source_directory(src/strategy STRATEGY_FILES)
+aux_source_directory(src/strategy/common STRATEGY_COMMON_FILES)
 
 if(APPLE)
 
@@ -22,7 +24,7 @@ aux_source_directory(src/gpio GPIO_FILES)
 
 endif()
 
-add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES} ${GPIO_FILES} ${MEDIA_FILES} ${STRATEGY_FILES})
+add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES} ${GEO_FILES} ${GPIO_FILES} ${MEDIA_FILES} ${STRATEGY_FILES} ${STRATEGY_COMMON_FILES})
 
 target_include_directories(core PRIVATE include)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

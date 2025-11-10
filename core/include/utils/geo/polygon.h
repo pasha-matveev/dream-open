@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "utils/vec.h"
+#include "utils/geo/vec.h"
 
 using namespace std;
 

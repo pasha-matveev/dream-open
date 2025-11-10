@@ -9,7 +9,7 @@
 
 #include "robot.h"
 #include "utils/config.h"
-#include "utils/vec.h"
+#include "utils/geo/vec.h"
 
 double last_rotation = -4;
 

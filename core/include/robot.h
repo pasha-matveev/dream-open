@@ -4,9 +4,9 @@
 #include "gpio/display.h"
 #include "tracking/camera.h"
 #include "tracking/object.h"
+#include "utils/geo/vec.h"
 #include "utils/lidar.h"
 #include "utils/uart.h"
-#include "utils/vec.h"
 
 using namespace LibSerial;
 

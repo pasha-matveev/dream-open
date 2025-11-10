@@ -1,4 +1,4 @@
-#include "utils/vec.h"
+#include "utils/geo/vec.h"
 
 #include <cmath>
 

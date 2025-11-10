@@ -6,7 +6,8 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include "utils/vec.h"
+
+#include "utils/geo/vec.h"
 
 class Robot;
 

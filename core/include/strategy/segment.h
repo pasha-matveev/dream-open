@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/vec.h"
+#include "utils/geo/vec.h"
 
 class Robot;
 

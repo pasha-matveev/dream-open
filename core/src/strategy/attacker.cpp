@@ -1,6 +1,6 @@
 #include "strategy/strategy.h"
+#include "utils/geo/polygon.h"
 #include "utils/millis.h"
-#include "utils/polygon.h"
 
 static Polygon left_special{{{0, 194}, {0, 243}, {63, 243}}};
 static Polygon right_special{{{119, 243}, {182, 243}, {182, 194}}};

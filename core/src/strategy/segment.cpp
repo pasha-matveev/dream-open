@@ -5,7 +5,7 @@
 #include <cassert>
 
 #include "robot.h"
-#include "utils/precision.h"
+#include "utils/geo/precision.h"
 
 using namespace std;
 

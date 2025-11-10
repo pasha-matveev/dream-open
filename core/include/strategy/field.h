@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "robot.h"
-#include "utils/polygon.h"
-#include "utils/vec.h"
+#include "utils/geo/polygon.h"
+#include "utils/geo/vec.h"
 
 using namespace std;
 

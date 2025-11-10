@@ -6,8 +6,8 @@
 #include "strategy/field.h"
 #include "tracking/object.h"
 
-const Polygon left_attacker_r{{{0, 194}, {0, 243}, {63, 243}}};
-const Polygon right_attacker_r{{{119, 243}, {182, 243}, {182, 194}}};
+const Polygon left_attacker_r{{{0, 194}, {0, 243}, {91, 243}}};
+const Polygon right_attacker_r{{{91, 243}, {182, 243}, {182, 194}}};
 
 class Strategy {
  private:

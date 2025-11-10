@@ -15,5 +15,5 @@ class Visualization {
   bool closed = false;
   Visualization();
   void run(Robot& robot, Object& ball, Object& goal, const Field&);
-  void draw_polygon(const Polygon&);
+  void draw_polygon(const Polygon&, const sf::Color& color);
 };

@@ -8,11 +8,12 @@
 #include "strategy/strategy.h"
 #include "utils/config.h"
 
-constexpr int REAL_WIDTH = 182;
-constexpr int REAL_HEIGHT = 243;
-constexpr double K = 3;
-constexpr int SFML_WIDTH = REAL_WIDTH * K;
-constexpr int SFML_HEIGHT = REAL_HEIGHT * K;
+static constexpr int REAL_WIDTH = 182;
+static constexpr int REAL_HEIGHT = 243;
+static constexpr double K = 3;
+static constexpr int SFML_WIDTH = REAL_WIDTH * K;
+static constexpr int SFML_HEIGHT = REAL_HEIGHT * K;
+static const sf::Color zone_color(255, 165, 0);
 
 Visualization::Visualization() {
   window =
@@ -21,8 +22,8 @@ Visualization::Visualization() {
   window.setFramerateLimit(config.visualization.frames);
 }
 
-constexpr double cm_to_px(double x) { return x * K; }
-constexpr double px_to_cm(double x) { return x / K; }
+static constexpr double cm_to_px(double x) { return x * K; }
+static constexpr double px_to_cm(double x) { return x / K; }
 
 Vec toSFML(Vec r) {
   Vec v = {cm_to_px(r.x), cm_to_px(r.y)};
@@ -37,23 +38,23 @@ Vec toReal(Vec s) {
 bool override_ball = false;
 Vec ball_a{0, 0};
 
-constexpr double REAL_BALL_R = 2.1;
-constexpr double REAL_ROBOT_R = 9;
-constexpr int BALL_R = cm_to_px(REAL_BALL_R);
-constexpr int ROBOT_R = cm_to_px(REAL_ROBOT_R);
-constexpr int MIN_BALL_X = 0 + BALL_R;
-constexpr int MAX_BALL_X = REAL_WIDTH - BALL_R;
-constexpr int MIN_BALL_Y = 0 + BALL_R;
-constexpr int MAX_BALL_Y = REAL_HEIGHT - BALL_R;
+static constexpr double REAL_BALL_R = 2.1;
+static constexpr double REAL_ROBOT_R = 9;
+static constexpr int BALL_R = cm_to_px(REAL_BALL_R);
+static constexpr int ROBOT_R = cm_to_px(REAL_ROBOT_R);
+static constexpr int MIN_BALL_X = 0 + BALL_R;
+static constexpr int MAX_BALL_X = REAL_WIDTH - BALL_R;
+static constexpr int MIN_BALL_Y = 0 + BALL_R;
+static constexpr int MAX_BALL_Y = REAL_HEIGHT - BALL_R;
 
-void Visualization::draw_polygon(const Polygon& field) {
+void Visualization::draw_polygon(const Polygon& field, const sf::Color& color) {
   sf::ConvexShape shape(field.points.size());
   for (int i = 0; i < field.points.size(); ++i) {
     shape.setPoint(i, toSFML(field.points[i]));
   }
-  shape.setOutlineColor(sf::Color::White);
+  shape.setOutlineColor(color);
   shape.setOutlineThickness(5);
-  shape.setFillColor({2, 179, 46});
+  shape.setFillColor(sf::Color::Transparent);
   window.draw(shape);
 }
 
@@ -73,9 +74,9 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
   }
   window.clear({2, 179, 46});
 
-  draw_polygon(field);
-  draw_polygon(left_attacker_r);
-  draw_polygon(right_attacker_r);
+  draw_polygon(field, sf::Color::White);
+  draw_polygon(left_attacker_r, zone_color);
+  draw_polygon(right_attacker_r, zone_color);
 
   if (config.visualization.interactive &&
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {

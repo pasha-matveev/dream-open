@@ -24,6 +24,14 @@ void Field::apply(Robot& robot) const {
     auto [np, idx] = find_intersection(robot.position, long_vel);
     assert(idx != -1);
     apply_seg(idx, robot);
+
+    for (int i = 0; i < points.size(); ++i) {
+      int j = (i + 1) % points.size();
+      Segment seg(points[i], points[j]);
+      if (seg.is_proection(robot.position)) {
+        seg.apply(robot);
+      }
+    }
   } else {
     // 1. Ищем 2 ближайших отрезка (2, чтобы не выезжать на углах)
     // 2. Ограничиваем по ним

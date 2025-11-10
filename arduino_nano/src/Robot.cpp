@@ -1,11 +1,27 @@
 #include "Robot.h"
 
-void Robot::init() {
+#include <Adafruit_NeoPixel.h>
+
+void Robot::init(Adafruit_NeoPixel& pixels) {
+  // Зеленый пока все обычные компоненты
+  pixels.setPixelColor(0, pixels.Color(0, 50, 0));
+  pixels.show();
+
   if (init_motors) motors.init();
   if (init_dribling) dribling.init();
   if (init_emitter) emitter.init();
-  if (init_kicker) kicker.init();
   if (init_button) button.init();
+  if (init_kicker) kicker.init();
+
+  // Белый пока гироскоп
+  pixels.setPixelColor(0, pixels.Color(50, 50, 50));
+  pixels.show();
+
+  if (init_gyro) gyro.init();
+
+  // Выключить
+  pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+  pixels.show();
 }
 
 void Robot::read() {

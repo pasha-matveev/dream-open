@@ -31,15 +31,10 @@ void setup() {
   // robot.init_kicker = false;
   // robot.init_dribling = false;
   pixels.begin();
-  pixels.setPixelColor(0, pixels.Color(0, 50, 0));
+  pixels.setPixelColor(0, pixels.Color(0, 0, 0));
   pixels.setPixelColor(1, pixels.Color(0, 0, 0));
   pixels.show();
-  robot.init();
-  pixels.setPixelColor(0, pixels.Color(50, 50, 50));
-  pixels.show();
-  if (robot.init_gyro) robot.gyro.init();
-  pixels.setPixelColor(0, pixels.Color(0, 50, 0));
-  pixels.show();
+  robot.init(pixels);
   robot.stop();
   delay(1000);
   robot.motors.requestVoltageData();
@@ -59,6 +54,8 @@ void setup() {
 
   Serial.begin(115200);
   // write_data<char>('X');
+
+  robot.kicker.start();
 }
 
 void loop() {

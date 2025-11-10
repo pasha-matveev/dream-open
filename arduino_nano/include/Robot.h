@@ -1,4 +1,5 @@
 #pragma once
+#include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 
 #include "Button.h"
@@ -23,7 +24,7 @@ class Robot {
   Emitter emitter;
   Button button;
 
-  void init();
+  void init(Adafruit_NeoPixel& pixels);
   void read();
   void run();
   void stop();

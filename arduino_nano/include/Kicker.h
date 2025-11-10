@@ -13,6 +13,8 @@ class Kicker {
 
  public:
   void init();
+  void start();
+  bool started();
   void kick(int power = -1);
   void charge(bool flag = true);
   bool is_charged();

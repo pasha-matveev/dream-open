@@ -34,3 +34,10 @@ void Kicker::charge(bool flag) {
     digitalWrite(charge_pin, millis() % 2 == 0);
   }
 }
+
+void Kicker::start() {
+  if (started()) return;
+  charge_tm = millis() + 3000;
+}
+
+bool Kicker::started() { return charge_tm != 0; }

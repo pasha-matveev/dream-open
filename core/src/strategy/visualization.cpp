@@ -40,6 +40,10 @@ constexpr double REAL_BALL_R = 2.1;
 constexpr double REAL_ROBOT_R = 9;
 constexpr int BALL_R = cm_to_px(REAL_BALL_R);
 constexpr int ROBOT_R = cm_to_px(REAL_ROBOT_R);
+constexpr int MIN_BALL_X = 0 + BALL_R;
+constexpr int MAX_BALL_X = REAL_WIDTH - BALL_R;
+constexpr int MIN_BALL_Y = 0 + BALL_R;
+constexpr int MAX_BALL_Y = REAL_HEIGHT - BALL_R;
 
 void Visualization::draw_field(const Field& field) {
   sf::ConvexShape shape(field.points.size());
@@ -102,17 +106,21 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
 
   if (override_ball) {
     ball.field_position += ball_a;
-    if (ball.field_position.x <= 0 + BALL_R) {
-      ball_a.x *= -1;
-    } else if (ball.field_position.x >= REAL_WIDTH - BALL_R) {
-      ball_a.x *= -1;
+    if (ball.field_position.x < MIN_BALL_X) {
+      ball_a.x = abs(ball_a.x);
+      ball.field_position.x = MIN_BALL_X;
+    } else if (ball.field_position.x > MAX_BALL_X) {
+      ball_a.x = -abs(ball_a.x);
+      ball.field_position.x = MAX_BALL_X;
     }
-    if (ball.field_position.y <= 0 + BALL_R) {
-      ball_a.y *= -1;
-    } else if (ball.field_position.y >= REAL_HEIGHT - BALL_R) {
-      ball_a.y *= -1;
+    if (ball.field_position.y < MIN_BALL_Y) {
+      ball_a.y = abs(ball_a.y);
+      ball.field_position.y = MIN_BALL_Y;
+    } else if (ball.field_position.y > MAX_BALL_Y) {
+      ball_a.y = -abs(ball_a.y);
+      ball.field_position.y = MAX_BALL_Y;
     }
-    ball_a = ball_a * 0.96;
+    ball_a = ball_a * 0.95;
 
     ball.visible = true;
     Vec v = ball.field_position - robot.position;
@@ -129,7 +137,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
 
     if (!config.serial.enabled && robot.kicker_force > 0 && robot.emitter) {
       robot.emitter = false;
-      ball_a = robot_dir.resize(robot.kicker_force * 0.6);
+      ball_a = robot_dir.resize(robot.kicker_force * 0.4);
       ball.field_position += ball_a;
     }
   }

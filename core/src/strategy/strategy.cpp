@@ -40,14 +40,16 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   if (robot.emitter && !robot.prev_emitter) {
     robot.first_time = millis();
   }
-  if (!robot.emitter) {
-    attacker_r = AttackerRStatus::NONE;
-  }
 
   robot.kicker_force = 0;
   robot.dribling = 0;
   robot.rotation = 0;
   robot.vel = {0, 0};
+  if (robot.emitter) {
+    robot.rotation_limit = 15;
+  } else {
+    robot.rotation_limit = 20;
+  }
 
   if (config.strategy.enabled) {
     reset_kick = true;
@@ -67,7 +69,6 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
 
     if (reset_kick) {
       kick_status = "none";
-      target_angle = -1;
       slow_tm = -1;
     }
     field.apply(robot);

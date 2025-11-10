@@ -6,9 +6,6 @@
 #include "strategy/field.h"
 #include "tracking/object.h"
 
-enum class AttackerRSide { NONE, LEFT, RIGHT };
-enum class AttackerRStatus { NONE, R1, MOVE, R2 };
-
 class Strategy {
  private:
   static constexpr int base_dribling = 30;
@@ -23,23 +20,23 @@ class Strategy {
   bool curve_kick = false;
 
   string kick_status = "none";
-  double target_angle = -10;
+  // double target_angle = -10;
   bool reset_kick = true;
   long long slow_tm = -1;
-
-  AttackerRSide attacker_r_side = AttackerRSide::NONE;
-  AttackerRStatus attacker_r = AttackerRStatus::NONE;
 
   long long throttle = -1;
   long long fired = -1;
 
   // common actions
-  void drive_target(Robot& robot, const Vec& target, double k);
+  bool drive_target(Robot& robot, const Vec& target, double k,
+                    double max_speed = 120);
   void drive_ball(Robot& robot, const Vec& ball);
   void accelerated_dribbling(Robot& robot);
   void kick_dir(Robot& robot, double dir, int power = 70,
                 int forward_timeout = 600, bool curved_rotation = true,
                 int kick_timeout = 0, double precision = 0.015);
+  bool take_ball(Robot& robot, long long forward_timeout);
+  bool turn(Robot& robot, double target_angle, bool curved_rotation);
   void hit(Robot& robot, Object& goal, int power = 70,
            int forward_timeout = 600, bool curved_rotation = true,
            int kick_timeout = 0, double precision = 0.015);

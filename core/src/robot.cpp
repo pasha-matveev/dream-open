@@ -131,14 +131,9 @@ bool Robot::compute_lidar() {
     res.v = res.v * -1;
     res.rotation += M_PI;
   }
-  // cout << "Raw gyro: " << normalize_angle(gyro_angle) << '\n';
-  // cout << "Computed gyro: " << normalize_angle(angle1) << '\n';
-  // cout << "Lidar: " << normalize_angle(angle2) << '\n';
-  // cout << "Inversion: " << inv << endl;
 
   Vec center = {182.0 / 2, 243.0 / 2};
   position = center + res.v;
-  // cout << "Position: " << position.x << " " << position.y << endl;
   field_angle = normalize_angle(res.rotation);
 
   if ((position - last_position).len() <= 5) {

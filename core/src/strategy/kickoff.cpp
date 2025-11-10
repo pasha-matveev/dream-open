@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include <cmath>
 
 #include "strategy/strategy.h"
@@ -27,7 +29,7 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
   }
   long long elapsed = millis() - kickoff_start;
   if (elapsed > 5000) {
-    cout << "KICKOFF TIMEOUT " << endl;
+    spdlog::warn("KICKOFF TIMEOUT");
     finish(robot);
     return;
   }

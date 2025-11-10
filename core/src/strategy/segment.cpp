@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "robot.h"
+#include "utils/precision.h"
 
 using namespace std;
 
@@ -15,15 +16,11 @@ Line::Line(const Vec& s, const Vec& f) {
   b = normal.y;
   c = -a * s.x - b * s.y;
   double val = a * f.x + b * f.y + c;
-  if (abs(val) > EPS) {
-    spdlog::error("Nonzero val: {}", val);
-    assert(false);
-  }
 }
 
+// TODO: check parallel
 Vec operator*(const Line& a, const Line& b) {
   double D = a.a * b.b - b.a * a.b;
-  // assert(abs(D) > Line::EPS);
   double x = (a.b * b.c - b.b * a.c) / D;
   double y = (a.c * b.a - b.c * a.a) / D;
   return {x, y};
@@ -73,7 +70,7 @@ bool Segment::has_point(const Vec& p) const {
   return abs(len - (b - a).len()) <= EPS;
 }
 
-bool Segment::intersects_vel(const Segment& vel) const {
+bool Segment::intersects_vel_deprecated(const Segment& vel) const {
   if (has_point(vel.a) || has_point(vel.b)) return true;
   if (vel.has_point(a) || vel.has_point(b)) return true;
   double v1 = (vel.a - a) % (b - a);
@@ -85,7 +82,6 @@ bool Segment::intersects_vel(const Segment& vel) const {
 }
 
 Vec Segment::intersect_point(const Segment& vel) const {
-  assert(intersects_vel(vel));
   Line l1 = Line(a, b);
   Line l2 = Line(vel.a, vel.b);
   return l1 * l2;
@@ -112,4 +108,16 @@ Vec Segment::nearest_point(const Vec& p) const {
     }
     return b;
   }
+}
+
+bool operator*(const Segment& p, const Segment& q) {
+  if (p.has_point(q.a) || p.has_point(q.b)) return true;
+  if (q.has_point(p.a) || q.has_point(p.b)) return true;
+  double v1 = (q.a - p.a) % (p.b - p.a);
+  double v2 = (q.b - p.a) % (p.b - p.a);
+  double v3 = (p.a - q.a) % (q.b - q.a);
+  double v4 = (p.b - q.a) % (q.b - q.a);
+  bool c1 = (v1 < 0) != (v2 < 0);
+  bool c2 = (v3 < 0) != (v4 < 0);
+  return c1 && c2;
 }

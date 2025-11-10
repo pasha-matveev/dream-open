@@ -20,23 +20,8 @@ void Field::apply(Robot& robot) const {
     // многоугольника
     // 2. Ограничиваем по соответствующему отрезку
 
-    Vec np;
-    int idx = -1;
     Vec long_vel = robot.vel.resize(10000);
-    Segment vel = {robot.position, robot.position + long_vel};
-
-    for (int i = 0; i < points.size(); ++i) {
-      int j = (i + 1) % points.size();
-      Segment seg(points[i], points[j]);
-
-      if (!seg.intersects_vel(vel)) continue;
-      Vec p = seg.intersect_point(vel);
-      if (idx == -1 ||
-          (p - robot.position).len2() < (np - robot.position).len2()) {
-        idx = i;
-        np = p;
-      }
-    }
+    auto [np, idx] = find_intersection(robot.position, long_vel);
     assert(idx != -1);
     apply_seg(idx, robot);
   } else {

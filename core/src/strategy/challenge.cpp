@@ -4,7 +4,6 @@
 static long long start_tm = -1;
 
 void Strategy::run_challenge(Robot& robot, Object& ball, Object& goal) {
-  cout << robot.gyro_angle << endl;
   if (start_tm == -1) {
     start_tm = millis();
   }

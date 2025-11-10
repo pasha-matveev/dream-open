@@ -83,6 +83,9 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
 
   // compute robot
   if (!config.serial.enabled) {
+    if (robot.state == RobotState::PAUSE) {
+      robot.state = RobotState::RUNNING;
+    }
     // rotation
     double max_rotation = robot.rotation_limit / config.strategy.fps / 3;
     robot.field_angle += clamp(robot.rotation, -1 * max_rotation, max_rotation);

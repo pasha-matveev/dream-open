@@ -5,9 +5,6 @@
 class Robot;
 
 class Line {
- private:
-  static constexpr double EPS = 1e-7;
-
  public:
   double a, b, c;
   Line(const Vec& s, const Vec& f);
@@ -16,8 +13,6 @@ class Line {
 
 class Segment {
  private:
-  static constexpr double EPS = 1e-7;
-
   bool is_proection(const Vec& p) const;
 
  public:
@@ -28,7 +23,9 @@ class Segment {
   double dist(const Vec& p) const;
   void apply(Robot& robot) const;
   bool has_point(const Vec& p) const;
-  bool intersects_vel(const Segment& vel) const;
+  bool intersects_vel_deprecated(const Segment& vel) const;
   Vec intersect_point(const Segment& vel) const;
   Vec nearest_point(const Vec& p) const;
+
+  friend bool operator*(const Segment& a, const Segment& b);
 };

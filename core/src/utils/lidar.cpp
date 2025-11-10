@@ -1,11 +1,11 @@
 #include "utils/lidar.h"
 
+#include <spdlog/spdlog.h>
+
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
-
-#include <spdlog/spdlog.h>
 
 #include "robot.h"
 #include "utils/config.h"
@@ -98,12 +98,8 @@ Lidar::ComputeResult Lidar::compute(const Robot& robot) {
     Vec vec{obj.dist * -1 * sin(result_angle), obj.dist * cos(result_angle)};
     Vec r = vec + robot.position;
 
-    // cout << r.x << " " << r.y << endl;
-
     obstacles_data.push_back(r);
   }
-  // cout << "---" << endl;
-
   return {computed, v, result_rotation};
 }
 
@@ -122,12 +118,6 @@ void Lidar::_output_loop() {
     vector<string> tokens;
     string word;
     while (iss >> word) tokens.push_back(word);
-
-    // cout << "Tokens: ";
-    // for (const auto &el : tokens) {
-    //   cout << el << " ";
-    // }
-    // cout << endl;
 
     if (!tokens.empty() && tokens[0] == "Data") {
       received_data = true;

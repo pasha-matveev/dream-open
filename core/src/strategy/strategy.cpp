@@ -55,7 +55,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
       if (role == "attacker") {
         run_attacker(robot, ball, goal);
       } else if (role == "keeper") {
-        run_keeper(robot, ball, goal);
+        run_keeper(robot, ball, goal, field);
       } else {
         run_challenge(robot, ball, goal);
       }
@@ -116,10 +116,6 @@ double Strategy::compute_ricochet(Robot& robot, bool left) {
   }
   double b = 217.5 - ball_position.y;
   double c = b / 2;
-  // cout << ball_position.x << " " << ball_position.y << " "
-  //      << 243.0 - ball_position.y << endl;
-  // cout << a << " " << c << endl;
-  // exit(0);
   double alpha = atan(a / c);
   double s = (left) ? 1 : -1;
   double res = alpha * s - robot.field_angle;

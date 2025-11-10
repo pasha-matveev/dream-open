@@ -17,7 +17,7 @@ class Strategy {
 
   string role;
 
-  long long last_ball_visible = 0;
+  long long last_ball_visible = -10000;
   Vec last_ball;
   bool active_def = false;
   bool curve_kick = false;
@@ -46,7 +46,7 @@ class Strategy {
   double compute_ricochet(Robot& robot, bool left);
 
   // different strategies
-  void run_keeper(Robot& robot, Object& ball, Object& goal);
+  void run_keeper(Robot& robot, Object& ball, Object& goal, const Field& field);
   void run_attacker(Robot& robot, Object& ball, Object& goal);
   void run_challenge(Robot& robot, Object& ball, Object& goal);
   void run_kickoff(Robot& robot, Object& ball, Object& goal, bool left);

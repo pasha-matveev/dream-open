@@ -75,6 +75,13 @@ struct Config {
   struct Lidar {
     bool enabled = false;
     string path;
+    struct Calibration {
+      bool enabled;
+      int delay;
+      int threshold;
+      double movement;
+      double angle;
+    } calibration;
   } lidar;
 
   struct Visualization {

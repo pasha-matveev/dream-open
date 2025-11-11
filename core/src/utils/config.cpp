@@ -103,6 +103,12 @@ void load_config() {
   const auto& lidar = doc["lidar"];
   loaded.lidar.enabled = lidar["enabled"].GetBool();
   loaded.lidar.path = lidar["path"].GetString();
+  const auto& calibration = lidar["calibration"];
+  loaded.lidar.calibration.enabled = calibration["enabled"].GetBool();
+  loaded.lidar.calibration.delay = calibration["delay"].GetInt();
+  loaded.lidar.calibration.threshold = calibration["threshold"].GetInt();
+  loaded.lidar.calibration.movement = calibration["movement"].GetDouble();
+  loaded.lidar.calibration.angle = calibration["angle"].GetDouble();
 
   const auto& visualization = doc["visualization"];
   loaded.visualization.enabled = visualization["enabled"].GetBool();

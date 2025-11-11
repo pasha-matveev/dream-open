@@ -1,5 +1,7 @@
 #pragma once
 
+#include <queue>
+
 #include "gpio/buzzer.h"
 #include "gpio/display.h"
 #include "tracking/camera.h"
@@ -27,6 +29,13 @@ class Robot {
   double direction = 0;
   double speed = 0;
   bool applied_goal = false;
+
+  struct LidarHistory {
+    long long time;
+    double field_angle;
+    Vec position;
+  };
+  queue<LidarHistory> lidar_history;
 
  public:
   Camera* camera = nullptr;

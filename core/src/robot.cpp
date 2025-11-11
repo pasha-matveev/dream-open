@@ -10,6 +10,7 @@
 #include "gpio/setup.h"
 #include "media/img.h"
 #include "utils/config.h"
+#include "utils/millis.h"
 
 void Robot::read_from_arduino() {
   uart->write_data<char>('R');
@@ -136,9 +137,40 @@ bool Robot::compute_lidar() {
   position = center + res.v;
   field_angle = normalize_angle(res.rotation);
 
-  if ((position - last_position).len() <= 5) {
-    // не было сильного сдвига, калибруем гироском
+  // Если не нужно калиброваться, то заканчиваем
+  if (!config.lidar.calibration.enabled) return true;
+
+  lidar_history.push({millis(), field_angle, position});
+
+  while (true) {
+    if (lidar_history.empty()) break;
+    auto entry = lidar_history.front();
+    long long elapsed = millis() - entry.time;
+    if (elapsed < config.lidar.calibration.delay) {
+      // Еще не прошло достаточно времени
+      break;
+    }
+    if (elapsed >
+        config.lidar.calibration.delay + config.lidar.calibration.threshold) {
+      // Прошло слишком много времени
+      spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
+                   elapsed, config.lidar.calibration.delay,
+                   config.lidar.calibration.threshold);
+      lidar_history.pop();
+      continue;
+    }
+    double movement = (position - entry.position).len();
+    double angle = abs(normalize_angle(field_angle - entry.field_angle));
+    if (movement > config.lidar.calibration.movement ||
+        angle > config.lidar.calibration.angle) {
+      // Слишком большой сдвиг
+      lidar_history.pop();
+      continue;
+    }
+    // Все нормально, калибруемся
     top_angle = normalize_angle(gyro_angle - field_angle);
+    lidar_history.pop();
+    break;
   }
 
   return true;

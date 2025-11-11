@@ -92,7 +92,14 @@
   },
   "lidar": {
     "enabled": true,
-    "path": "../lidar/build/bin/main"
+    "path": "../lidar/build/bin/main",
+    "calibration": {
+      "enabled": true,
+      "delay": 5000,
+      "threshold": 150,
+      "movement": 10,
+      "angle": 1.5
+    }
   },
   "visualization": {
     "enabled": true,

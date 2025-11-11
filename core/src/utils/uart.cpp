@@ -165,8 +165,4 @@ UART::~UART() {
   }
 }
 
-void UART::disconnect() {
-  if (serial.IsOpen()) {
-    serial.Close();
-  }
-}
+void UART::disconnect() { serial.Close(); }

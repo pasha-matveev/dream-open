@@ -26,9 +26,6 @@ static optional<Vec> nearest_obstacle(Robot& robot) {
 
 static Vec compute_point(const Vec& p, const Field& field) {
   Vec fallback = {clamp(p.x, 30.0, 150.0), 35.0};
-  if (!field.inside(p)) {
-    return fallback;
-  }
   Vec center{91.0, 0.0};
   Vec dir = p - center;
   dir = dir.resize(1000000);
@@ -68,7 +65,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     is_piter = false;
   }
   if (!is_piter) {
-    if (last_ball.y < 90 && ball_ok) {
+    if (ball_ok && last_ball.y < 90) {
       active_def = true;
     } else if (last_ball.y > 95) {
       active_def = false;
@@ -76,12 +73,13 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
 
     if (robot.emitter) {
       active_def = true;
+      last_ball = robot.ball_hole_position();
     }
 
     if (active_def) {
       if (robot.emitter) {
         spdlog::info("HIT");
-        hit(robot, goal);
+        hit(robot, goal, 100);
       } else {
         spdlog::info("DRIVE");
         drive_ball(robot, last_ball);

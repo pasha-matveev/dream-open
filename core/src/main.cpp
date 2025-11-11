@@ -80,7 +80,11 @@ int main() {
           "Strategy FPS not achievable: cycle took {} out of {}. Read: {}; "
           "Strategy: {}; Write: {}",
           elapsed, delay, read_time, strategy_time, write_time);
-      actual_delay = 0;
+      if (config.tracking.preview.enabled) {
+        actual_delay = 1;
+      } else {
+        actual_delay = 0;
+      }
     }
     return actual_delay;
   };

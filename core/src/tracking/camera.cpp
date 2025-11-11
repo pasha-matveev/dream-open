@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <sys/mman.h>
 
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <lccv.hpp>
@@ -29,12 +30,14 @@ struct Camera::Impl {
   Object& ball;
   Object& goal;
   bool preview_ready = false;
+  std::atomic<bool> running{true};
 
   void start();
   void analyze();
   void draw();
   void requestComplete();
   void show_preview();
+  void request_stop();
 
   Impl(Object& ball, Object& goal);
   ~Impl() = default;
@@ -53,7 +56,6 @@ Camera::Impl::Impl(Object& ball_reference, Object& goal_)
 Camera::Camera(Object& b, Object& goal_) : ball(b), goal(goal_) {
   impl = make_unique<Impl>(ball, goal);
 }
-Camera::~Camera() = default;
 
 void Camera::Impl::analyze() {
   ball.find(hsv_frame);
@@ -79,6 +81,8 @@ void Camera::Impl::show_preview() {
   imshow(config.tracking.preview.window_name, small_preview);
 }
 
+void Camera::Impl::request_stop() { running.store(false); }
+
 void Camera::Impl::start() {
   lccv::PiCamera cam;
   cam.options->video_width = config.tracking.width;
@@ -91,8 +95,11 @@ void Camera::Impl::start() {
   long long start_time = millis();
   int cnt = 0;
 
-  while (true) {
+  while (running.load()) {
     if (!cam.getVideoFrame(frame, 1000)) {
+      if (!running.load()) {
+        break;
+      }
       spdlog::warn("Camera frame timeout");
     } else {
       if (frame.size().width != config.tracking.width) {
@@ -125,6 +132,27 @@ void Camera::Impl::start() {
       }
     }
   }
+  cam.stopVideo();
 }
 
-void Camera::start() { camera_thread = thread(&Impl::start, &(*impl)); }
+void Camera::start() {
+  if (camera_thread.joinable()) {
+    spdlog::warn("Camera already running; ignoring start request");
+    return;
+  }
+  if (impl) {
+    impl->running.store(true);
+  }
+  camera_thread = thread(&Impl::start, &(*impl));
+}
+
+void Camera::stop() {
+  if (impl) {
+    impl->request_stop();
+  }
+  if (camera_thread.joinable()) {
+    camera_thread.join();
+  }
+}
+
+Camera::~Camera() { stop(); }

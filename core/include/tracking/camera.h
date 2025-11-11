@@ -18,5 +18,6 @@ class Camera {
   Object& goal;
 
   void start();
+  void stop();
   void show_preview();
 };

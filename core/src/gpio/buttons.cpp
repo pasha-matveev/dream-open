@@ -52,7 +52,7 @@ static void handle_left_button(WPIWfiStatus status, void* p) {
   assert(p != nullptr);
   Robot* robot = (Robot*)p;
   if (robot->state != RobotState::PAUSE) {
-    spdlog::error("Kickoff called from non-pause state {}", robot->state);
+    spdlog::error("Kickoff called from non-pause state {}", (int)robot->state);
     return;
   }
   robot->state = RobotState::KICKOFF_LEFT;
@@ -62,7 +62,7 @@ static void handle_right_button(WPIWfiStatus status, void* p) {
   assert(p != nullptr);
   Robot* robot = (Robot*)p;
   if (robot->state != RobotState::PAUSE) {
-    spdlog::error("Kickoff called from non-pause state {}", robot->state);
+    spdlog::error("Kickoff called from non-pause state {}", (int)robot->state);
     return;
   }
   robot->state = RobotState::KICKOFF_RIGHT;

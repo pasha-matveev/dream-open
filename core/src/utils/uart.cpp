@@ -156,3 +156,17 @@ void UART::wait_for_x() {
     }
   }
 }
+
+UART::~UART() {
+  try {
+    disconnect();
+  } catch (...) {
+    spdlog::warn("Ignoring exception while closing serial connection");
+  }
+}
+
+void UART::disconnect() {
+  if (serial.IsOpen()) {
+    serial.Close();
+  }
+}

@@ -3,6 +3,7 @@
 #include <atomic>
 #include <cstdio>
 #include <mutex>
+#include <sys/types.h>
 #include <string>
 #include <thread>
 #include <vector>
@@ -54,6 +55,7 @@ class Lidar {
   FILE* pipe = nullptr;
   thread output_thread;
   atomic<bool> running{false};
+  pid_t child_pid = -1;
 
   mutex data_mtx;
   vector<string> latest_data;

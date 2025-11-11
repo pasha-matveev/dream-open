@@ -1,6 +1,7 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
+#include <csignal>
 #include <thread>
 
 #include "robot.h"
@@ -13,7 +14,16 @@
 
 using namespace std;
 
+namespace {
+volatile std::sig_atomic_t stop_requested = 0;
+
+void handle_signal(int) { stop_requested = 1; }
+}  // namespace
+
 int main() {
+  std::signal(SIGINT, handle_signal);
+  std::signal(SIGTERM, handle_signal);
+
   spdlog::info("Loading config...");
   load_config();
   spdlog::info("Config loaded");
@@ -89,7 +99,7 @@ int main() {
     return actual_delay;
   };
 
-  while (true) {
+  while (!stop_requested) {
     long long cycle_start = millis();
     st = millis();
     if (config.serial.enabled) {
@@ -105,6 +115,9 @@ int main() {
       robot.write_to_arduino();
     }
     write_time = millis() - st;
+    if (stop_requested) {
+      break;
+    }
     // visualisation
     if (config.visualization.enabled) {
       visualization->run(robot, ball, goal, field);
@@ -122,7 +135,18 @@ int main() {
         break;
       }
     } else {
-      this_thread::sleep_for(chrono::milliseconds(compute_delay(cycle_start)));
+      auto sleep_ms = compute_delay(cycle_start);
+      if (sleep_ms > 0) {
+        this_thread::sleep_for(chrono::milliseconds(sleep_ms));
+      }
     }
+  }
+
+  if (stop_requested) {
+    spdlog::info("Termination signal received, shutting down...");
+  }
+
+  if (visualization != nullptr) {
+    delete visualization;
   }
 }

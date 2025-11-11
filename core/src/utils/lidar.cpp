@@ -3,9 +3,12 @@
 #include <spdlog/spdlog.h>
 
 #include <cmath>
+#include <csignal>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "robot.h"
 #include "utils/config.h"
@@ -39,22 +42,69 @@ double LidarObject::get_radius() const {
 void Lidar::start() {
   string cmd = config.lidar.path;
 
-  pipe = popen(cmd.c_str(), "r");
-  if (!pipe) {
+  if (running) {
+    spdlog::warn("Lidar process already running");
+    return;
+  }
+
+  int pipefd[2];
+  if (::pipe(pipefd) == -1) {
     throw runtime_error("Failed to start lidar process");
   }
 
+  pid_t pid = ::fork();
+  if (pid == -1) {
+    ::close(pipefd[0]);
+    ::close(pipefd[1]);
+    throw runtime_error("Failed to fork lidar process");
+  }
+
+  if (pid == 0) {
+    // Child process: redirect stdout to pipe and exec command
+    ::close(pipefd[0]);
+    if (::dup2(pipefd[1], STDOUT_FILENO) == -1) {
+      _exit(127);
+    }
+    ::close(pipefd[1]);
+    execl("/bin/sh", "sh", "-c", cmd.c_str(), static_cast<char*>(nullptr));
+    _exit(127);
+  }
+
+  ::close(pipefd[1]);
+  FILE* stream = ::fdopen(pipefd[0], "r");
+  if (!stream) {
+    ::close(pipefd[0]);
+    ::kill(pid, SIGTERM);
+    ::waitpid(pid, nullptr, 0);
+    throw runtime_error("Failed to open lidar pipe stream");
+  }
+
+  pipe = stream;
+  child_pid = pid;
   running = true;
   output_thread = thread(&Lidar::_output_loop, this);
 }
 
 void Lidar::stop() {
   running = false;
+
+  if (child_pid > 0) {
+    ::kill(child_pid, SIGTERM);
+  }
+
+  if (output_thread.joinable()) {
+    output_thread.join();
+  }
+
   if (pipe) {
-    pclose(pipe);
+    ::fclose(pipe);
     pipe = nullptr;
   }
-  if (output_thread.joinable()) output_thread.join();
+
+  if (child_pid > 0) {
+    ::waitpid(child_pid, nullptr, 0);
+    child_pid = -1;
+  }
 }
 
 Lidar::ComputeResult Lidar::compute(const Robot& robot) {

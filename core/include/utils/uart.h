@@ -15,8 +15,10 @@ class UART {
   SerialStream serial;
 
  public:
+  ~UART();
   void connect();
   void wait_for_x();
+  void disconnect();
 
   template <class T>
   T read_data() {

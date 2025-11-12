@@ -8,6 +8,7 @@
 
 const Polygon left_attacker_r{{{0, 194}, {0, 243}, {91, 243}}};
 const Polygon right_attacker_r{{{91, 243}, {182, 243}, {182, 194}}};
+enum class DubinsSide { NONE, LEFT, RIGHT };
 
 class Strategy {
  private:
@@ -15,6 +16,7 @@ class Strategy {
 
   long long last_ball_visible = -10000;
   Vec last_ball;
+  double last_ball_relative;
   bool active_def = false;
   bool curve_kick = false;
 
@@ -39,10 +41,16 @@ class Strategy {
   bool reset_turn = false;
   long long turn_time = -1;
   bool turn(Robot& robot, double target_angle, bool curved_rotation);
+
   void hit(Robot& robot, Object& goal, int power = 70,
            int forward_timeout = 600, bool curved_rotation = true,
            int kick_timeout = 0, double precision = 0.015);
   double compute_ricochet(Robot& robot, bool left);
+
+  bool reset_dubins = false;
+  Vec dubins_ball;
+  DubinsSide dubins_side = DubinsSide::NONE;
+  void dubins_hit(Robot& robot, Object& goal);
 
   // different strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal, const Field& field);
@@ -52,6 +60,7 @@ class Strategy {
   void run_kickoff(Robot& robot, Object& ball, Object& goal, bool left);
   void run_test_circle(Robot& robot);
   void run_test_dribling(Robot& robot);
+  void run_test(Robot& robot, Object& goal);
 
  public:
   void run(Robot& robot, Object& ball, Object& goal, const Field& field);

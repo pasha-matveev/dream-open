@@ -124,6 +124,20 @@ void load_config() {
   loaded.strategy.max_dribling = strategy["max_dribling"].GetInt();
   loaded.strategy.slow_dribling = strategy["slow_dribling"].GetInt();
   loaded.strategy.dribling_duration = strategy["dribling_duration"].GetInt();
+
+  const auto& dubins = strategy["dubins"];
+
+  loaded.strategy.dubins.radius = dubins["radius"].GetDouble();
+  loaded.strategy.dubins.bonus = dubins["bonus"].GetDouble();
+  loaded.strategy.dubins.delta = dubins["delta"].GetDouble();
+  loaded.strategy.dubins.threshold = dubins["threshold"].GetDouble();
+
+  loaded.strategy.dubins.base_speed = dubins["base_speed"].GetInt();
+  loaded.strategy.dubins.max_speed = dubins["max_speed"].GetInt();
+  loaded.strategy.dubins.base_dist = dubins["base_dist"].GetInt();
+  loaded.strategy.dubins.max_dist = dubins["max_dist"].GetInt();
+  loaded.strategy.dubins.goal_dist = dubins["goal_dist"].GetInt();
+
   const auto& attacker_ricochet = strategy["attacker_ricochet"];
   loaded.strategy.attacker_ricochet.enabled =
       attacker_ricochet["enabled"].GetBool();

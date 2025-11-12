@@ -35,6 +35,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   if (ball.visible) {
     last_ball_visible = millis();
     last_ball = ball.field_position;
+    last_ball_relative = ball.relative_angle;
   }
 
   if (robot.emitter && !robot.prev_emitter) {
@@ -54,6 +55,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   if (config.strategy.enabled) {
     reset_kick = true;
     reset_turn = true;
+    reset_dubins = true;
     if (robot.state == RobotState::RUNNING) {
       if (role == "attacker") {
         run_attacker(robot, ball, goal);
@@ -65,6 +67,10 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
         run_test_circle(robot);
       } else if (role == "test_dribling") {
         run_test_dribling(robot);
+      } else if (role == "test") {
+        run_test(robot, goal);
+      } else {
+        spdlog::error("Unknown role: {}", role);
       }
     } else if (robot.state == KICKOFF_LEFT) {
       run_kickoff(robot, ball, goal, true);
@@ -78,6 +84,9 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
     }
     if (reset_turn) {
       turn_time = -1;
+    }
+    if (reset_dubins) {
+      dubins_side = DubinsSide::NONE;
     }
     field.apply(robot);
   }

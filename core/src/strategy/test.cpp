@@ -1,5 +1,6 @@
 #include "strategy/strategy.h"
 #include "utils/config.h"
+#include "utils/millis.h"
 
 void Strategy::run_test_circle(Robot& robot) {
   robot.dribling = config.strategy.max_dribling;
@@ -15,4 +16,10 @@ void Strategy::run_test_circle(Robot& robot) {
 
 void Strategy::run_test_dribling(Robot& robot) {
   robot.dribling = config.strategy.max_dribling;
+}
+
+void Strategy::run_test(Robot& robot, Object& goal) {
+  if (millis() - last_ball_visible <= 50) {
+    dubins_hit(robot, goal);
+  }
 }

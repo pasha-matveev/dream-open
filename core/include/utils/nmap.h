@@ -1,0 +1,1 @@
+double nmap(double val, double l, double r, double L, double R);

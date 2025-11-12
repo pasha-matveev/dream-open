@@ -102,6 +102,17 @@ struct Config {
     int max_dribling;
     int slow_dribling;
     int dribling_duration;
+    struct Dubins {
+      double radius;
+      double bonus;
+      double delta;
+      double threshold;
+      int base_speed;
+      int max_speed;
+      int base_dist;
+      int max_dist;
+      int goal_dist;
+    } dubins;
     struct AttackerRicochet {
       bool enabled;
     } attacker_ricochet;

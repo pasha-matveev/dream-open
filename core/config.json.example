@@ -114,6 +114,16 @@
     "max_dribling": 50,
     "slow_dribling": 0,
     "dribling_duration": 600,
+    "dubins": {
+      "radius": 12,
+      "bonus": 5,
+      "delta": 1,
+      "threshold": 2,
+      "base_speed": 40,
+      "max_speed": 120,
+      "base_dist": 20,
+      "max_dist": 40
+    },
     "enabled": true,
     "attacker_ricochet": {
       "enabled": false

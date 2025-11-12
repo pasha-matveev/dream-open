@@ -10,6 +10,7 @@
 #include "strategy/visualization.h"
 #include "tracking/object.h"
 #include "utils/config.h"
+#include "utils/geo/circle.h"
 #include "utils/millis.h"
 
 using namespace std;

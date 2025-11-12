@@ -1,5 +1,7 @@
 #include "strategy/field.h"
 
+#include <spdlog/spdlog.h>
+
 #include "strategy/segment.h"
 
 Field::Field(const vector<Vec>& points_) : Polygon(points_) {}
@@ -22,8 +24,11 @@ void Field::apply(Robot& robot) const {
 
     Vec long_vel = robot.vel.resize(10000);
     auto [np, idx] = find_intersection(robot.position, long_vel);
-    assert(idx != -1);
-    apply_seg(idx, robot);
+    if (idx != -1) {
+      apply_seg(idx, robot);
+    } else {
+      spdlog::error("Not found any segment by proection");
+    }
 
     for (int i = 0; i < points.size(); ++i) {
       int j = (i + 1) % points.size();
@@ -52,9 +57,17 @@ void Field::apply(Robot& robot) const {
         dist2 = dist;
       }
     }
-    assert(idx1 != -1);
-    assert(idx2 != -1);
-    apply_seg(idx1, robot);
-    apply_seg(idx2, robot);
+    if (idx1 != -1) {
+      apply_seg(idx1, robot);
+    } else {
+      spdlog::error("Not found first closest segment: {} {}", robot.position.x,
+                    robot.position.y);
+    }
+    if (idx2 != -1) {
+      apply_seg(idx2, robot);
+    } else {
+      spdlog::error("Not found second closest segment: {} {}", robot.position.x,
+                    robot.position.y);
+    }
   }
 }

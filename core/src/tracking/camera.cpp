@@ -1,6 +1,5 @@
 #include "tracking/camera.h"
 
-#include <assert.h>
 #include <spdlog/spdlog.h>
 #include <sys/mman.h>
 

@@ -14,6 +14,7 @@ unsigned long long test_tm;
 bool rgb_led = false;
 // bool prog_running = false;
 long long cooldown = 0;
+bool blue = false;
 
 template <typename T>
 T read_data() {
@@ -95,7 +96,6 @@ void loop() {
       robot.kicker_force = read_data<int32_t>();
       rgb_led = read_data<bool>();
       robot.pause = read_data<bool>();
-      robot.kicker.set_force(robot.kicker_force);
     }
     alive_tm = millis() + 1000;
   }
@@ -105,21 +105,33 @@ void loop() {
   //   robot.kicker.set_force(robot.kicker_force);
   // }
 
-  // if (robot.button.state() && millis() > cooldown) {
-  //   cooldown = millis() + 1000;
-  //   prog_running = !prog_running;
-  //   robot.button.was_pressed = false;
-  // } else {
-  //   robot.button.was_pressed = false;
+  bool mega_kick = false;
+  if (robot.button.state() && millis() > cooldown) {
+    cooldown = millis() + 1000;
+    robot.kicker_force = 100;
+    mega_kick = true;
+  }
+  robot.button.was_pressed = false;
+
+  // if (robot.kicker.is_charged() && !blue) {
+  //   pixels.setPixelColor(1, pixels.Color(0, 0, 255));
+  //   blue = true;
+  //   pixels.show();
+  // } else if (!robot.kicker.is_charged() && blue) {
+  //   pixels.setPixelColor(1, pixels.Color(255, 0, 0));
+  //   blue = false;
+  //   pixels.show();
   // }
 
-  if (alive_tm > millis() && robot.init_kicker) {
-    robot.kicker.charge();
-    if (robot.kicker.is_charged() && robot.kicker.force != 0) {
-      robot.kicker.kick();
+  robot.kicker.charge();
+  if ((alive_tm > millis() || mega_kick) && robot.init_kicker) {
+    if (robot.kicker.is_charged() && robot.kicker_force != 0) {
+      robot.kicker.charge(false);
+      robot.kicker.kick(robot.kicker_force);
     }
-  } else {
-    robot.kicker.charge(false);
+  }
+  if (mega_kick) {
+    robot.kicker_force = 0;
   }
 
   if (alive_tm > millis() && !robot.pause) {
@@ -135,10 +147,11 @@ void loop() {
   //   prog_running = false;
   // }
 
-  if (rgb_led) {
-    pixels.setPixelColor(1, pixels.ColorHSV(millis() * 80 % 65535, 255, 255));
-  } else {
-    pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-  }
-  pixels.show();
+  // if (rgb_led) {
+  //   pixels.setPixelColor(1, pixels.ColorHSV(millis() * 80 % 65535, 255,
+  //   255));
+  // } else {
+  //   pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+  // }
+  // pixels.show();
 }

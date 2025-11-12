@@ -7,7 +7,7 @@ class Kicker {
   unsigned long long kick_tm = 0;
   int min_kick_delay = 0;
   int min_delay = 500;
-  int max_delay = 10000;
+  int max_delay = 20000;
   int kick_pin = 7;
   int charge_pin = 4;
 
@@ -18,6 +18,4 @@ class Kicker {
   void kick(int power = -1);
   void charge(bool flag = true);
   bool is_charged();
-  void set_force(int);
-  int force = 0;
 };

@@ -38,7 +38,7 @@ void Robot::run() {
 }
 
 void Robot::stop() {
-  kicker.force = 0;
+  kicker_force = 0;
   if (first_motors_stop) {
     motors.run(0, 0, 0);
     first_motors_stop = false;

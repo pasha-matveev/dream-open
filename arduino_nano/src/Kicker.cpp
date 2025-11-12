@@ -9,10 +9,7 @@ void Kicker::init() {
 
 bool Kicker::is_charged() { return charge_tm < millis(); }
 
-void Kicker::set_force(int force) { this->force = force; }
-
 void Kicker::kick(int power) {
-  power = power == -1 ? force : power;
   if (power && kick_tm < millis()) {
     digitalWrite(charge_pin, 0);
     delay(1);
@@ -21,9 +18,8 @@ void Kicker::kick(int power) {
     delayMicroseconds(map(power, 1, 100, min_delay, max_delay));
     digitalWrite(kick_pin, 0);
     delay(1);
-    charge_tm = millis() + (float)power * 31.38 * 2 + 2000;
+    charge_tm = millis() + (float)power * 20.38 * 2;
     kick_tm = millis() + min_kick_delay;
-    force = 0;
   }
 }
 

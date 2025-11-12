@@ -1,4 +1,5 @@
 #include "strategy/strategy.h"
+#include "utils/config.h"
 
 void Strategy::drive_ball(Robot& robot, const Vec& ball) {
   double k;
@@ -11,6 +12,6 @@ void Strategy::drive_ball(Robot& robot, const Vec& ball) {
     k = 4;
   }
   drive_target(robot, ball, k);
-  robot.dribling = base_dribling;
+  robot.dribling = config.strategy.base_dribling;
   robot.rotation_limit = 40;
 }

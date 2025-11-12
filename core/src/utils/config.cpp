@@ -120,6 +120,10 @@ void load_config() {
   loaded.strategy.role = strategy["role"].GetString();
   loaded.strategy.fps = strategy["fps"].GetInt();
   loaded.strategy.enabled = strategy["enabled"].GetBool();
+  loaded.strategy.base_dribling = strategy["base_dribling"].GetInt();
+  loaded.strategy.max_dribling = strategy["max_dribling"].GetInt();
+  loaded.strategy.slow_dribling = strategy["slow_dribling"].GetInt();
+  loaded.strategy.dribling_duration = strategy["dribling_duration"].GetInt();
   const auto& target_left = strategy["target_left"];
   loaded.strategy.target_left.x = target_left["x"].GetDouble();
   loaded.strategy.target_left.y = target_left["y"].GetDouble();

@@ -1,9 +1,11 @@
 #include "strategy/strategy.h"
+#include "utils/config.h"
 #include "utils/millis.h"
 
 void Strategy::accelerated_dribbling(Robot& robot) {
   double power =
-      base_dribling + (max_dribling - base_dribling) *
-                          ((millis() - robot.first_time) / dribling_duration);
+      config.strategy.base_dribling +
+      (config.strategy.max_dribling - config.strategy.base_dribling) *
+          ((millis() - robot.first_time) / config.strategy.dribling_duration);
   robot.dribling = min(100.0, power);
 }

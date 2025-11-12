@@ -1,4 +1,5 @@
 #include "strategy/strategy.h"
+#include "utils/config.h"
 #include "utils/geo/polygon.h"
 #include "utils/millis.h"
 
@@ -40,7 +41,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
         r_status = AttackerRStatus::ROTATE_1;
       }
     } else if (r_status == AttackerRStatus::ROTATE_1) {
-      robot.dribling = max_dribling;
+      robot.dribling = config.strategy.max_dribling;
       double target_angle;
       if (r_left) {
         target_angle = M_PI / 2;

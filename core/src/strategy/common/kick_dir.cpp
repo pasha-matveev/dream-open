@@ -1,6 +1,7 @@
 #include <spdlog/spdlog.h>
 
 #include "strategy/strategy.h"
+#include "utils/config.h"
 #include "utils/millis.h"
 
 void Strategy::kick_dir(Robot& robot, double dir, int power,
@@ -65,7 +66,7 @@ void Strategy::kick_dir(Robot& robot, double dir, int power,
   } else if (kick_status == "slow") {
     spdlog::info("SLOW");
     robot.rotation = 0;
-    robot.dribling = 15;
+    robot.dribling = config.strategy.slow_dribling;
     robot.vel = {0, 0};
     if (slow_tm < millis()) {
       kick_status = "kick";
@@ -74,11 +75,7 @@ void Strategy::kick_dir(Robot& robot, double dir, int power,
   } else if (kick_status == "kick") {
     spdlog::info("KICK");
     robot.kicker_force = power;
-    if (kick_timeout) {
-      robot.dribling = 0;
-    } else {
-      robot.dribling = 15;
-    }
+    robot.dribling = 0;
     robot.rotation = 0;
     robot.vel = {0, 0};
   }

@@ -98,6 +98,10 @@ struct Config {
     struct Target {
       double x, y;
     };
+    int base_dribling;
+    int max_dribling;
+    int slow_dribling;
+    int dribling_duration;
     Target target_left;
     Target target_right;
   } strategy;

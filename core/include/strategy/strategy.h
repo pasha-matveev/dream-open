@@ -11,10 +11,6 @@ const Polygon right_attacker_r{{{91, 243}, {182, 243}, {182, 194}}};
 
 class Strategy {
  private:
-  static constexpr int base_dribling = 30;
-  static constexpr int max_dribling = 60;
-  static constexpr double dribling_duration = 600;
-
   string role;
 
   long long last_ball_visible = -10000;

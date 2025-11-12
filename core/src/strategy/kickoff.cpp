@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "strategy/strategy.h"
+#include "utils/config.h"
 #include "utils/millis.h"
 
 static long long kickoff_start = -1;
@@ -36,10 +37,10 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
   if (robot.emitter) {
     // 1.7
     double alpha = compute_ricochet(robot, left);
-    kick_dir(robot, alpha, 100, 600, true, 0, 0.01);
+    kick_dir(robot, alpha, 100, 600, true, 1000, 0.01);
   } else {
     robot.vel = Vec{robot.field_angle + ball.relative_angle}.resize(5);
     robot.rotation = ball.relative_angle;
-    robot.dribling = base_dribling;
+    robot.dribling = config.strategy.base_dribling;
   }
 }

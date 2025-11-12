@@ -124,6 +124,9 @@ void load_config() {
   loaded.strategy.max_dribling = strategy["max_dribling"].GetInt();
   loaded.strategy.slow_dribling = strategy["slow_dribling"].GetInt();
   loaded.strategy.dribling_duration = strategy["dribling_duration"].GetInt();
+  const auto& attacker_ricochet = strategy["attacker_ricochet"];
+  loaded.strategy.attacker_ricochet.enabled =
+      attacker_ricochet["enabled"].GetBool();
   const auto& target_left = strategy["target_left"];
   loaded.strategy.target_left.x = target_left["x"].GetDouble();
   loaded.strategy.target_left.y = target_left["y"].GetDouble();

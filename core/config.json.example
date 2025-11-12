@@ -110,7 +110,14 @@
   "strategy": {
     "role": "keeper",
     "fps": 120,
+    "base_dribling": 20,
+    "max_dribling": 50,
+    "slow_dribling": 0,
+    "dribling_duration": 600,
     "enabled": true,
+    "attacker_ricochet": {
+      "enabled": false
+    },
     "target_left": {
       "x": 91,
       "y": 230

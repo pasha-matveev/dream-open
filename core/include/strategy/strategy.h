@@ -46,6 +46,7 @@ class Strategy {
 
   // different strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal, const Field& field);
+  void attacker_simple(Robot& robot, Object& goal);
   void run_attacker(Robot& robot, Object& ball, Object& goal);
   void run_challenge(Robot& robot, Object& ball, Object& goal);
   void run_kickoff(Robot& robot, Object& ball, Object& goal, bool left);

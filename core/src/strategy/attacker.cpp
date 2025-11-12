@@ -11,6 +11,18 @@ enum class AttackerRStatus { NONE, TAKE_BALL, ROTATE_1, MOVE, ROTATE_2, KICK };
 static AttackerRSide r_side = AttackerRSide::NONE;
 static AttackerRStatus r_status = AttackerRStatus::NONE;
 
+void Strategy::attacker_simple(Robot& robot, Object& goal) {
+  int power = 70;
+  if (robot.position.y < 146) {
+    power = 40;
+  } else if (robot.position.y < 180) {
+    power = 20;
+  } else {
+    power = 15;
+  }
+  hit(robot, goal, power, 800);
+}
+
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
   const int BORDER = 80;
 
@@ -29,15 +41,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
     bool r_left = r_side == AttackerRSide::LEFT;
     if (r_status == AttackerRStatus::NONE) {
       spdlog::info("SIMPLE");
-      int power = 70;
-      if (robot.position.y < 146) {
-        power = 40;
-      } else if (robot.position.y < 180) {
-        power = 20;
-      } else {
-        power = 15;
-      }
-      hit(robot, goal, power, 800);
+      attacker_simple(robot, goal);
     } else if (r_status == AttackerRStatus::TAKE_BALL) {
       spdlog::info("TAKE_BALL");
       bool finished = take_ball(robot, 600);
@@ -76,8 +80,13 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
       }
     } else if (r_status == AttackerRStatus::ROTATE_2) {
       spdlog::info("ROTATE 2");
-      double alpha = compute_ricochet(robot, r_left);
-      kick_dir(robot, alpha, 100, 0, true, 0, 0.01);
+      if (config.strategy.attacker_ricochet.enabled) {
+        double alpha;
+        alpha = compute_ricochet(robot, r_left);
+        kick_dir(robot, alpha, 100, 0, true, 0, 0.01);
+      } else {
+        attacker_simple(robot, goal);
+      }
     }
   } else {
     r_status = AttackerRStatus::NONE;

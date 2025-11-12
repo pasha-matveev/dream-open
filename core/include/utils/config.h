@@ -102,6 +102,9 @@ struct Config {
     int max_dribling;
     int slow_dribling;
     int dribling_duration;
+    struct AttackerRicochet {
+      bool enabled;
+    } attacker_ricochet;
     Target target_left;
     Target target_right;
   } strategy;

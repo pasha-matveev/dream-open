@@ -66,10 +66,10 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
       Vec target;
       double target_angle;
       if (r_left) {
-        target = Vec{45.0, 170.0};
+        target = Vec{30.0, 190.0};
         target_angle = M_PI / 2;
       } else {
-        target = Vec{182.0 - 45.0, 170.0};
+        target = Vec{182.0 - 30.0, 190.0};
         target_angle = -M_PI / 2;
       }
       bool finished = drive_target(robot, target, 2, 20, 5);

@@ -25,9 +25,9 @@ bool Strategy::kick_dir(Robot& robot, double dir, int power,
 
   } else if (kick_status == "rotate") {
     spdlog::info("ROTATE");
-    dir -= 0.01;
+    bool finished = turn(robot, robot.field_angle + dir, curved_rotation);
 
-    if (abs(dir) <= precision) {
+    if (finished) {
       if (kick_timeout) {
         kick_status = "slow";
         robot.dribling = 15;
@@ -38,30 +38,6 @@ bool Strategy::kick_dir(Robot& robot, double dir, int power,
       }
       robot.rotation = 0;
       robot.vel = {0, 0};
-    } else {
-      if (curved_rotation) {
-        Vec vel{robot.field_angle};
-        if (dir > 0) {
-          vel = vel.turn_right();
-          vel = vel.rotate(0.1);
-        } else {
-          vel = vel.turn_left();
-          vel = vel.rotate(-0.1);
-        }
-        if (abs(dir) <= 0.05) {
-          robot.vel = {0, 0};
-          robot.rotation_limit = 15;
-        } else {
-          vel = vel.resize(19);
-          robot.vel = vel;
-          robot.rotation_limit = 15;
-        }
-      } else {
-        robot.vel = {0, 0};
-        robot.rotation_limit = 15;
-      }
-      robot.rotation = dir;
-      accelerated_dribbling(robot);
     }
 
   } else if (kick_status == "slow") {

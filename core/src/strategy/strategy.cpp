@@ -53,6 +53,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
 
   if (config.strategy.enabled) {
     reset_kick = true;
+    reset_turn = true;
     if (robot.state == RobotState::RUNNING) {
       if (role == "attacker") {
         run_attacker(robot, ball, goal);
@@ -74,6 +75,9 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
     if (reset_kick) {
       kick_status = "none";
       slow_tm = -1;
+    }
+    if (reset_turn) {
+      turn_time = -1;
     }
     field.apply(robot);
   }

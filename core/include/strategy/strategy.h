@@ -35,6 +35,9 @@ class Strategy {
                 int forward_timeout = 600, bool curved_rotation = true,
                 int kick_timeout = 0, double precision = 0.015);
   bool take_ball(Robot& robot, long long forward_timeout);
+
+  bool reset_turn = false;
+  long long turn_time = -1;
   bool turn(Robot& robot, double target_angle, bool curved_rotation);
   void hit(Robot& robot, Object& goal, int power = 70,
            int forward_timeout = 600, bool curved_rotation = true,

@@ -41,8 +41,8 @@ void Object::find(const cv::Mat& frame) {
   cv::inRange(frame, cv::Scalar(h_min, s_min, v_min),
               cv::Scalar(h_max, s_max, v_max), mask);
 
-  cv::erode(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
-  cv::dilate(mask, mask, cv::Mat(), cv::Point(-1, -1), 2);
+  cv::erode(mask, mask, cv::Mat(), cv::Point(-1, -1), 3);
+  cv::dilate(mask, mask, cv::Mat(), cv::Point(-1, -1), 3);
 
   std::vector<std::vector<cv::Point>> contours;
   cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
@@ -115,10 +115,10 @@ void Object::compute_field_position(const Robot& robot) {
   double ball_angle = robot.field_angle + relative_angle;
   Vec offset{-1 * sin(ball_angle) * get_cm(), cos(ball_angle) * get_cm()};
   field_position = robot.position + offset;
-  if (field_position.x < -20 || field_position.x > 182 + 20 ||
-      field_position.y < -20 || field_position.y > 243 + 40) {
-    spdlog::warn("Wrong object position: {} {}", field_position.x,
-                 field_position.y);
-    visible = false;
-  }
+  // if (field_position.x < -20 || field_position.x > 182 + 20 ||
+  //     field_position.y < -20 || field_position.y > 243 + 40) {
+  //   spdlog::warn("Wrong object position: {} {}", field_position.x,
+  //                field_position.y);
+  //   visible = false;
+  // }
 }

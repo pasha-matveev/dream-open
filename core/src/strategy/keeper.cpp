@@ -92,7 +92,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       } else {
         target = {91.0, 52.0};
       }
-      drive_target(robot, target, 3);
+      drive_target(robot, target, 4);
       if (ball_ok) {
         robot.rotation =
             (last_ball - robot.position).field_angle() - robot.field_angle;

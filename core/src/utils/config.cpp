@@ -120,6 +120,12 @@ void load_config() {
   loaded.strategy.role = strategy["role"].GetString();
   loaded.strategy.fps = strategy["fps"].GetInt();
   loaded.strategy.enabled = strategy["enabled"].GetBool();
+  const auto& target_left = strategy["target_left"];
+  loaded.strategy.target_left.x = target_left["x"].GetDouble();
+  loaded.strategy.target_left.y = target_left["y"].GetDouble();
+  const auto& target_right = strategy["target_right"];
+  loaded.strategy.target_right.x = target_right["x"].GetDouble();
+  loaded.strategy.target_right.y = target_right["y"].GetDouble();
 
   config = loaded;
 }

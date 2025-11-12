@@ -110,6 +110,14 @@
   "strategy": {
     "role": "keeper",
     "fps": 120,
-    "enabled": true
+    "enabled": true,
+    "target_left": {
+      "x": 91,
+      "y": 230
+    },
+    "target_right": {
+      "x": 91,
+      "y": 230
+    }
   }
 }

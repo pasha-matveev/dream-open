@@ -95,6 +95,11 @@ struct Config {
     string role;
     int fps;
     bool enabled;
+    struct Target {
+      double x, y;
+    };
+    Target target_left;
+    Target target_right;
   } strategy;
 };
 

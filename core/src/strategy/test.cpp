@@ -13,4 +13,6 @@ void Strategy::run_test_circle(Robot& robot) {
   robot.rotation = dir;
 }
 
-void Strategy::run_test_dribling(Robot& robot) { robot.dribling = 100; }
+void Strategy::run_test_dribling(Robot& robot) {
+  robot.dribling = config.strategy.max_dribling;
+}

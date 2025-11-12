@@ -13,7 +13,7 @@ bool Strategy::turn(Robot& robot, double target_angle, bool curved_rotation) {
       vel = vel.rotate(-0.1);
     }
     // Длина (17) и скорость поворота (15) подобраны
-    vel = vel.resize(17);
+    vel = vel.resize(19);
     robot.vel = vel;
     robot.rotation_limit = 15;
   } else {

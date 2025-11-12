@@ -52,7 +52,7 @@ bool Strategy::kick_dir(Robot& robot, double dir, int power,
           robot.vel = {0, 0};
           robot.rotation_limit = 15;
         } else {
-          vel = vel.resize(17);
+          vel = vel.resize(19);
           robot.vel = vel;
           robot.rotation_limit = 15;
         }

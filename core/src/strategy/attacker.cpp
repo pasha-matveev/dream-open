@@ -37,7 +37,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
       } else {
         power = 15;
       }
-      hit(robot, goal, power);
+      hit(robot, goal, power, 800);
     } else if (r_status == AttackerRStatus::TAKE_BALL) {
       spdlog::info("TAKE_BALL");
       bool finished = take_ball(robot, 600);

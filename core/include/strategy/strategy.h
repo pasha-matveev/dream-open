@@ -46,6 +46,8 @@ class Strategy {
   void run_attacker(Robot& robot, Object& ball, Object& goal);
   void run_challenge(Robot& robot, Object& ball, Object& goal);
   void run_kickoff(Robot& robot, Object& ball, Object& goal, bool left);
+  void run_test_circle(Robot& robot);
+  void run_test_dribling(Robot& robot);
 
  public:
   void run(Robot& robot, Object& ball, Object& goal, const Field& field);

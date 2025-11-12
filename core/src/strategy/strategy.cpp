@@ -58,8 +58,12 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
         run_attacker(robot, ball, goal);
       } else if (role == "keeper") {
         run_keeper(robot, ball, goal, field);
-      } else {
+      } else if (role == "challenge") {
         run_challenge(robot, ball, goal);
+      } else if (role == "test_circle") {
+        run_test_circle(robot);
+      } else if (role == "test_dribling") {
+        run_test_dribling(robot);
       }
     } else if (robot.state == KICKOFF_LEFT) {
       run_kickoff(robot, ball, goal, true);

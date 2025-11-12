@@ -17,6 +17,7 @@ class Segment {
   Segment(const Vec& a_, const Vec& b_);
 
   bool is_proection(const Vec& p) const;
+  bool correct_side(const Vec& p) const;
   double normal_dist(const Vec& p) const;
   double dist(const Vec& p) const;
   void apply(Robot& robot) const;

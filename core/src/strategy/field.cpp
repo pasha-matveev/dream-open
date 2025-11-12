@@ -33,7 +33,8 @@ void Field::apply(Robot& robot) const {
     for (int i = 0; i < points.size(); ++i) {
       int j = (i + 1) % points.size();
       Segment seg(points[i], points[j]);
-      if (seg.is_proection(robot.position)) {
+      if (seg.is_proection(robot.position) &&
+          seg.correct_side(robot.position)) {
         seg.apply(robot);
       }
     }

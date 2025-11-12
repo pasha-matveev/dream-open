@@ -36,6 +36,10 @@ bool Segment::is_proection(const Vec& p) const {
   return true;
 }
 
+bool Segment::correct_side(const Vec& p) const {
+  return ((p - a) % (b - a)) > 0;
+}
+
 double Segment::normal_dist(const Vec& p) const {
   Vec l = b - a;
   double S = (b - p) % (a - p);

@@ -9,7 +9,7 @@ double Strategy::compute_ricochet(Robot& robot, bool left) {
   } else {
     a = 182 - ball_position.x;
   }
-  double b = 217.5 - ball_position.y;
+  double b = 230 - ball_position.y;
   double c = b / 2;
   double alpha = atan(a / c);
   double s = (left) ? 1 : -1;

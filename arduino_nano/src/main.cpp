@@ -15,6 +15,8 @@ bool rgb_led = false;
 // bool prog_running = false;
 long long cooldown = 0;
 bool blue = false;
+bool test_state = false;
+long long test_state_cooldown = 0;
 
 template <typename T>
 T read_data() {
@@ -106,10 +108,22 @@ void loop() {
   // }
 
   bool mega_kick = false;
+  if (test_state || millis() <= test_state_cooldown) {
+    robot.dribling.set_speed(100);
+  } else if (alive_tm < millis()) {
+    // usb не работает
+    robot.dribling.set_speed(0);
+  }
   if (robot.button.state() && millis() > cooldown) {
+    if (test_state) {
+      mega_kick = true;
+      robot.kicker_force = 100;
+      test_state = false;
+      test_state_cooldown = millis() + 500;
+    } else {
+      test_state = true;
+    }
     cooldown = millis() + 1000;
-    robot.kicker_force = 100;
-    mega_kick = true;
   }
   robot.button.was_pressed = false;
 

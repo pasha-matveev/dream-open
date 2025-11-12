@@ -46,7 +46,7 @@ void Robot::stop() {
     motors.stop();
   }
   if (init_dribling) {
-    dribling.set_speed(0);
+    // dribling.set_speed(0);
     dribling.run();
   }
 }

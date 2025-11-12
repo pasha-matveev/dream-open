@@ -27,7 +27,7 @@ void Field::apply(Robot& robot) const {
     if (idx != -1) {
       apply_seg(idx, robot);
     } else {
-      spdlog::error("Not found any segment by proection");
+      spdlog::error("Not found any segment by intersection");
     }
 
     for (int i = 0; i < points.size(); ++i) {

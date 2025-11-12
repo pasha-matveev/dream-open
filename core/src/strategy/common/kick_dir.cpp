@@ -6,7 +6,6 @@
 void Strategy::kick_dir(Robot& robot, double dir, int power,
                         int forward_timeout, bool curved_rotation,
                         int kick_timeout, double precision) {
-  spdlog::warn("FW: {}", forward_timeout);
   reset_kick = false;
   if (kick_status == "none") {
     spdlog::info("NONE");

@@ -14,7 +14,7 @@ static double target = 0;
 static long long go_time = -1;
 
 static void finish(Robot& robot) {
-  robot.state = RobotState::PAUSE;
+  robot.state = RobotState::RUNNING;
   kickoff_start = -1;
   shot = false;
   fw = false;
@@ -37,7 +37,11 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
   if (robot.emitter) {
     // 1.7
     double alpha = compute_ricochet(robot, left);
-    kick_dir(robot, alpha, 100, 600, true, 1000, 0.01);
+    bool ready = kick_dir(robot, alpha, 100, 600, true, 1000, 0.01);
+    if (ready) {
+      spdlog::info("KICKOFF READY");
+      finish(robot);
+    }
   } else {
     robot.vel = Vec{robot.field_angle + ball.relative_angle}.resize(5);
     robot.rotation = ball.relative_angle;

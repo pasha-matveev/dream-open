@@ -4,10 +4,11 @@
 #include "utils/config.h"
 #include "utils/millis.h"
 
-void Strategy::kick_dir(Robot& robot, double dir, int power,
+bool Strategy::kick_dir(Robot& robot, double dir, int power,
                         int forward_timeout, bool curved_rotation,
                         int kick_timeout, double precision) {
   reset_kick = false;
+  auto old_status = kick_status;
   if (kick_status == "none") {
     spdlog::info("NONE");
     long long passed_time = millis() - robot.first_time;
@@ -72,11 +73,13 @@ void Strategy::kick_dir(Robot& robot, double dir, int power,
       kick_status = "kick";
     }
 
-  } else if (kick_status == "kick") {
+  } else if (kick_status == "kick" || kick_status == "ready") {
     spdlog::info("KICK");
     robot.kicker_force = power;
     robot.dribling = 0;
     robot.rotation = 0;
     robot.vel = {0, 0};
+    kick_status = "ready";
   }
+  return old_status == "ready";
 }

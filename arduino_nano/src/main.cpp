@@ -3,6 +3,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 
+#include "Const.h"
 #include "Robot.h"
 
 constexpr float MIN_VOLTAGE = 12;
@@ -109,7 +110,7 @@ void loop() {
 
   bool mega_kick = false;
   if (test_state || millis() <= test_state_cooldown) {
-    robot.dribling.set_speed(50);
+    robot.dribling.set_speed(ROBOT ? 50 : 40);
   } else if (alive_tm < millis()) {
     // usb не работает
     robot.dribling.set_speed(0);

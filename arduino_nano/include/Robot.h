@@ -9,8 +9,6 @@
 #include "Kicker.h"
 #include "Motors.h"
 
-#define ROBOT 0  // 0 - black robot, 1 - green robot
-
 class Robot {
  private:
   float rel_direction, rel_rotation;

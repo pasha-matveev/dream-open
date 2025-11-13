@@ -103,7 +103,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           // Мяч за нашей зоной, защищаем ворота
           spdlog::info("LONG PROTECT");
           Vec target = compute_contr_point(last_ball, field);
-          drive_target(robot, target, 3);
+          drive_target(robot, target, 20, 100);
           robot.rotation = -robot.field_angle;
         } else if (last_ball.y >= dubins_y) {
           // Мяч в зоне удара, используем dubins_path

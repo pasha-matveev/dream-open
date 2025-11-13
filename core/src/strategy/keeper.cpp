@@ -122,6 +122,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     drive_target(robot, target, 3);
     robot.rotation =
         (last_piter - robot.position).field_angle() - robot.field_angle;
+    robot.dribling = config.strategy.base_dribling;
   }
   last_dubins = cur_dubins;
 }

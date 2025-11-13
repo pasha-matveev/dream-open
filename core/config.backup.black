@@ -1,0 +1,144 @@
+{
+  "tracking": {
+    "enabled": true,
+    "preview": {
+      "enabled": false,
+      "window_name": "Camera"
+    },
+    "camera_id": 0,
+    "retries": 10,
+    "fps": 45,
+    "width": 972,
+    "height": 972,
+    "brightness": 0.15,
+    "radius": 370,
+    "disabled_radius": 110,
+    "center": {
+      "x": 487,
+      "y": 472
+    },
+    "k": 1.26,
+    "ball": {
+      "setup": true,
+      "min_area": 50,
+      "hsv_min": [
+        102,
+        103,
+        93
+      ],
+      "hsv_max": [
+        128,
+        255,
+        255
+      ]
+    },
+    "goal": {
+      "type": "blue",
+      "setup": false,
+      "min_area": 20,
+      "yellow": {
+        "hsv_min": [
+          88,
+          175,
+          175
+        ],
+        "hsv_max": [
+          95,
+          255,
+          255
+        ]
+      },
+      "blue": {
+        "hsv_min": [
+          0,
+          135,
+          81
+        ],
+        "hsv_max": [
+          37,
+          255,
+          255
+        ]
+      }
+    }
+  },
+  "serial": {
+    "enabled": true,
+    "device": "auto",
+    "rate": 115200,
+    "interference": false
+  },
+  "gpio": {
+    "enabled": true,
+    "buzzer": {
+      "enabled": true,
+      "pin": 23
+    },
+    "buttons": {
+      "enabled": true,
+      "pins": [
+        11,
+        9,
+        10
+      ]
+    },
+    "display": {
+      "enabled": false,
+      "device": "/dev/i2c-1",
+      "address": "0x3c",
+      "mode": "img",
+      "img": 1
+    }
+  },
+  "lidar": {
+    "enabled": true,
+    "path": "../lidar/build/bin/main",
+    "calibration": {
+      "enabled": true,
+      "delay": 5000,
+      "threshold": 150,
+      "movement": 10,
+      "angle": 1.5
+    }
+  },
+  "visualization": {
+    "enabled": false,
+    "window_name": "Dream",
+    "frames": 50,
+    "interactive": false
+  },
+  "strategy": {
+    "role": "keeper",
+    "fps": 80,
+    "enabled": true,
+    "base_dribling": 30,
+    "max_dribling": 80,
+    "slow_dribling": 0,
+    "dribling_duration": 600,
+    "dubins": {
+      "attacker_control": false,
+      "keeper_control": true,
+      "radius": 12,
+      "inside_threshold": 2,
+      "bonus": 7,
+      "delta": 0,
+      "threshold": 2,
+      "base_speed": 40,
+      "max_speed": 120,
+      "base_dist": 20,
+      "max_dist": 40,
+      "goal_dist": 10
+    },
+    "attacker_ricochet": {
+      "enabled": false
+    },
+    "target_left": {
+      "x": 91,
+      "y": 240
+    },
+    "target_right": {
+      "x": 91,
+      "y": 240
+    }
+  }
+}

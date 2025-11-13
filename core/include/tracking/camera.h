@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <thread>
 
@@ -16,6 +17,7 @@ class Camera {
 
   Object& ball;
   Object& goal;
+  std::atomic<bool> new_data{false};
 
   void start();
   void stop();

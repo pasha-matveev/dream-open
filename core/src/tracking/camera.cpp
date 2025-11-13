@@ -129,6 +129,8 @@ void Camera::Impl::start() {
         cnt = 0;
         start_time = millis();
       }
+
+      new_data.store(true, std::memory_order_release);
     }
   }
   cam.stopVideo();

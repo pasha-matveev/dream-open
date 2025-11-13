@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 
@@ -28,7 +29,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   if (!lidar_data && config.serial.enabled) {
     robot.predict_position();
   }
-  if (!config.visualization.interactive && ball.visible) {
+  if (!config.visualization.interactive && ball.visible &&
+      robot.camera->new_data.exchange(false, std::memory_order_acq_rel)) {
     ball.compute_field_position(robot);
   }
 

@@ -1,13 +1,15 @@
 #pragma once
 #include <Arduino.h>
 
+#include "Const.h"
+
 class Kicker {
  private:
   unsigned long long charge_tm = 0;
   unsigned long long kick_tm = 0;
   int min_kick_delay = 0;
   int min_delay = 500;
-  int max_delay = 21000;
+  int max_delay = ROBOT ? 21000 : 21000;
   int kick_pin = 7;
   int charge_pin = 4;
 

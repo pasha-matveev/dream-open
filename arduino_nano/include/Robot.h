@@ -29,6 +29,7 @@ class Robot {
   void run();
   void stop();
   void reset();
+
   float direction = 0;
   float speed = 0;
   float rotation = 0;

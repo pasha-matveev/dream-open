@@ -8,23 +8,6 @@
 #include "strategy/strategy.h"
 #include "utils/config.h"
 
-static constexpr int REAL_WIDTH = 182;
-static constexpr int REAL_HEIGHT = 243;
-static constexpr double K = 3;
-static constexpr int SFML_WIDTH = REAL_WIDTH * K;
-static constexpr int SFML_HEIGHT = REAL_HEIGHT * K;
-static const sf::Color zone_color(255, 165, 0);
-
-Visualization::Visualization() {
-  window =
-      sf::RenderWindow(sf::VideoMode({(uint)SFML_WIDTH, (uint)SFML_HEIGHT}),
-                       config.visualization.window_name);
-  window.setFramerateLimit(config.visualization.frames);
-}
-
-static constexpr double cm_to_px(double x) { return x * K; }
-static constexpr double px_to_cm(double x) { return x / K; }
-
 Vec toSFML(Vec r) {
   Vec v = {cm_to_px(r.x), cm_to_px(r.y)};
   return {v.x, SFML_HEIGHT - v.y};
@@ -35,17 +18,26 @@ Vec toReal(Vec s) {
   return {px_to_cm(v.x), px_to_cm(v.y)};
 }
 
+std::unique_ptr<sf::RenderWindow> sfml_window;
+
+Visualization::Visualization() {
+  sfml_window = std::make_unique<sf::RenderWindow>(
+      sf::VideoMode({(uint)SFML_WIDTH, (uint)SFML_HEIGHT}),
+      config.visualization.window_name);
+  sfml_window->setFramerateLimit(config.visualization.frames);
+}
+
+Visualization::~Visualization() {
+  if (sfml_window) {
+    if (sfml_window->isOpen()) {
+      sfml_window->close();
+    }
+    sfml_window.reset();
+  }
+}
+
 bool override_ball = false;
 Vec ball_a{0, 0};
-
-static constexpr double REAL_BALL_R = 2.1;
-static constexpr double REAL_ROBOT_R = 9;
-static constexpr int BALL_R = cm_to_px(REAL_BALL_R);
-static constexpr int ROBOT_R = cm_to_px(REAL_ROBOT_R);
-static constexpr int MIN_BALL_X = 0 + BALL_R;
-static constexpr int MAX_BALL_X = REAL_WIDTH - BALL_R;
-static constexpr int MIN_BALL_Y = 0 + BALL_R;
-static constexpr int MAX_BALL_Y = REAL_HEIGHT - BALL_R;
 
 void Visualization::draw_polygon(const Polygon& field, const sf::Color& color) {
   sf::ConvexShape shape(field.points.size());
@@ -55,32 +47,44 @@ void Visualization::draw_polygon(const Polygon& field, const sf::Color& color) {
   shape.setOutlineColor(color);
   shape.setOutlineThickness(2);
   shape.setFillColor(sf::Color::Transparent);
-  window.draw(shape);
+  if (!sfml_window) {
+    return;
+  }
+  sfml_window->draw(shape);
+}
+
+void Visualization::begin() {
+  if (!running()) return;
+  sfml_window->clear({2, 179, 46});
+}
+
+bool Visualization::running() {
+  if (closed) return false;
+  if (!sfml_window || !sfml_window->isOpen()) {
+    spdlog::info("Window is already closed, visualization not available");
+    closed = true;
+    return false;
+  }
+  while (const std::optional event = sfml_window->pollEvent()) {
+    if (event->is<sf::Event::Closed>()) {
+      spdlog::info("Closing visualization window");
+      sfml_window->close();
+      return false;
+    }
+  }
+  return true;
 }
 
 void Visualization::run(Robot& robot, Object& ball, Object& goal,
                         const Field& field) {
-  if (!window.isOpen()) {
-    spdlog::info("Window is already closed, visualization not available");
-    closed = true;
-    return;
-  }
-
-  while (const std::optional event = window.pollEvent()) {
-    if (event->is<sf::Event::Closed>()) {
-      spdlog::info("Closing visualization window");
-      window.close();
-    }
-  }
-  window.clear({2, 179, 46});
-
+  if (!running()) return;
   draw_polygon(field, sf::Color::White);
   draw_polygon(left_attacker_r, zone_color);
   draw_polygon(right_attacker_r, zone_color);
 
   if (config.visualization.interactive &&
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-    Vec mouse_position = sf::Mouse::getPosition(window);
+    Vec mouse_position = sf::Mouse::getPosition(*sfml_window);
     override_ball = true;
     ball.field_position = toReal(mouse_position);
     ball_a = {0, 0};
@@ -152,7 +156,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     robot_shape.setFillColor(sf::Color(0, 0, 0));
     Vec robot_point = toSFML(robot.position);
     robot_shape.setPosition(robot_point - Vec{ROBOT_R, ROBOT_R});
-    window.draw(robot_shape);
+    sfml_window->draw(robot_shape);
     // draw hole
     auto hole_shape = sf::CircleShape(BALL_R);
     hole_shape.setFillColor({2, 179, 46});
@@ -160,7 +164,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
                 -1 * cos(robot.field_angle) * ROBOT_R};
     Vec hole_point = robot_point + move;
     hole_shape.setPosition(hole_point - Vec{BALL_R, BALL_R});
-    window.draw(hole_shape);
+    sfml_window->draw(hole_shape);
   }
 
   if (ball.visible) {
@@ -168,8 +172,8 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     ball_shape.setFillColor(sf::Color(0, 0, 255));
     Vec point = toSFML(ball.field_position) - Vec{BALL_R, BALL_R};
     ball_shape.setPosition(point);
-    window.draw(ball_shape);
+    sfml_window->draw(ball_shape);
   }
 
-  window.display();
+  sfml_window->display();
 }

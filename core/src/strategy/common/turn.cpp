@@ -13,7 +13,6 @@ bool Strategy::turn(Robot& robot, double target_angle, bool curved_rotation,
   double delta = target_angle - robot.field_angle;
   long long passed = millis() - turn_time;
   double k = min(1.0, (double)passed / UP_TIME);
-  cout << "K: " << k << endl;
   if (curved_rotation) {
     if (abs(delta) <= 0.035) {
       robot.vel = {0, 0};

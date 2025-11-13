@@ -116,6 +116,9 @@ int main() {
   };
 
   while (!stop_requested) {
+    if (config.visualization.enabled) {
+      visualization->begin();
+    }
     long long cycle_start = millis();
     st = millis();
     if (config.serial.enabled) {

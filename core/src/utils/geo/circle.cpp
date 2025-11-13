@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "strategy/visualization.h"
+
 using namespace std;
 
 bool Circle::inside(const Vec& p) const { return (p - center).len2() <= r * r; }
@@ -38,4 +40,18 @@ Vec Circle::tangent_right(const Vec& p) const {
   assert(d.x == d.x);
   Vec t = p + d;
   return t;
+}
+
+void Circle::draw() const {
+  if (!sfml_window || !sfml_window->isOpen()) {
+    return;
+  }
+
+  auto sfml_r = cm_to_px(r);
+  auto shape = sf::CircleShape(sfml_r);
+  shape.setPosition(toSFML(center) - Vec{sfml_r, sfml_r});
+  shape.setOutlineColor(sf::Color(255, 0, 0));
+  shape.setOutlineThickness(2);
+  shape.setFillColor(sf::Color::Transparent);
+  sfml_window->draw(shape);
 }

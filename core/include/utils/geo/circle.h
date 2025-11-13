@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
+
 #include "utils/geo/vec.h"
 
 class Circle {
@@ -15,4 +17,5 @@ class Circle {
   double dist(const Vec& p) const;
   Vec tangent_left(const Vec& p) const;
   Vec tangent_right(const Vec& p) const;
+  void draw() const;
 };

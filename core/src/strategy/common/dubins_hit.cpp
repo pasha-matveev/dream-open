@@ -43,6 +43,8 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
 
   Circle& circle = left ? left_circle : right_circle;
 
+  circle.draw();
+
   double angle = normalize_angle(dir.field_angle() - last_ball_relative -
                                  robot.field_angle);
 
@@ -70,13 +72,13 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
     //     config.strategy.dubins.inside_threshold) {
     //   // Мы глубоко внутри круга
     // }
-    Vec dir = circle.center - robot.position;
+    Vec center_dir = circle.center - robot.position;
     if (left) {
-      dir = dir.turn_right();
+      center_dir = center_dir.turn_right();
     } else {
-      dir = dir.turn_left();
+      center_dir = center_dir.turn_left();
     }
-    vel = dir.resize(speed);
+    vel = center_dir.resize(speed);
   } else {
     // Едем к кругу по касательной
     Vec t;
@@ -91,8 +93,8 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   robot.vel = vel;
   double target_relative =
       normalize_angle(dir.field_angle() - robot.field_angle);
-  // robot.rotation =
-  //     normalize_angle(last_ball_relative / 2 + target_relative / 2);
-  robot.rotation = target_relative;
+  robot.rotation =
+      normalize_angle(last_ball_relative / 2 + target_relative / 2);
+  // robot.rotation = target_relative;
   robot.rotation_limit = 30;
 }

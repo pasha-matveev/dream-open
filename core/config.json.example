@@ -115,6 +115,8 @@
     "slow_dribling": 0,
     "dribling_duration": 600,
     "dubins": {
+      "attacker_control": false,
+      "keeper_control": false,
       "radius": 12,
       "inside_threshold": 2,
       "bonus": 5,

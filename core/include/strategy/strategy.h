@@ -58,7 +58,7 @@ class Strategy {
   bool reset_dubins = false;
   Vec dubins_ball;
   DubinsSide dubins_side = DubinsSide::NONE;
-  void dubins_hit(Robot& robot, Object& goal, int power);
+  void dubins_hit(Robot& robot, Object& goal, int power, bool control);
 
   // different strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal, const Field& field);

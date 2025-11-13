@@ -126,7 +126,9 @@ void load_config() {
   loaded.strategy.dribling_duration = strategy["dribling_duration"].GetInt();
 
   const auto& dubins = strategy["dubins"];
-
+  loaded.strategy.dubins.attacker_control =
+      dubins["attacker_control"].GetBool();
+  loaded.strategy.dubins.keeper_control = dubins["keeper_control"].GetBool();
   loaded.strategy.dubins.radius = dubins["radius"].GetDouble();
   loaded.strategy.dubins.inside_threshold =
       dubins["inside_threshold"].GetDouble();

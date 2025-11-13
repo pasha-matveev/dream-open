@@ -99,7 +99,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     } else {
       if (ball_ok) {
         // Видим мяч
-        if (!field.inside(last_ball)) {
+        if (last_ball.y >= 70) {
           // Мяч за нашей зоной, защищаем ворота
           spdlog::info("LONG PROTECT");
           Vec target = compute_contr_point(last_ball, field);
@@ -110,6 +110,10 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           spdlog::info("DUBINS PROTECT");
           cur_dubins = true;
           dubins_hit(robot, goal, 100, config.strategy.dubins.keeper_control);
+        } else if (last_ball.y > robot.position.y) {
+          spdlog::info("RAM");
+          drive_target(robot, last_ball, 3, 120, 50);
+          robot.rotation = -robot.field_angle;
         } else {
           // Мяч близко, бьем как обычно
           spdlog::info("NEAR PROTECT");

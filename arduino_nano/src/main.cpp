@@ -109,7 +109,7 @@ void loop() {
 
   bool mega_kick = false;
   if (test_state || millis() <= test_state_cooldown) {
-    robot.dribling.set_speed(100);
+    robot.dribling.set_speed(50);
   } else if (alive_tm < millis()) {
     // usb не работает
     robot.dribling.set_speed(0);

@@ -21,6 +21,8 @@ volatile std::sig_atomic_t stop_requested = 0;
 void handle_signal(int) { stop_requested = 1; }
 }  // namespace
 
+constexpr int BDR = 20;
+
 int main() {
   std::signal(SIGINT, handle_signal);
   std::signal(SIGTERM, handle_signal);
@@ -34,12 +36,27 @@ int main() {
   // 11 7
   if (config.strategy.role == "keeper" || config.strategy.role == "challenge") {
     spdlog::info("Running as keeper");
-    field_points = {{16, 16},   {16, 231},  {51, 231},  {51, 221},  {55, 213},
-                    {66, 206},  {116, 206}, {127, 213}, {131, 221}, {131, 231},
-                    {166, 231},
+    field_points = {{BDR, BDR},
+                    {BDR, 243 - BDR},
+                    {51, 243 - BDR},
+                    {51, 221},
+                    {55, 213},
+                    {66, 206},
+                    {116, 206},
+                    {127, 213},
+                    {131, 221},
+                    {131, 243 - BDR},
+                    {182 - BDR, 243 - BDR},
 
-                    {166, 16},  {131, 16},  {131, 22},  {127, 30},  {116, 37},
-                    {66, 37},   {55, 30},   {51, 22},   {51, 16}};
+                    {182 - BDR, BDR},
+                    {131, BDR},
+                    {131, 22},
+                    {127, 30},
+                    {116, 37},
+                    {66, 37},
+                    {55, 30},
+                    {51, 22},
+                    {51, BDR}};
   } else {
     spdlog::info("Running as attacker");
     field_points = {{16, 80},   {16, 231},  {51, 231},  {51, 221},

@@ -53,7 +53,7 @@ void Visualization::draw_polygon(const Polygon& field, const sf::Color& color) {
     shape.setPoint(i, toSFML(field.points[i]));
   }
   shape.setOutlineColor(color);
-  shape.setOutlineThickness(5);
+  shape.setOutlineThickness(2);
   shape.setFillColor(sf::Color::Transparent);
   window.draw(shape);
 }

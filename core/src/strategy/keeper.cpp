@@ -74,7 +74,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   bool piter_ok = piter_visible_tm <= 2000;
 
   bool is_piter;
-  if (ball.visible || robot.emitter) {
+  if (ball.field_visible || robot.emitter) {
     is_piter = false;
   } else if (!piter_ok && ball_ok) {
     is_piter = false;

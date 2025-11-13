@@ -14,7 +14,8 @@ class Object {
 
   double override_dist = -1;
   cv::Mat mask;
-  bool visible = false;
+  bool camera_visible = false;
+  bool field_visible = false;
   double radius;
   Vec camera_point;
   double relative_angle;

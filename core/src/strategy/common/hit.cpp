@@ -4,7 +4,7 @@ void Strategy::hit(Robot& robot, Object& goal, int power, int forward_timeout,
                    bool curved_rotation, int kick_timeout, double precision,
                    bool ac_dribling) {
   double target_angle;
-  if (goal.visible) {
+  if (goal.camera_visible) {
     target_angle = normalize_angle(goal.relative_angle);
   } else {
     Vec center{91, 237};

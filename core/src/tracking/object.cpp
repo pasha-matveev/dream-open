@@ -48,7 +48,7 @@ void Object::find(const cv::Mat& frame) {
   cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
   if (contours.empty()) {
-    visible = false;
+    camera_visible = false;
     return;
   }
 
@@ -63,11 +63,11 @@ void Object::find(const cv::Mat& frame) {
   }
 
   if (mx_area < min_area) {
-    visible = false;
+    camera_visible = false;
     return;
   }
 
-  visible = true;
+  camera_visible = true;
   cv::Point2f point_center;
   float float_radius;
   cv::minEnclosingCircle(contours[j], point_center, float_radius);
@@ -96,7 +96,7 @@ void Object::draw(cv::Mat& frame) {
 
     return;
   }
-  if (!visible) {
+  if (!camera_visible) {
     return;
   }
   cv::circle(frame, center, radius, 100, 10);
@@ -112,6 +112,11 @@ double Object::get_cm() {
 }
 
 void Object::compute_field_position(const Robot& robot) {
+  if (!camera_visible) {
+    field_visible = false;
+    return;
+  }
+  field_visible = true;
   double ball_angle = normalize_angle(robot.field_angle + relative_angle);
   Vec offset{-1 * sin(ball_angle) * get_cm(), cos(ball_angle) * get_cm()};
   field_position = robot.position + offset;
@@ -119,6 +124,6 @@ void Object::compute_field_position(const Robot& robot) {
       field_position.y < -10 || field_position.y > 243 + 40) {
     spdlog::warn("Wrong object position: {} {}", field_position.x,
                  field_position.y);
-    visible = false;
+    field_visible = false;
   }
 }

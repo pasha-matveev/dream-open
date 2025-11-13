@@ -30,7 +30,7 @@ void Strategy::attacker_simple(Robot& robot, Object& goal) {
 }
 
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
-  const int BORDER = 70;
+  const int BORDER = -100;
 
   if (robot.emitter) {
     // Взяли мяч

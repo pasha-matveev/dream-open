@@ -29,12 +29,11 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
   if (!lidar_data && config.serial.enabled) {
     robot.predict_position();
   }
-  if (!config.visualization.interactive && ball.visible &&
-      robot.camera->new_data()) {
+  if (!config.visualization.interactive && robot.camera->new_data()) {
     ball.compute_field_position(robot);
   }
 
-  if (ball.visible) {
+  if (ball.field_visible) {
     last_ball_visible = millis();
     last_ball = ball.field_position;
     last_ball_relative = ball.relative_angle;

@@ -104,6 +104,7 @@ struct Config {
     int dribling_duration;
     struct Dubins {
       double radius;
+      double inside_threshold;
       double bonus;
       double delta;
       double threshold;

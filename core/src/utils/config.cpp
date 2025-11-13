@@ -128,6 +128,8 @@ void load_config() {
   const auto& dubins = strategy["dubins"];
 
   loaded.strategy.dubins.radius = dubins["radius"].GetDouble();
+  loaded.strategy.dubins.inside_threshold =
+      dubins["inside_threshold"].GetDouble();
   loaded.strategy.dubins.bonus = dubins["bonus"].GetDouble();
   loaded.strategy.dubins.delta = dubins["delta"].GetDouble();
   loaded.strategy.dubins.threshold = dubins["threshold"].GetDouble();

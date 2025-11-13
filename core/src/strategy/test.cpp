@@ -20,6 +20,6 @@ void Strategy::run_test_dribling(Robot& robot) {
 
 void Strategy::run_test(Robot& robot, Object& goal) {
   if (millis() - last_ball_visible <= 50) {
-    dubins_hit(robot, goal);
+    dubins_hit(robot, goal, 30);
   }
 }

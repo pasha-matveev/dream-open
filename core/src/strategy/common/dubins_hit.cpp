@@ -51,6 +51,10 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power) {
   } else if (circle.inside(robot.position) ||
              circle.dist(robot.position) <= 0) {
     // Внутри круга / на круге
+    // if (abs(circle.dist(robot.position)) >=
+    //     config.strategy.dubins.inside_threshold) {
+    //   // Мы глубоко внутри круга
+    // }
     Vec dir = circle.center - robot.position;
     if (left) {
       dir = dir.turn_right();

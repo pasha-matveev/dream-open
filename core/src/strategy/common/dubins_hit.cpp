@@ -3,7 +3,7 @@
 #include "utils/geo/circle.h"
 #include "utils/nmap.h"
 
-void Strategy::dubins_hit(Robot& robot, Object& goal, int power) {
+void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   robot.dribling = config.strategy.base_dribling;
 
   reset_dubins = false;
@@ -51,12 +51,14 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power) {
       config.strategy.dubins.base_speed, config.strategy.dubins.max_speed);
   Vec vel;
   if (robot.emitter) {
-    // kick_dir(robot, dir.field_angle() - robot.field_angle, power, true, 0,
-    //  0.02);
-    hit(robot, goal, power, 400, true, 0, 0.03, false);
-    // robot.kicker_force = power;
-    reset_dubins = true;
-    return;
+    if (control) {
+      hit(robot, goal, power, 400, true, 0, 0.03, false);
+      reset_dubins = true;
+      return;
+    } else if (abs(angle) <= 0.5) {
+      robot.kicker_force = power;
+      return;
+    }
   }
   if (abs(angle) <= 0.04) {
     // Едем напрямую к мячу

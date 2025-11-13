@@ -5,6 +5,7 @@
 #include <optional>
 
 #include "strategy/strategy.h"
+#include "utils/config.h"
 #include "utils/millis.h"
 
 using namespace std;
@@ -24,7 +25,7 @@ static optional<Vec> nearest_obstacle(Robot& robot) {
   return nearest_obstacle;
 }
 
-static Vec compute_point(const Vec& p, const Field& field) {
+static Vec compute_radial(const Vec& p, const Field& field) {
   Vec fallback = {clamp(p.x, 30.0, 150.0), 35.0};
   Vec center{91.0, 0.0};
   Vec dir = p - center;
@@ -39,8 +40,21 @@ static Vec compute_point(const Vec& p, const Field& field) {
   return res;
 }
 
+static Vec compute_contr_point(const Vec& p, const Field& field) {
+  if (p.y > 35) {
+    // Точка сверху, стоим на проекции
+    double x = clamp<double>(p.x, 12 + 39, 182 - 12 - 39);
+    return {x, 35.0};
+  } else {
+    // Точка внизу, стоим на окружности
+    return compute_radial(p, field);
+  }
+}
+
 static long long last_piter_visible = -10000;
 static Vec last_piter;
+static bool last_dubins = false;
+static const int dubins_y = 12 + 28;
 
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           const Field& field) {
@@ -62,53 +76,52 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   } else if (!piter_ok && ball_ok) {
     is_piter = false;
   } else {
-    is_piter = false;
+    is_piter = piter_ok;
   }
+
+  bool cur_dubins = false;
   if (!is_piter) {
-    if (ball_ok && last_ball.y < 90) {
-      active_def = true;
-    } else if (last_ball.y > 95) {
-      active_def = false;
-    }
-
     if (robot.emitter) {
-      active_def = true;
-      last_ball = robot.ball_hole_position();
-    }
-
-    if (active_def) {
-      if (robot.emitter) {
-        spdlog::info("HIT");
-        hit(robot, goal, 100);
+      // Мяч в лунке
+      if (last_dubins) {
+        // Подъехали по dubins, продолжаем использовать эту стратегию
+        cur_dubins = true;
+        dubins_hit(robot, goal, 100, config.strategy.dubins.keeper_control);
       } else {
-        spdlog::info("DRIVE");
-        drive_ball(robot, last_ball);
+        // Просто целимся и стреляем
+        hit(robot, goal, 100, 200, true, 0, 0.02, true);
       }
     } else {
-      spdlog::info("PASSIVE");
-      Vec target;
       if (ball_ok) {
-        target = compute_point(last_ball, field);
+        // Видим мяч
+        if (!field.inside(last_ball)) {
+          // Мяч за нашей зоной, защищаем ворота
+          Vec target = compute_contr_point(last_ball, field);
+          drive_target(robot, target, 3);
+          robot.rotation = last_ball_relative;
+        } else if (last_ball.y >= dubins_y) {
+          // Мяч в зоне удара, используем dubins_path
+          cur_dubins = true;
+          dubins_hit(robot, goal, 100, config.strategy.dubins.keeper_control);
+        } else {
+          // Мяч близко, бьем как обычно
+          drive_ball(robot, last_ball);
+        }
       } else {
-        target = {91.0, 52.0};
-      }
-      drive_target(robot, target, 4);
-      if (ball_ok) {
-        robot.rotation =
-            (last_ball - robot.position).field_angle() - robot.field_angle;
-      } else {
+        // Не видим мяч
+        Vec target{91, 35};
+        drive_target(robot, target, 2);
         robot.rotation = -robot.field_angle;
       }
     }
   } else {
+    // Контрим питер
     spdlog::info("CONTR");
     Vec target;
-    if (piter_ok) {
-      target = compute_point(last_piter, field);
-    } else {
-      target = {91.0, 52.0};
-    }
+    target = compute_radial(last_piter, field);
     drive_target(robot, target, 3);
-    robot.rotation = -robot.field_angle;
+    robot.rotation =
+        (last_piter - robot.position).field_angle() - robot.field_angle;
   }
+  last_dubins = cur_dubins;
 }

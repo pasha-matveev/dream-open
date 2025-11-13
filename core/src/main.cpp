@@ -36,27 +36,34 @@ int main() {
   // 11 7
   if (config.strategy.role == "keeper" || config.strategy.role == "challenge") {
     spdlog::info("Running as keeper");
-    field_points = {{BDR, BDR},
-                    {BDR, 243 - BDR},
-                    {51, 243 - BDR},
-                    {51, 221},
-                    {55, 213},
-                    {66, 206},
-                    {116, 206},
-                    {127, 213},
-                    {131, 221},
-                    {131, 243 - BDR},
-                    {182 - BDR, 243 - BDR},
+    const int AX = 35;
+    const int BX = 45;
+    const int CX = 55;
+    const int CY = 30;
+    field_points = {{AX, 20},       {AX, 60},       {182 - AX, 60},
+                    {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},
+                    {CX, CY},       {BX, 20},       {AX, 20}};
+    // field_points = {{BDR, BDR},
+    //                 {BDR, 243 - BDR},
+    //                 {51, 243 - BDR},
+    //                 {51, 221},
+    //                 {55, 213},
+    //                 {66, 206},
+    //                 {116, 206},
+    //                 {127, 213},
+    //                 {131, 221},
+    //                 {131, 243 - BDR},
+    //                 {182 - BDR, 243 - BDR},
 
-                    {182 - BDR, BDR},
-                    {131, BDR},
-                    {131, 22},
-                    {127, 30},
-                    {116, 37},
-                    {66, 37},
-                    {55, 30},
-                    {51, 22},
-                    {51, BDR}};
+    //                 {182 - BDR, BDR},
+    //                 {131, BDR},
+    //                 {131, 22},
+    //                 {127, 30},
+    //                 {116, 37},
+    //                 {66, 37},
+    //                 {55, 30},
+    //                 {51, 22},
+    //                 {51, BDR}};
   } else {
     spdlog::info("Running as attacker");
     field_points = {{16, 80},   {16, 231},  {51, 231},  {51, 221},

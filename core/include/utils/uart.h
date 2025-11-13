@@ -24,7 +24,7 @@ class UART {
   T read_data() {
     assert(serial.good());
     while (!serial.IsDataAvailable()) {
-      std::this_thread::sleep_for(chrono::milliseconds(10));
+      std::this_thread::sleep_for(chrono::microseconds(100));
     }
     const int SZ = sizeof(T);
     char buffer[SZ];

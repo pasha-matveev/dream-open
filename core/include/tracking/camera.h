@@ -17,9 +17,9 @@ class Camera {
 
   Object& ball;
   Object& goal;
-  std::atomic<bool> new_data{false};
 
   void start();
   void stop();
   void show_preview();
+  bool new_data();
 };

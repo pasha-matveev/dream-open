@@ -30,7 +30,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
     robot.predict_position();
   }
   if (!config.visualization.interactive && ball.visible &&
-      robot.camera->new_data.exchange(false, std::memory_order_acq_rel)) {
+      robot.camera->new_data()) {
     ball.compute_field_position(robot);
   }
 

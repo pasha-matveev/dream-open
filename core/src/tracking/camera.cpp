@@ -30,6 +30,7 @@ struct Camera::Impl {
   Object& goal;
   bool preview_ready = false;
   std::atomic<bool> running{true};
+  std::atomic<bool> new_data{false};
 
   void start();
   void analyze();
@@ -143,6 +144,7 @@ void Camera::start() {
   }
   if (impl) {
     impl->running.store(true);
+    impl->new_data.store(false, std::memory_order_release);
   }
   camera_thread = thread(&Impl::start, &(*impl));
 }
@@ -154,6 +156,13 @@ void Camera::stop() {
   if (camera_thread.joinable()) {
     camera_thread.join();
   }
+}
+
+bool Camera::new_data() {
+  if (!impl) {
+    return false;
+  }
+  return impl->new_data.exchange(false, std::memory_order_acq_rel);
 }
 
 Camera::~Camera() { stop(); }

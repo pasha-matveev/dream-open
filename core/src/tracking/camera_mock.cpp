@@ -12,3 +12,5 @@ void Camera::start() {}
 void Camera::stop() {}
 
 void Camera::show_preview() {}
+
+bool Camera::new_data() { return false; }

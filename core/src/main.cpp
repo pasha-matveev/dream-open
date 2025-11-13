@@ -39,7 +39,7 @@ int main() {
     const int AX = 35;
     const int BX = 45;
     const int CX = 53;
-    const int CY = 34;
+    const int CY = 35;
     const int MY = 70;
     field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
                     {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},

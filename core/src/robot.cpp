@@ -118,6 +118,10 @@ void Robot::init_gyro() {
   top_angle = normalize_angle2(gyro_angle);
 }
 
+void Robot::calibrate() {
+  top_angle = normalize_angle(gyro_angle - field_angle);
+}
+
 bool Robot::compute_lidar() {
   if (!lidar) return false;
   auto res = lidar->compute(*this);
@@ -168,7 +172,7 @@ bool Robot::compute_lidar() {
       continue;
     }
     // Все нормально, калибруемся
-    top_angle = normalize_angle(gyro_angle - field_angle);
+    calibrate();
     lidar_history.pop();
     break;
   }

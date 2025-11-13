@@ -37,18 +37,22 @@ class Strategy {
                     double max_speed = 120, double min_speed = 1.0);
   void drive_ball(Robot& robot, const Vec& ball);
   void accelerated_dribbling(Robot& robot);
+  void desired_dribling(Robot& robot, bool ac_dribling);
   bool kick_dir(Robot& robot, double dir, int power = 70,
                 int forward_timeout = 600, bool curved_rotation = true,
-                int kick_timeout = 0, double precision = 0.015);
+                int kick_timeout = 0, double precision = 0.015,
+                bool ac_dribling = true);
   bool take_ball(Robot& robot, long long forward_timeout);
 
   bool reset_turn = false;
   long long turn_time = -1;
-  bool turn(Robot& robot, double target_angle, bool curved_rotation);
+  bool turn(Robot& robot, double target_angle, bool curved_rotation,
+            bool ac_dribling = true);
 
   void hit(Robot& robot, Object& goal, int power = 70,
            int forward_timeout = 600, bool curved_rotation = true,
-           int kick_timeout = 0, double precision = 0.015);
+           int kick_timeout = 0, double precision = 0.015,
+           bool ac_dribling = true);
   double compute_ricochet(Robot& robot, bool left);
 
   bool reset_dubins = false;

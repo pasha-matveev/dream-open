@@ -76,6 +76,7 @@ class Robot {
   void init_hardware(Object& ball, Object& goal);
 
   bool compute_lidar();
+  void calibrate();
   void compute_gyro_angle();
 
   void read_from_arduino();

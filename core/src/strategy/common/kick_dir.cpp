@@ -6,7 +6,7 @@
 
 bool Strategy::kick_dir(Robot& robot, double dir, int power,
                         int forward_timeout, bool curved_rotation,
-                        int kick_timeout, double precision) {
+                        int kick_timeout, double precision, bool ac_dribling) {
   reset_kick = false;
   auto old_status = kick_status;
   if (kick_status == "none") {
@@ -19,13 +19,14 @@ bool Strategy::kick_dir(Robot& robot, double dir, int power,
       Vec vel{-1 * sin(robot.field_angle) * 10.0 * left_time / forward_timeout,
               cos(robot.field_angle) * 10.0 * left_time / forward_timeout};
       robot.vel = vel;
-      accelerated_dribbling(robot);
+      desired_dribling(robot, ac_dribling);
       robot.rotation_limit = 0;
     }
 
   } else if (kick_status == "rotate") {
     spdlog::info("ROTATE");
-    bool finished = turn(robot, robot.field_angle + dir, curved_rotation);
+    bool finished =
+        turn(robot, robot.field_angle + dir, curved_rotation, ac_dribling);
 
     if (finished) {
       if (kick_timeout) {

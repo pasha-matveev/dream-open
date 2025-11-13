@@ -3,7 +3,8 @@
 
 constexpr int UP_TIME = 300;
 
-bool Strategy::turn(Robot& robot, double target_angle, bool curved_rotation) {
+bool Strategy::turn(Robot& robot, double target_angle, bool curved_rotation,
+                    bool ac_dribling) {
   reset_turn = false;
   if (turn_time == -1) {
     turn_time = millis();
@@ -36,7 +37,7 @@ bool Strategy::turn(Robot& robot, double target_angle, bool curved_rotation) {
     robot.rotation_limit = 15.0 * k;
   }
   robot.rotation = delta;
-  accelerated_dribbling(robot);
+  desired_dribling(robot, ac_dribling);
   if (abs(delta) <= 0.015) {
     // поворот закончен
     return true;

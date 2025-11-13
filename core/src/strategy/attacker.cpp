@@ -34,6 +34,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
   if (robot.emitter) {
     // Взяли мяч
     if (last_dubins) {
+      spdlog::info("HIT DUBINS");
       // Подъехали по окружности, используем удар оттуда
       dubins_hit(robot, goal, compute_power(robot.position.y));
     } else {

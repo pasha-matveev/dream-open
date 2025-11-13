@@ -1,7 +1,8 @@
 #include "strategy/strategy.h"
 
 void Strategy::hit(Robot& robot, Object& goal, int power, int forward_timeout,
-                   bool curved_rotation, int kick_timeout, double precision) {
+                   bool curved_rotation, int kick_timeout, double precision,
+                   bool ac_dribling) {
   double target_angle;
   if (goal.visible) {
     target_angle = normalize_angle(goal.relative_angle);
@@ -12,5 +13,5 @@ void Strategy::hit(Robot& robot, Object& goal, int power, int forward_timeout,
         normalize_angle(simple_route.field_angle() - robot.field_angle);
   }
   kick_dir(robot, target_angle, power, forward_timeout, curved_rotation,
-           kick_timeout, precision);
+           kick_timeout, precision, ac_dribling);
 }

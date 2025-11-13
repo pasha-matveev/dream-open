@@ -4,7 +4,7 @@
 #include "utils/nmap.h"
 
 void Strategy::dubins_hit(Robot& robot, Object& goal, int power) {
-  robot.dribling = 40;
+  robot.dribling = config.strategy.base_dribling;
 
   reset_dubins = false;
   double dist = (last_ball - robot.position).len();
@@ -50,12 +50,15 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power) {
       dist, config.strategy.dubins.base_dist, config.strategy.dubins.max_dist,
       config.strategy.dubins.base_speed, config.strategy.dubins.max_speed);
   Vec vel;
-  if (abs(angle) <= 0.2 && robot.emitter) {
-    robot.kicker_force = power;
+  if (robot.emitter) {
+    // kick_dir(robot, dir.field_angle() - robot.field_angle, power, true, 0,
+    //  0.02);
+    hit(robot, goal, power, 400, true, 0, 0.03, false);
+    // robot.kicker_force = power;
     reset_dubins = true;
     return;
   }
-  if (abs(angle) <= 0.05) {
+  if (abs(angle) <= 0.04) {
     // Едем напрямую к мячу
     vel = last_ball - robot.position;
   } else if (circle.inside(robot.position) ||

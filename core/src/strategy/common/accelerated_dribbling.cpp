@@ -9,3 +9,11 @@ void Strategy::accelerated_dribbling(Robot& robot) {
           ((millis() - robot.first_time) / config.strategy.dribling_duration);
   robot.dribling = min(100.0, power);
 }
+
+void Strategy::desired_dribling(Robot& robot, bool ac_dribling) {
+  if (ac_dribling) {
+    accelerated_dribbling(robot);
+  } else {
+    robot.dribling = config.strategy.base_dribling;
+  }
+}

@@ -3,9 +3,9 @@
 #include "utils/geo/circle.h"
 #include "utils/nmap.h"
 
-void Strategy::dubins_hit(Robot& robot, Object& goal) {
+void Strategy::dubins_hit(Robot& robot, Object& goal, int power) {
   if (robot.emitter) {
-    robot.kicker_force = 30;
+    robot.kicker_force = power;
     return;
   }
   reset_dubins = false;
@@ -57,8 +57,7 @@ void Strategy::dubins_hit(Robot& robot, Object& goal) {
     } else {
       dir = dir.turn_left();
     }
-    // TODO: speed
-    vel = dir.resize(40);
+    vel = dir.resize(speed);
   } else {
     // Едем к кругу по касательной
     Vec t;
@@ -67,7 +66,6 @@ void Strategy::dubins_hit(Robot& robot, Object& goal) {
     } else {
       t = right_circle.tangent_left(robot.position);
     }
-    // cout << t.x << " " << t.y << endl;
     vel = (t - robot.position);
   }
   vel = vel.resize(speed);

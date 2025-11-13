@@ -10,6 +10,10 @@ const Polygon left_attacker_r{{{0, 194}, {0, 243}, {91, 243}}};
 const Polygon right_attacker_r{{{91, 243}, {182, 243}, {182, 194}}};
 enum class DubinsSide { NONE, LEFT, RIGHT };
 
+constexpr double DL = 26;
+const Field dubins_field{
+    {{DL, DL}, {DL, 243 - DL}, {182 - DL, 243 - DL}, {182 - DL, DL}}};
+
 class Strategy {
  private:
   string role;
@@ -50,7 +54,7 @@ class Strategy {
   bool reset_dubins = false;
   Vec dubins_ball;
   DubinsSide dubins_side = DubinsSide::NONE;
-  void dubins_hit(Robot& robot, Object& goal);
+  void dubins_hit(Robot& robot, Object& goal, int power);
 
   // different strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal, const Field& field);

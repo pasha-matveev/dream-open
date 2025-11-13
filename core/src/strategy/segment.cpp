@@ -61,7 +61,7 @@ void Segment::apply(Robot& robot) const {
 
   double vx = robot.vel.proection(ox);
   double vy = robot.vel.proection(oy);
-  if (d <= 25) {
+  if (d <= 10) {
     vy = min(vy, d * 0.9);
   }
 

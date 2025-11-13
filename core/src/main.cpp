@@ -38,8 +38,8 @@ int main() {
     spdlog::info("Running as keeper");
     const int AX = 35;
     const int BX = 45;
-    const int CX = 55;
-    const int CY = 30;
+    const int CX = 53;
+    const int CY = 33;
     const int MY = 70;
     field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
                     {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},

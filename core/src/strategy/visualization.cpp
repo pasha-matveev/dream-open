@@ -133,7 +133,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     ball.visible = true;
     Vec v = ball.field_position - robot.position;
     Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
-    ball.relative_angle = atan2f(base % v, base * v);
+    ball.relative_angle = normalize_angle(atan2f(base % v, base * v));
     ball.override_dist = v.len();
 
     if (ball.get_cm() <= REAL_ROBOT_R || robot.emitter) {

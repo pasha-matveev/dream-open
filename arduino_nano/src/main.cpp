@@ -88,7 +88,7 @@ void loop() {
     char c = read_data<char>();
     if (c == 'R') {
       write_data<float>(robot.gyro.angle);
-      write_data<bool>((millis() - robot.emitter.last_tm) < 500);
+      write_data<bool>((millis() - robot.emitter.last_tm) < 100);
       write_data<bool>(robot.kicker.is_charged());
     } else if (c == 'W') {
       robot.direction = read_data<float>();

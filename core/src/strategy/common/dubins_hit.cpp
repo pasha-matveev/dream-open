@@ -54,10 +54,12 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   Vec vel;
   if (robot.emitter) {
     if (control) {
+      cout << "CONTROL" << endl;
       hit(robot, goal, power, 400, true, 0, 0.03, false);
       reset_dubins = true;
       return;
     } else if (abs(angle) <= 0.5) {
+      cout << "NO CONTROL" << endl;
       robot.kicker_force = power;
       return;
     }

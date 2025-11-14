@@ -7,7 +7,7 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   robot.dribling = config.strategy.base_dribling;
 
   reset_dubins = false;
-  double dist = (last_ball - robot.position).len();
+  // double dist = (last_ball - robot.position).len();
   Vec dir;
   if (goal.camera_visible) {
     double dir_angle = goal.relative_angle + robot.field_angle;
@@ -48,9 +48,6 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   double angle = normalize_angle(dir.field_angle() - last_ball_relative -
                                  robot.field_angle);
 
-  double speed = nmap(
-      dist, config.strategy.dubins.base_dist, config.strategy.dubins.max_dist,
-      config.strategy.dubins.base_speed, config.strategy.dubins.max_speed);
   Vec vel;
   if (robot.emitter) {
     if (control) {
@@ -64,9 +61,11 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
       return;
     }
   }
+  double len;
   if (abs(angle) <= 0.04) {
     // Едем напрямую к мячу
     vel = last_ball - robot.position;
+    len = (last_ball - robot.position).len();
   } else if (circle.inside(robot.position) ||
              circle.dist(robot.position) <= 0) {
     // Внутри круга / на круге
@@ -80,7 +79,9 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
     } else {
       center_dir = center_dir.turn_left();
     }
-    vel = center_dir.resize(speed);
+    vel = center_dir;
+    len =
+        circle.path_len(robot.position, a, left) + config.strategy.dubins.bonus;
   } else {
     // Едем к кругу по касательной
     Vec t;
@@ -90,7 +91,12 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
       t = right_circle.tangent_left(robot.position);
     }
     vel = (t - robot.position);
+    len = circle.path_len(t, a, left) + config.strategy.dubins.bonus +
+          (t - robot.position).len();
   }
+  double speed = nmap(
+      len, config.strategy.dubins.base_dist, config.strategy.dubins.max_dist,
+      config.strategy.dubins.base_speed, config.strategy.dubins.max_speed);
   vel = vel.resize(speed);
   robot.vel = vel;
   double target_relative =

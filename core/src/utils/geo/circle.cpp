@@ -55,3 +55,17 @@ void Circle::draw() const {
   shape.setFillColor(sf::Color::Transparent);
   sfml_window->draw(shape);
 }
+
+double Circle::len() const { return M_PI * 2 * r; }
+
+double Circle::path_len(const Vec& p, const Vec& q, bool to_left) const {
+  Vec a = (p - center);
+  Vec b = (q - center);
+  double len_angle;
+  if (to_left) {
+    len_angle = normalize_angle2(b.field_angle() - a.field_angle());
+  } else {
+    len_angle = normalize_angle2(a.field_angle() - b.field_angle());
+  }
+  return len() * len_angle / (2 * M_PI);
+}

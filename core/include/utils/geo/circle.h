@@ -15,6 +15,8 @@ class Circle {
 
   bool inside(const Vec& p) const;
   double dist(const Vec& p) const;
+  double len() const;
+  double path_len(const Vec& a, const Vec& b, bool to_left) const;
   Vec tangent_left(const Vec& p) const;
   Vec tangent_right(const Vec& p) const;
   void draw() const;

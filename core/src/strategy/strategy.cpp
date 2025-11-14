@@ -14,8 +14,7 @@ using namespace std::chrono;
 
 Strategy::Strategy() { role = config.strategy.role; }
 
-void Strategy::run(Robot& robot, Object& ball, Object& goal,
-                   const Field& field) {
+void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   if (millis() < throttle) {
     robot.vel = robot.vel.resize(0);
     robot.rotation_limit = 0;
@@ -59,7 +58,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal,
     reset_dubins = true;
     if (robot.state == RobotState::RUNNING) {
       if (role == "attacker") {
-        run_attacker(robot, ball, goal);
+        run_attacker(robot, ball, goal, field);
       } else if (role == "keeper") {
         run_keeper(robot, ball, goal, field);
       } else if (role == "challenge") {

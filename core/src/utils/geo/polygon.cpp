@@ -20,6 +20,22 @@ bool Polygon::inside(const Vec& p) const {
   return false;
 }
 
+double Polygon::dist(const Vec& p) const {
+  double ans = -1;
+  bool has_ans = false;
+  for (int i = 0; i < points.size(); ++i) {
+    int j = (i + 1) % points.size();
+    Segment seg(points[i], points[j]);
+    double d = seg.dist(p);
+    assert(d >= 0);
+    if (!has_ans || d <= ans) {
+      ans = d;
+      has_ans = true;
+    }
+  }
+  return ans;
+}
+
 pair<Vec, int> Polygon::find_intersection(const Vec& a, const Vec& dir) const {
   Vec np;
   int idx = -1;

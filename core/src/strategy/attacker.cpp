@@ -29,7 +29,8 @@ void Strategy::attacker_simple(Robot& robot, Object& goal) {
   hit(robot, goal, compute_power(robot.position.y), 800);
 }
 
-void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
+void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
+                            Field& field) {
   const int BORDER = -100;
 
   if (robot.emitter) {
@@ -131,7 +132,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal) {
             (last_ball - robot.position).field_angle() - robot.field_angle;
       } else {
         // Мяч на нашей половине
-        if (dubins_field.inside(last_ball)) {
+        if (field.inside(last_ball) && field.dist(last_ball) >= 4) {
           // Мяч далеко от бортов, используем dubins path
           last_dubins = true;
           spdlog::info("DUBINS BALL");

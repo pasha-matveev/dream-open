@@ -36,6 +36,7 @@ static void handle_pause_button(WPIWfiStatus status, void* p) {
   Robot* robot = (Robot*)p;
   if (robot->state == RobotState::PAUSE) {
     robot->state = RobotState::RUNNING;
+    robot->look_forward();
   } else {
     robot->state = RobotState::PAUSE;
   }
@@ -51,6 +52,7 @@ static void setup_pause_button(Robot* robot) {
 static void handle_left_button(WPIWfiStatus status, void* p) {
   assert(p != nullptr);
   Robot* robot = (Robot*)p;
+  robot->look_forward();
   if (robot->state != RobotState::PAUSE) {
     spdlog::error("Kickoff called from non-pause state {}", (int)robot->state);
     return;
@@ -61,6 +63,7 @@ static void handle_left_button(WPIWfiStatus status, void* p) {
 static void handle_right_button(WPIWfiStatus status, void* p) {
   assert(p != nullptr);
   Robot* robot = (Robot*)p;
+  robot->look_forward();
   if (robot->state != RobotState::PAUSE) {
     spdlog::error("Kickoff called from non-pause state {}", (int)robot->state);
     return;

@@ -77,6 +77,7 @@ class Robot {
 
   bool compute_lidar();
   void calibrate();
+  void look_forward();
   void compute_gyro_angle();
 
   void read_from_arduino();

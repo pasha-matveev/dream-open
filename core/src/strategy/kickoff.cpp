@@ -37,7 +37,8 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
   if (robot.emitter) {
     robot.vel = Vec{robot.field_angle}.resize(20);
 
-    if (millis() - robot.first_time >= 200) {
+    // 200
+    if (millis() - robot.first_time >= 150) {
       robot.kicker_force = 100;
       spdlog::info("KICKOFF FINISH");
       finish(robot);

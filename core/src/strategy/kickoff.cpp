@@ -29,22 +29,38 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
     kickoff_start = millis();
   }
   long long elapsed = millis() - kickoff_start;
-  if (elapsed > 5000) {
+  if (elapsed > 3000) {
     spdlog::warn("KICKOFF TIMEOUT");
     finish(robot);
     return;
   }
   if (robot.emitter) {
-    // 1.7
-    double alpha = compute_ricochet(robot, left);
-    bool ready = kick_dir(robot, alpha, 100, 600, true, 1000, 0.01);
-    if (ready) {
-      spdlog::info("KICKOFF READY");
+    robot.vel = Vec{robot.field_angle}.resize(20);
+
+    if (millis() - robot.first_time >= 200) {
+      robot.kicker_force = 100;
+      spdlog::info("KICKOFF FINISH");
       finish(robot);
+      return;
     }
   } else {
-    robot.vel = Vec{robot.field_angle + ball.relative_angle}.resize(5);
-    robot.rotation = ball.relative_angle;
-    robot.dribling = config.strategy.base_dribling;
+    double alpha = 60.0 / 180.0 * M_PI;
+    if (left) {
+      alpha *= 1;
+    } else {
+      alpha *= -1;
+    }
+    double dir = normalize_angle(alpha - robot.field_angle);
+    if (abs(dir) <= 0.04) {
+      robot.vel = Vec{robot.field_angle}.resize(20);
+    } else {
+      robot.rotation = dir;
+      robot.rotation_limit = 18;
+      if (left) {
+        robot.vel = Vec{robot.field_angle}.turn_right().resize(25);
+      } else {
+        robot.vel = Vec{robot.field_angle}.turn_left().resize(25);
+      }
+    }
   }
 }

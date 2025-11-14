@@ -209,7 +209,7 @@ Vec Robot::ball_hole_position() const {
 }
 
 void Robot::look_forward() {
-  if (abs(field_angle) > M_PI / 2) {
+  if (abs(normalize_angle(field_angle)) > M_PI / 2) {
     field_angle = normalize_angle(field_angle + M_PI);
     position.x = 182 - position.x;
     position.y = 243 - position.y;

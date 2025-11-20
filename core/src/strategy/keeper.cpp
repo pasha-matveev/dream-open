@@ -11,10 +11,13 @@
 using namespace std;
 
 static optional<Vec> nearest_obstacle(Robot& robot) {
-  optional<Vec> nearest_obstacle;
+  optional<Vec> nearest_obstacle = nullopt;
   if (robot.lidar) {
     for (const auto& obstacle : robot.lidar->obstacles_data) {
-      if (obstacle.y < 10 || obstacle.y > 80) {
+      if (obstacle.y < 13 || obstacle.y > 80) {
+        continue;
+      }
+      if (obstacle.x < 3 || obstacle.x > 182 - 3) {
         continue;
       }
       if (!nearest_obstacle.has_value() || obstacle.y < nearest_obstacle->y) {
@@ -25,8 +28,8 @@ static optional<Vec> nearest_obstacle(Robot& robot) {
   return nearest_obstacle;
 }
 
-constexpr double LL = 12 + 45;
-constexpr double RR = 182 - 12 - 45;
+constexpr double LL = 12 + 48;
+constexpr double RR = 182 - 12 - 48;
 constexpr double YY = 35.0;
 
 static Vec compute_radial(const Vec& p, const Field& field) {

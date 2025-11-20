@@ -36,10 +36,10 @@ int main() {
   // 11 7
   if (config.strategy.role == "keeper" || config.strategy.role == "challenge") {
     spdlog::info("Running as keeper");
-    const int AX = 35;
+    const int AX = 38;
     const int BX = 45;
     const int CX = 53;
-    const int CY = 35;
+    const int CY = 36;
     const int MY = 70;
     field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
                     {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},

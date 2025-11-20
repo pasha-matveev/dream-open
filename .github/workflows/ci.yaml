@@ -1,0 +1,122 @@
+name: CI
+
+run-name: CI ${{github.sha}}
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      core: ${{ steps.filter.outputs.core }}
+      lidar: ${{ steps.filter.outputs.lidar }}
+      arduino_nano: ${{ steps.filter.outputs.arduino_nano }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          filters: |
+            core:
+              - 'core/**'
+              - '.github/workflows/**'
+            lidar:
+              - 'lidar/**'
+              - '.github/workflows/**'
+            arduino_nano:
+              - 'arduino_nano/**'
+              - '.github/workflows/**'
+
+  build_core:
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./core
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install libraries for libcamera
+        run: sudo apt update && sudo apt install -y libboost-dev libgnutls28-dev openssl libtiff-dev pybind11-dev qtbase5-dev libqt5core5a libqt5widgets5 meson python3-yaml python3-ply libglib2.0-dev libgstreamer-plugins-base1.0-dev python3-jinja2
+      - name: Build and install libcamera
+        run: |
+          git clone https://github.com/raspberrypi/libcamera.git
+          cd libcamera
+          meson setup build --buildtype=release -Dpipelines=rpi/vc4,rpi/pisp -Dipas=rpi/vc4,rpi/pisp -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled
+          sudo ninja -C build install
+      - name: Install libraries for LCCV
+        run: sudo apt update && sudo apt install -y build-essential libopencv-dev
+      - name: Build & Install LCCV
+        run: |
+          git clone https://github.com/kbarni/LCCV.git
+          cd LCCV
+          mkdir build
+          cd build
+          cmake ..
+          make -j
+          sudo make install
+      - name: Build & Install WiringPi
+        run: |
+          git clone https://github.com/WiringPi/WiringPi.git
+          cd WiringPi
+          ./build debian
+          mv debian-template/*.deb wiringpi.deb
+          sudo apt install ./wiringpi.deb
+      - name: Install dependencies for core
+        run: sudo apt update && sudo apt install -y libopencv-dev libserial-dev rapidjson-dev libcamera-dev libspdlog-dev libx11-dev libxrandr-dev libxcursor-dev libxi-dev libgl1-mesa-dev libudev-dev libfreetype6-dev libogg-dev libvorbis-dev libflac-dev
+      - name: Build core
+        run: mkdir build && cd build && cmake .. && make -j
+
+  build_lidar:
+    needs: changes
+    if: needs.changes.outputs.lidar == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./lidar
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Fetch submodule
+        run: git submodule update --init
+      - name: Install X11
+        run: sudo apt update && sudo apt install -y libx11-dev libxrandr-dev libxcursor-dev libxi-dev libgl1-mesa-dev libudev-dev libfreetype6-dev libogg-dev libvorbis-dev libflac-dev
+      - name: Build rplidar_sdk
+        working-directory: ./lidar/rplidar_sdk
+        run: make -j
+      - name: Build lidar
+        run: mkdir build && cd build && cmake .. && make -j
+
+  check_nano:
+    needs: changes
+    if: needs.changes.outputs.arduino_nano == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./arduino_nano
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+      - name: Check code
+        run: pio check
+      - name: Build project
+        run: pio run

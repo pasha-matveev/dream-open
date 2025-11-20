@@ -9,7 +9,7 @@ class Kicker {
   unsigned long long kick_tm = 0;
   int min_kick_delay = 0;
   int min_delay = 500;
-  int max_delay = ROBOT ? 17000 : 1800;
+  int max_delay = ROBOT ? 18000 : 1800;
   int kick_pin = 7;
   int charge_pin = 4;
 

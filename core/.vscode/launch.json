@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Project debug (remote)",
+      "type": "cppdbg",
+      "request": "launch",
+      "preLaunchTask": "deploy-to-pi",
+      "program": "/home/pi/dream-open/core/build/core",
+      "cwd": "/home/pi/dream-open/core/build",
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "pipeTransport": {
+        "pipeCwd": "${workspaceFolder}",
+        "pipeProgram": "ssh",
+        "pipeArgs": [
+          "dgr"
+        ],
+        "debuggerPath": "/usr/bin/gdb"
+      },
+      "miDebuggerPath": "/usr/bin/gdb",
+      "sourceFileMap": {
+        "/home/pi/dream-open/core": "${workspaceFolder}"
+      }
+    }
+  ]
+}

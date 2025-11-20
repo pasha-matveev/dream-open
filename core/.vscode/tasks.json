@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "configure-for-pi",
+      "type": "shell",
+      "command": "cmake -E rm -rf ${workspaceFolder}/build && cmake -S ${workspaceFolder} -B ${workspaceFolder}/build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_OSX_ARCHITECTURES= -DCMAKE_C_COMPILER=/opt/homebrew/bin/aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/aarch64-linux-gnu-g++"
+    },
+    {
+      "label": "build-for-pi",
+      "type": "shell",
+      "dependsOn": "configure-for-pi",
+      "command": "cmake --build ${workspaceFolder}/build"
+    },
+    {
+      "label": "deploy-to-pi",
+      "type": "shell",
+      "dependsOn": "build-for-pi",
+      "command": "rsync -r ${workspaceFolder}/build dgr:/home/pi/dream-open/core/build"
+    }
+  ]
+}

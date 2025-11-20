@@ -55,11 +55,11 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
       robot.vel = Vec{robot.field_angle}.resize(20);
     } else {
       robot.rotation = dir;
-      robot.rotation_limit = 18;
+      robot.rotation_limit = 21.6;
       if (left) {
-        robot.vel = Vec{robot.field_angle}.turn_right().resize(25);
+        robot.vel = Vec{robot.field_angle}.turn_right().resize(30);
       } else {
-        robot.vel = Vec{robot.field_angle}.turn_left().resize(25);
+        robot.vel = Vec{robot.field_angle}.turn_left().resize(30);
       }
     }
   }

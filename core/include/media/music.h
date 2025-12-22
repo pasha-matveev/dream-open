@@ -23,5 +23,6 @@ struct Note {
 };
 
 extern std::vector<Note> notes1;
+extern std::vector<Note> notes2;
 
 const std::vector<Note>& get_notes(int);

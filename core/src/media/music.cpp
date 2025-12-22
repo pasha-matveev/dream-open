@@ -2,11 +2,13 @@
 
 using namespace std;
 
-const vector<Note> &get_notes(int num) {
-    switch (num) {
-        default:
-            return notes1;
-    }
+const vector<Note>& get_notes(int num) {
+  switch (num) {
+    case 1:
+      return notes1;
+    default:
+      return notes2;
+  }
 }
 
 vector<Note> notes1 = {
@@ -308,4 +310,34 @@ vector<Note> notes1 = {
     {cnat, 6, 1.0},
 
     // cycle
+};
+std::vector<Note> notes2 = {
+    // Anthem
+    {gnat, 4, 0.5},    {cnat, 5, 1},      {gnat, 4, 0.6667}, {anat, 4, 0.25},
+    {bnat, 4, 1},      {enat, 4, 0.5},    {enat, 4, 0.5},    {anat, 4, 1},
+    {gnat, 4, 0.6667}, {fnat, 4, 0.25},   {gnat, 4, 1},      {cnat, 4, 0.5},
+    {cnat, 4, 0.5},    {dnat, 4, 1},      {dnat, 4, 0.5},    {enat, 4, 0.5},
+    {fnat, 4, 1},      {fnat, 4, 0.5},    {gnat, 4, 0.5},    {anat, 4, 1},
+    {bnat, 4, 0.5},    {cnat, 5, 0.5},    {dnat, 5, 2},      {enat, 5, 1},
+    {dnat, 5, 0.6667}, {cnat, 5, 0.25},   {dnat, 5, 1},      {bnat, 4, 0.5},
+    {gnat, 4, 0.5},    {cnat, 5, 1},      {bnat, 4, 0.6667}, {anat, 4, 0.25},
+    {bnat, 4, 1},      {enat, 4, 0.5},    {enat, 4, 0.5},    {anat, 4, 1},
+    {gnat, 4, 0.6667}, {fnat, 4, 0.25},   {gnat, 4, 1},      {cnat, 4, 0.6667},
+    {cnat, 4, 0.25},   {cnat, 5, 1},      {bnat, 4, 0.6667}, {anat, 4, 0.25},
+    {gnat, 4, 0.5},    {bnat, 4, 0.5},    {cnat, 5, 0.5},    {dnat, 5, 0.5},
+    {enat, 5, 2},      {dnat, 5, 0.5},    {cnat, 5, 0.5},    {bnat, 4, 0.5},
+    {cnat, 5, 0.5},    {dnat, 5, 1.333},  {gnat, 4, 0.5},    {gnat, 4, 0.5},
+    {bnat, 4, 0.5},    {cnat, 5, 0.5},    {dnat, 5, 0.5},    {cnat, 5, 2},
+    {bnat, 4, 0.5},    {anat, 4, 0.5},    {gnat, 4, 0.5},    {anat, 4, 0.5},
+    {bnat, 4, 1.333},  {enat, 4, 0.5},    {enat, 4, 0.5},    {gnat, 4, 0.5},
+    {anat, 4, 0.5},    {bnat, 4, 0.5},    {cnat, 5, 1},      {anat, 4, 0.6667},
+    {bnat, 4, 0.25},   {cnat, 5, 1},      {anat, 4, 0.6667}, {bnat, 4, 0.25},
+    {cnat, 5, 1},      {anat, 4, 0.5},    {cnat, 5, 0.5},    {fnat, 5, 2},
+    {fnat, 5, 2},      {enat, 5, 0.5},    {dnat, 5, 0.5},    {cnat, 5, 0.5},
+    {dnat, 5, 0.5},    {enat, 5, 1.333},  {cnat, 5, 0.5},    {cnat, 5, 2},
+    {dnat, 5, 2},      {cnat, 5, 0.5},    {bnat, 4, 0.5},    {anat, 4, 0.5},
+    {bnat, 4, 0.5},    {cnat, 5, 1.333},  {anat, 4, 0.5},    {anat, 4, 2},
+    {cnat, 5, 1},      {bnat, 4, 0.6667}, {anat, 4, 0.25},   {gnat, 4, 1},
+    {cnat, 4, 1},      {gnat, 4, 2},      {anat, 4, 1},      {bnat, 4, 1},
+    {cnat, 5, 4},
 };

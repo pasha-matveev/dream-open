@@ -72,7 +72,8 @@
     "enabled": true,
     "buzzer": {
       "enabled": true,
-      "pin": 23
+      "pin": 23,
+      "notes": 2
     },
     "buttons": {
       "enabled": true,

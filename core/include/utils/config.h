@@ -58,6 +58,7 @@ struct Config {
     struct Buzzer {
       bool enabled = false;
       int pin = 0;
+      int notes = 0;
     } buzzer;
     struct Buttons {
       bool enabled = false;

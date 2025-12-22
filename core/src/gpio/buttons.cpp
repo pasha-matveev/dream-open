@@ -13,7 +13,9 @@
 
 using namespace std;
 
-static void run_music(Buzzer* b) { b->play_song(get_notes(1)); }
+static void run_music(Buzzer* b) {
+  b->play_song(get_notes(config.gpio.buttons.notes));
+}
 
 static void toggle_music(WPIWfiStatus status, void* p) {
   Buzzer* b = (Buzzer*)p;

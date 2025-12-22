@@ -90,6 +90,7 @@ void load_config() {
   const auto& buzzer = gpio["buzzer"];
   loaded.gpio.buzzer.enabled = buzzer["enabled"].GetBool();
   loaded.gpio.buzzer.pin = buzzer["pin"].GetInt();
+  loaded.gpio.buzzer.notes = buzzer["notes"].GetInt();
   const auto& buttons = gpio["buttons"];
   loaded.gpio.buttons.enabled = buttons["enabled"].GetBool();
   loaded.gpio.buttons.pins = to_int_vector(buttons["pins"].GetArray());

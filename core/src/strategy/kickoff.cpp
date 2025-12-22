@@ -29,7 +29,7 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
     kickoff_start = millis();
   }
   long long elapsed = millis() - kickoff_start;
-  if (elapsed > 3000) {
+  if (elapsed > 1500) {
     spdlog::warn("KICKOFF TIMEOUT");
     finish(robot);
     return;

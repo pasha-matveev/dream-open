@@ -13,16 +13,11 @@ static AttackerRStatus r_status = AttackerRStatus::NONE;
 static bool last_dubins = false;
 
 static int compute_power(double y) {
-  // int power;
-  // if (y < 146) {
-  //   power = 40;
-  // } else if (y < 180) {
-  //   power = 20;
-  // } else {
-  //   power = 15;
-  // }
-  // return power;
-  return 100;
+  if (y >= 243 - 12 - 45) {
+    return 75;
+  } else {
+    return 100;
+  }
 }
 
 void Strategy::attacker_simple(Robot& robot, Object& goal) {

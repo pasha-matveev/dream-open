@@ -55,7 +55,7 @@ jobs:
         run: sudo apt update && sudo apt install -y build-essential libopencv-dev
       - name: Build & Install LCCV
         run: |
-          git clone https://github.com/kbarni/LCCV.git
+          git clone https://github.com/coder8080/LCCV.git
           cd LCCV
           mkdir build
           cd build

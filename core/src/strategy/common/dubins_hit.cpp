@@ -1,108 +1,95 @@
 #include "strategy/strategy.h"
 #include "utils/config.h"
 #include "utils/geo/circle.h"
-#include "utils/nmap.h"
 
 void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   robot.dribling = config.strategy.base_dribling;
 
-  reset_dubins = false;
-  // double dist = (last_ball - robot.position).len();
-  Vec dir;
-  if (goal.camera_visible) {
+  Vec goal_direction;
+
+  if (goal.visible && (last_ball_position - robot.position).len() <= 5) {
+    // Подъехали близко к мячу, можно целиться по камере
     double dir_angle = goal.relative_angle + robot.field_angle;
-    dir = Vec{dir_angle};
+    goal_direction = Vec{dir_angle};
   } else {
+    // Целимся по логике
     Vec target{91, 240};
-    // dir = target - last_ball;
-    dir = target - robot.position;
+    goal_direction = target - last_ball_position;
   }
 
-  Vec a = last_ball + dir.resize(-config.strategy.dubins.bonus);
-  Vec left_center = a + dir.turn_left().resize(config.strategy.dubins.radius) +
-                    dir.turn_right().resize(config.strategy.dubins.delta);
-  Vec right_center = a +
-                     dir.turn_right().resize(config.strategy.dubins.radius) +
-                     dir.turn_left().resize(config.strategy.dubins.delta);
+  Vec destination =
+      last_ball_position + goal_direction.resize(-config.strategy.dubins.bonus);
+  Vec left_center =
+      destination +
+      goal_direction.turn_left().resize(config.strategy.dubins.radius) +
+      goal_direction.turn_right().resize(config.strategy.dubins.separate);
+  Vec right_center =
+      destination +
+      goal_direction.turn_right().resize(config.strategy.dubins.radius) +
+      goal_direction.turn_left().resize(config.strategy.dubins.separate);
   Circle left_circle{left_center, config.strategy.dubins.radius};
   Circle right_circle{right_center, config.strategy.dubins.radius};
 
-  if ((last_ball - dubins_ball).len() > config.strategy.dubins.threshold) {
-    dubins_side = DubinsSide::NONE;
+  bool left;
+  if (abs(left_circle.dist(robot.position)) <
+      abs(right_circle.dist(robot.position))) {
+    left = true;
+  } else {
+    left = false;
   }
-  if (true) {
-    dubins_ball = last_ball;
-    if (abs(left_circle.dist(robot.position)) <
-        abs(right_circle.dist(robot.position))) {
-      dubins_side = DubinsSide::LEFT;
-    } else {
-      dubins_side = DubinsSide::RIGHT;
-    }
-  }
-  bool left = dubins_side == DubinsSide::LEFT;
 
   Circle& circle = left ? left_circle : right_circle;
 
   circle.draw();
 
-  double angle = normalize_angle(dir.field_angle() - last_ball_relative -
-                                 robot.field_angle);
-
-  Vec vel;
   if (robot.emitter) {
     if (control) {
-      cout << "CONTROL" << endl;
-      hit(robot, goal, power, 400, true, 0, 0.03, false);
-      reset_dubins = true;
-      return;
-    } else if (abs(angle) <= 0.5) {
-      cout << "NO CONTROL" << endl;
+      kick_to_goal(robot, goal, {});
+    } else {
       robot.kicker_force = power;
-      return;
     }
+    return;
   }
+
+  double kick_angle =
+      normalize_angle(goal_direction.field_angle() -
+                      (last_ball_position - robot.position).field_angle());
+
+  Vec movement_direction;
   double len;
-  if (abs(angle) <= 0.04) {
+  if (abs(kick_angle) <= 0.04) {
     // Едем напрямую к мячу
-    vel = last_ball - robot.position;
-    len = (last_ball - robot.position).len();
+    Vec vel = last_ball_position - robot.position;
+    movement_direction = vel;
+    len = vel.len();
   } else if (circle.inside(robot.position) ||
              circle.dist(robot.position) <= 0) {
     // Внутри круга / на круге
-    // if (abs(circle.dist(robot.position)) >=
-    //     config.strategy.dubins.inside_threshold) {
-    //   // Мы глубоко внутри круга
-    // }
     Vec center_dir = circle.center - robot.position;
     if (left) {
-      center_dir = center_dir.turn_right();
+      movement_direction = center_dir.turn_right();
     } else {
-      center_dir = center_dir.turn_left();
+      movement_direction = center_dir.turn_left();
     }
-    vel = center_dir;
-    len =
-        circle.path_len(robot.position, a, left) + config.strategy.dubins.bonus;
+    len = circle.path_len(robot.position, destination, left) +
+          config.strategy.dubins.bonus;
   } else {
     // Едем к кругу по касательной
-    Vec t;
+    Vec tangent;
     if (left) {
-      t = left_circle.tangent_right(robot.position);
+      tangent = left_circle.tangent_right(robot.position);
     } else {
-      t = right_circle.tangent_left(robot.position);
+      tangent = right_circle.tangent_left(robot.position);
     }
-    vel = (t - robot.position);
-    len = circle.path_len(t, a, left) + config.strategy.dubins.bonus +
-          (t - robot.position).len();
+    movement_direction = tangent - robot.position;
+    len = circle.path_len(tangent, destination, left) +
+          config.strategy.dubins.bonus + movement_direction.len();
   }
-  double speed = nmap(
-      len, config.strategy.dubins.base_dist, config.strategy.dubins.max_dist,
-      config.strategy.dubins.base_speed, config.strategy.dubins.max_speed);
-  vel = vel.resize(speed);
-  robot.vel = vel;
+  double speed = config.strategy.dubins.speed.map(len);
+  robot.vel = movement_direction.resize(speed);
+
   double target_relative =
-      normalize_angle(dir.field_angle() - robot.field_angle);
-  // robot.rotation =
-  // normalize_angle(last_ball_relative / 2 + target_relative / 2);
+      normalize_angle(goal_direction.field_angle() - robot.field_angle);
+
   robot.rotation = target_relative;
-  robot.rotation_limit = 30;
 }

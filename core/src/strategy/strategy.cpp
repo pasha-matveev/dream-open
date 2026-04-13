@@ -15,7 +15,7 @@ using namespace std::chrono;
 Strategy::Strategy() { role = config.strategy.role; }
 
 void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
-  if (millis() < throttle) {
+  if (millis() < stop_until) {
     robot.vel = robot.vel.resize(0);
     robot.rotation_limit = 0;
     return;
@@ -32,10 +32,10 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
     ball.compute_field_position(robot);
   }
 
-  if (ball.field_visible) {
+  if (ball.visible) {
     last_ball_visible = millis();
-    last_ball = ball.field_position;
-    last_ball_relative = ball.relative_angle;
+    last_ball_position = ball.field_position;
+    last_ball_relative_angle = ball.relative_angle;
   }
 
   if (robot.emitter && !robot.prev_emitter) {
@@ -55,12 +55,12 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   if (config.strategy.enabled) {
     reset_kick = true;
     reset_turn = true;
-    reset_dubins = true;
+
     if (robot.state == RobotState::RUNNING) {
       if (role == "attacker") {
         run_attacker(robot, ball, goal, field);
       } else if (role == "keeper") {
-        run_keeper(robot, ball, goal, field);
+        // run_keeper(robot, ball, goal, field);
       } else if (role == "challenge") {
         run_challenge(robot, ball, goal);
       } else if (role == "test_circle") {
@@ -72,21 +72,14 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
       } else {
         spdlog::error("Unknown role: {}", role);
       }
-    } else if (robot.state == KICKOFF_LEFT) {
-      run_kickoff(robot, ball, goal, true);
-    } else if (robot.state == KICKOFF_RIGHT) {
-      run_kickoff(robot, ball, goal, false);
     }
 
     if (reset_kick) {
-      kick_status = "none";
-      slow_tm = -1;
+      kick_status = KickStatus::NONE;
+      kick_timeout_stamp = -10000;
     }
     if (reset_turn) {
-      turn_time = -1;
-    }
-    if (reset_dubins) {
-      dubins_side = DubinsSide::NONE;
+      turn_start_time = -1;
     }
     field.apply(robot);
   }

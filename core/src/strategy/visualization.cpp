@@ -79,8 +79,8 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
                         const Field& field) {
   if (!running()) return;
   draw_polygon(field, sf::Color::White);
-  draw_polygon(left_attacker_r, zone_color);
-  draw_polygon(right_attacker_r, zone_color);
+  // draw_polygon(left_attacker_r, zone_color);
+  // draw_polygon(right_attacker_r, zone_color);
 
   if (config.visualization.interactive &&
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
@@ -130,7 +130,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     }
     ball_a = ball_a * 0.95;
 
-    ball.field_visible = true;
+    ball.visible = true;
     Vec v = ball.field_position - robot.position;
     Vec base = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
     ball.relative_angle = normalize_angle(atan2f(base % v, base * v));
@@ -167,7 +167,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     sfml_window->draw(hole_shape);
   }
 
-  if (ball.field_visible) {
+  if (ball.visible) {
     auto ball_shape = sf::CircleShape(BALL_R);
     ball_shape.setFillColor(sf::Color(0, 0, 255));
     Vec point = toSFML(ball.field_position) - Vec{BALL_R, BALL_R};

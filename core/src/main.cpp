@@ -15,15 +15,14 @@
 
 using namespace std;
 
-namespace {
 volatile std::sig_atomic_t stop_requested = 0;
 
 void handle_signal(int) { stop_requested = 1; }
-}  // namespace
 
 constexpr int BDR = 20;
 
 int main() {
+  cout << "Program started" << endl;
   std::signal(SIGINT, handle_signal);
   std::signal(SIGTERM, handle_signal);
 

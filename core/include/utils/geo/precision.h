@@ -1,3 +1,3 @@
-const double EPS = 1e-7;  // TODO: 1e-8
+const double EPS = 1e-7;
 
 bool eq(double a, double b);

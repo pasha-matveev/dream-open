@@ -11,8 +11,6 @@ using namespace std;
 using rapidjson::Document;
 Config config;
 
-namespace {
-
 template <typename Array>
 vector<int> to_int_vector(const Array& arr) {
   vector<int> result;
@@ -22,8 +20,6 @@ vector<int> to_int_vector(const Array& arr) {
   }
   return result;
 }
-
-}  // namespace
 
 void load_config() {
   ifstream file("config.json");
@@ -131,16 +127,10 @@ void load_config() {
       dubins["attacker_control"].GetBool();
   loaded.strategy.dubins.keeper_control = dubins["keeper_control"].GetBool();
   loaded.strategy.dubins.radius = dubins["radius"].GetDouble();
-  loaded.strategy.dubins.inside_threshold =
-      dubins["inside_threshold"].GetDouble();
   loaded.strategy.dubins.bonus = dubins["bonus"].GetDouble();
-  loaded.strategy.dubins.delta = dubins["delta"].GetDouble();
-  loaded.strategy.dubins.threshold = dubins["threshold"].GetDouble();
+  loaded.strategy.dubins.separate = dubins["separate"].GetDouble();
+  loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
-  loaded.strategy.dubins.base_speed = dubins["base_speed"].GetInt();
-  loaded.strategy.dubins.max_speed = dubins["max_speed"].GetInt();
-  loaded.strategy.dubins.base_dist = dubins["base_dist"].GetInt();
-  loaded.strategy.dubins.max_dist = dubins["max_dist"].GetInt();
   loaded.strategy.dubins.goal_dist = dubins["goal_dist"].GetInt();
 
   const auto& attacker_ricochet = strategy["attacker_ricochet"];

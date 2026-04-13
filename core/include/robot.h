@@ -12,7 +12,7 @@
 
 using namespace LibSerial;
 
-enum RobotState { RUNNING, PAUSE, KICKOFF_LEFT, KICKOFF_RIGHT };
+enum class RobotState { RUNNING, PAUSE, KICKOFF_LEFT, KICKOFF_RIGHT };
 
 class Robot {
  private:

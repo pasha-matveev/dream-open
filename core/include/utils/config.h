@@ -1,7 +1,11 @@
 #pragma once
 
+#include <rapidjson/rapidjson.h>
+
 #include <string>
 #include <vector>
+
+#include "utils/mapper.h"
 
 using namespace std;
 
@@ -104,17 +108,14 @@ struct Config {
     int slow_dribling;
     int dribling_duration;
     struct Dubins {
+      double bonus;
+      double separate;
+      double radius;
+
+      Mapper speed;
+
       bool attacker_control;
       bool keeper_control;
-      double radius;
-      double inside_threshold;
-      double bonus;
-      double delta;
-      double threshold;
-      int base_speed;
-      int max_speed;
-      int base_dist;
-      int max_dist;
       int goal_dist;
     } dubins;
     struct AttackerRicochet {

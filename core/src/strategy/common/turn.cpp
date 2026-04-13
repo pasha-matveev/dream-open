@@ -1,19 +1,14 @@
 #include "strategy/strategy.h"
 #include "utils/millis.h"
 
-constexpr int UP_TIME = 300;
+constexpr int TURN_ACCEL_TIME = 300;
 
-bool Strategy::turn(Robot& robot, double target_angle, bool curved_rotation,
-                    bool ac_dribling) {
+bool Strategy::turn(Robot& robot, const TurnParams& params) {
   reset_turn = false;
-  if (turn_time == -1) {
-    turn_time = millis();
-  }
-  target_angle -= 0.01;  // Бьём немного правее
-  double delta = target_angle - robot.field_angle;
-  long long passed = millis() - turn_time;
-  double k = min(1.0, (double)passed / UP_TIME);
-  if (curved_rotation) {
+  double delta = params.target_field_angle - robot.field_angle;
+  long long passed = millis() - turn_start_time;
+  double k = min(1.0, (double)passed / TURN_ACCEL_TIME);
+  if (params.curved_rotation) {
     if (abs(delta) <= 0.035) {
       robot.vel = {0, 0};
       robot.rotation_limit = 15.0;
@@ -36,7 +31,7 @@ bool Strategy::turn(Robot& robot, double target_angle, bool curved_rotation,
     robot.rotation_limit = 15.0 * k;
   }
   robot.rotation = delta;
-  desired_dribling(robot, ac_dribling);
+  desired_dribling(robot, params.accelerated_dribbling);
   if (abs(delta) <= 0.015) {
     // поворот закончен
     return true;

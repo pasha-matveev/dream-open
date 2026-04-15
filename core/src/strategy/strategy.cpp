@@ -13,17 +13,11 @@
 Strategy::Strategy() { role = config.strategy.role; }
 
 void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
-  if (millis() < stop_until) {
-    robot.vel = robot.vel.resize(0);
-    robot.rotation_limit = 0;
-    return;
-  }
-
   if (config.serial.enabled) {
     robot.compute_gyro_angle();
   }
   bool lidar_data = robot.compute_lidar();
-  if (!lidar_data && config.serial.enabled) {
+  if (!lidar_data && config.serial.enabled && config.strategy.predict) {
     robot.predict_position();
   }
   if (!config.visualization.interactive && robot.camera->new_data()) {
@@ -38,6 +32,12 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
 
   if (robot.emitter && !robot.prev_emitter) {
     robot.first_time = millis();
+  }
+
+  if (millis() < stop_until) {
+    robot.vel = robot.vel.resize(0);
+    robot.rotation_limit = 0;
+    return;
   }
 
   robot.kicker_force = 0;

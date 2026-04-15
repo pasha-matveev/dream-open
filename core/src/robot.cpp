@@ -163,6 +163,7 @@ bool Robot::compute_lidar() {
       lidar_history.pop();
       continue;
     }
+    // TODO: check all entries
     double movement = (position - entry.position).len();
     double angle = abs(normalize_angle(field_angle - entry.field_angle));
     if (movement > config.lidar.calibration.movement ||

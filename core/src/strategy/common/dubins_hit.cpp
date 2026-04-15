@@ -5,6 +5,7 @@
 #include "utils/geo/circle.h"
 
 bool circle_ok(Circle& circle, Field& field) {
+  if (!field.inside(circle.center)) return false;
   double dist = field.dist(circle.center) - circle.r;
   // чтобы робот проехал, должна быть хотя бы половина корпуса
   return dist >= 10;
@@ -88,7 +89,8 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
     movement_direction = vel;
     len = vel.len();
   } else if (circle.dist(robot.position) < 0 &&
-             circle.dist(robot.position) < config.strategy.dubins.deep_inside) {
+             -1 * circle.dist(robot.position) <
+                 config.strategy.dubins.deep_inside) {
     // Глубоко внутри круга // Выталкиваемся в точку напротив ворот
     Vec t = goal_direction.resize(-circle.r) + circle.center;
     movement_direction = t - robot.position;

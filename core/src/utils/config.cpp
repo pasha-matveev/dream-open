@@ -114,10 +114,11 @@ void load_config() {
   loaded.visualization.interactive = visualization["interactive"].GetBool();
 
   const auto& strategy = doc["strategy"];
+  loaded.strategy.enabled = strategy["enabled"].GetBool();
   loaded.strategy.role = strategy["role"].GetString();
   loaded.strategy.fps = strategy["fps"].GetInt();
-  loaded.strategy.enabled = strategy["enabled"].GetBool();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
+  loaded.strategy.predict = strategy["predict"].GetBool();
 
   const auto& attacker = strategy["attacker"];
   loaded.strategy.attacker.border = attacker["border"].GetInt();

@@ -97,9 +97,11 @@ struct Config {
   } visualization;
 
   struct Strategy {
+    bool enabled;
     string role;
     int fps;
-    bool enabled;
+    bool predict;
+
     struct Target {
       double x, y;
     };

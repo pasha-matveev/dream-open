@@ -103,10 +103,7 @@ struct Config {
     struct Target {
       double x, y;
     };
-    int base_dribling;
-    int max_dribling;
-    int slow_dribling;
-    int dribling_duration;
+    Mapper dribbling;
     struct Dubins {
       double bonus;
       double separate;

@@ -117,10 +117,7 @@ void load_config() {
   loaded.strategy.role = strategy["role"].GetString();
   loaded.strategy.fps = strategy["fps"].GetInt();
   loaded.strategy.enabled = strategy["enabled"].GetBool();
-  loaded.strategy.base_dribling = strategy["base_dribling"].GetInt();
-  loaded.strategy.max_dribling = strategy["max_dribling"].GetInt();
-  loaded.strategy.slow_dribling = strategy["slow_dribling"].GetInt();
-  loaded.strategy.dribling_duration = strategy["dribling_duration"].GetInt();
+  loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
 
   const auto& dubins = strategy["dubins"];
   loaded.strategy.dubins.attacker_control =

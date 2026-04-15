@@ -85,6 +85,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     is_piter = piter_ok;
   }
 
+  robot.dribling = config.strategy.dribbling.value_l;
   bool cur_dubins = false;
   if (!is_piter) {
     if (robot.emitter) {
@@ -139,8 +140,6 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     drive_target(robot, target, 4);
     robot.rotation = normalize_angle(
         (last_piter - robot.position).field_angle() - robot.field_angle);
-    robot.dribling = config.strategy.base_dribling;
   }
-  robot.dribling = 40;
   last_dubins = cur_dubins;
 }

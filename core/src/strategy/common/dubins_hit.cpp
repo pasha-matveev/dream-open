@@ -3,7 +3,7 @@
 #include "utils/geo/circle.h"
 
 void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
-  robot.dribling = config.strategy.base_dribling;
+  robot.dribling = config.strategy.dribbling.value_l;
 
   Vec goal_direction;
 

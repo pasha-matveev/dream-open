@@ -34,7 +34,7 @@ void Strategy::kick(Robot& robot, const KickParams& params) {
     if (finished) {
       if (params.kick_timeout) {
         kick_status = KickStatus::TIMEOUT;
-        robot.dribling = 15;
+        robot.dribling = config.strategy.dribbling.value_l;
         kick_timeout_stamp = millis() + params.kick_timeout;
       } else {
         kick_status = KickStatus::KICK;
@@ -46,7 +46,7 @@ void Strategy::kick(Robot& robot, const KickParams& params) {
 
   } else if (kick_status == KickStatus::TIMEOUT) {
     robot.rotation = 0;
-    robot.dribling = config.strategy.slow_dribling;
+    robot.dribling = config.strategy.dribbling.value_l;
     robot.vel = {0, 0};
   } else if (kick_status == KickStatus::KICK) {
     robot.kicker_force = params.power;

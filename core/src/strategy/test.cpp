@@ -3,7 +3,7 @@
 #include "utils/millis.h"
 
 void Strategy::run_test_circle(Robot& robot) {
-  robot.dribling = config.strategy.max_dribling;
+  robot.dribling = config.strategy.dribbling.value_r;
   double dir = M_PI / 2;
   Vec vel{robot.field_angle};
   vel = vel.turn_right();
@@ -15,7 +15,7 @@ void Strategy::run_test_circle(Robot& robot) {
 }
 
 void Strategy::run_test_dribling(Robot& robot) {
-  robot.dribling = config.strategy.max_dribling;
+  robot.dribling = config.strategy.dribbling.value_r;
 }
 
 void Strategy::run_test(Robot& robot, Object& goal) {}

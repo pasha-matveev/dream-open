@@ -55,7 +55,8 @@ class Strategy {
   // Dubins
   bool last_dubins = false;  // Был ли dubins вызван в предыдущей итерации
   bool cur_dubins = false;   // Был ли dubins вызван в текущей итерации
-  void dubins_hit(Robot& robot, Object& goal, int power, bool control);
+  bool dubins_hit(Robot& robot, Object& goal, Field& field, int power,
+                  bool control);
 
   // common actions
   bool drive_target(Robot& robot, const Vec& target, double k,
@@ -69,7 +70,7 @@ class Strategy {
   double compute_ricochet(Robot& robot, bool left);
 
   // Root strategies
-  void run_keeper(Robot& robot, Object& ball, Object& goal, const Field& field);
+  void run_keeper(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_attacker(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_challenge(Robot& robot, Object& ball, Object& goal);
   void run_test_circle(Robot& robot);

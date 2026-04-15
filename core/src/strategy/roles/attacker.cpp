@@ -25,10 +25,11 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   if (robot.emitter) {
     // Взяли мяч
     if (last_dubins) {
-      spdlog::info("HIT DUBINS");
+      spdlog::info("KICK DUBINS");
       // Подъехали по окружности, используем удар оттуда
-      dubins_hit(robot, goal, compute_power(robot.position.y), false);
+      dubins_hit(robot, goal, field, compute_power(robot.position.y), false);
     } else {
+      spdlog::info("KICK GOAL");
       kick_to_goal(robot, goal, {});
       // Vec hole_position = robot.ball_hole_position();
       // if (!robot.prev_emitter) {
@@ -123,16 +124,35 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
                           robot.field_angle);
     } else {
       // Мяч на нашей половине
-      if (field.inside(last_ball_position) &&
-          field.dist(last_ball_position) >= 4) {
+
+      // if (drive_state == DriveState::NONE) {
+      //   if (field.inside(last_ball_position) &&
+      //       field.dist(last_ball_position) >=
+      //           config.strategy.dubins.border_dist_2) {
+      //     drive_state = DriveState::DUBINS;
+      //   } else {
+      //     drive_state = DriveState::EDGE;
+      //   }
+      // } else if (drive_state == DriveState::DUBINS &&
+      //            (!field.inside(last_ball_position) ||
+      //             field.dist(last_ball_position) <
+      //                 config.strategy.dubins.border_dist_1)) {
+      //   drive_state = DriveState::EDGE;
+      // } else if (drive_state == DriveState::EDGE &&
+      //            field.inside(last_ball_position) &&
+      //            field.dist(last_ball_position) >
+      //                config.strategy.dubins.border_dist_2) {
+      //   drive_state = DriveState::DUBINS;
+      // }
+
+      if (true) {
         // Мяч далеко от бортов, используем dubins path
-        spdlog::info("DUBINS BALL");
-        dubins_hit(robot, goal, compute_power(robot.position.y), false);
-      } else {
-        // Мяч близко к бортам, играем как обычно
-        spdlog::info("DRIVE_BALL {} {}", last_ball_position.x,
-                     last_ball_position.y);
-        drive_ball(robot, last_ball_position);
+        bool res = dubins_hit(robot, goal, field,
+                              compute_power(robot.position.y), false);
+        if (!res) {
+          // Мяч близко к бортам, играем как обычно
+          drive_ball(robot, last_ball_position);
+        }
       }
     }
   }

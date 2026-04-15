@@ -4,17 +4,24 @@
 #include "utils/config.h"
 #include "utils/geo/circle.h"
 
-void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
-  cur_dubins = true;
+bool circle_ok(Circle& circle, Field& field) {
+  double dist = field.dist(circle.center) - circle.r;
+  // чтобы робот проехал, должна быть хотя бы половина корпуса
+  return dist >= 10;
+}
+
+bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
+                          bool control) {
   robot.dribling = 0;
 
   if (robot.emitter) {
+    cur_dubins = true;
     if (control) {
       kick_to_goal(robot, goal, {});
     } else {
       robot.kicker_force = power;
     }
-    return;
+    return true;
   }
 
   Vec goal_direction;
@@ -38,12 +45,26 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   Vec right_center = destination + goal_direction.turn_right().resize(
                                        config.strategy.dubins.radius +
                                        config.strategy.dubins.separate);
+
   Circle left_circle{left_center, config.strategy.dubins.radius};
   Circle right_circle{right_center, config.strategy.dubins.radius};
+  bool left_ok = circle_ok(left_circle, field);
+  bool right_ok = circle_ok(right_circle, field);
+
+  if (!left_ok && !right_ok) {
+    return false;
+  }
+  cur_dubins = true;
 
   bool left;
-  if (abs(left_circle.dist(robot.position)) <
-      abs(right_circle.dist(robot.position))) {
+  if (left_ok && right_ok) {
+    if (abs(left_circle.dist(robot.position)) <
+        abs(right_circle.dist(robot.position))) {
+      left = true;
+    } else {
+      left = false;
+    }
+  } else if (left_ok) {
     left = true;
   } else {
     left = false;
@@ -104,4 +125,5 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
       normalize_angle(goal_direction.field_angle() - robot.field_angle);
 
   robot.rotation = target_relative;
+  return true;
 }

@@ -18,13 +18,4 @@ void Strategy::run_test_dribling(Robot& robot) {
   robot.dribling = config.strategy.dribbling.value_r;
 }
 
-void Strategy::run_test(Robot& robot, Object& goal) {
-  robot.dribling = config.strategy.dribbling.value_l;
-  long long delta = millis() - last_hit;
-  robot.kicker_force = 0;
-  if (delta >= 10100) {
-    last_hit = millis();
-  } else if (delta >= 10000) {
-    robot.kicker_force = 100;
-  }
-}
+void Strategy::run_test(Robot& robot, Object& goal) {}

@@ -125,6 +125,7 @@
       "bonus": 5,
       "separate": 1,
       "radius": 12,
+      "deep_inside": 3,
       "camera_target_dist": 10,
       "kick_precision": 0.02,
       "speed": {

@@ -30,19 +30,6 @@ class Strategy {
   KickStatus kick_status = KickStatus::NONE;
   long long kick_timeout_stamp = -10000;
   bool reset_kick = false;
-
-  // Turn
-  long long turn_start_time = -1;
-  bool reset_turn = false;
-
-  // common actions
-  bool drive_target(Robot& robot, const Vec& target, double k,
-                    double max_speed = 120, double min_speed = 1.0);
-  void drive_ball(Robot& robot, const Vec& ball);
-  void accelerated_dribbling(Robot& robot);
-  void desired_dribling(Robot& robot, bool ac_dribling);
-
-  // kick
   struct KickParams {
     double relative_dir;
     int power = 70;
@@ -55,9 +42,9 @@ class Strategy {
   void kick(Robot& robot, const KickParams& params);
   void kick_to_goal(Robot& robot, Object& goal, KickParams params);
 
-  bool take_ball(Robot& robot, long long forward_timeout);
-
-  // turn
+  // Turn
+  long long turn_start_time = -1;
+  bool reset_turn = false;
   struct TurnParams {
     double target_field_angle;
     bool curved_rotation = true;
@@ -65,9 +52,21 @@ class Strategy {
   };
   bool turn(Robot& robot, const TurnParams& params);
 
-  double compute_ricochet(Robot& robot, bool left);
-
+  // Dubins
+  bool last_dubins = false;  // Был ли dubins вызван в предыдущей итерации
+  bool cur_dubins = false;   // Был ли dubins вызван в текущей итерации
   void dubins_hit(Robot& robot, Object& goal, int power, bool control);
+
+  // common actions
+  bool drive_target(Robot& robot, const Vec& target, double k,
+                    double max_speed = 120, double min_speed = 1.0);
+  void drive_ball(Robot& robot, const Vec& ball);
+  void accelerated_dribbling(Robot& robot);
+  void desired_dribling(Robot& robot, bool ac_dribling);
+
+  bool take_ball(Robot& robot, long long forward_timeout);
+
+  double compute_ricochet(Robot& robot, bool left);
 
   // Root strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal, const Field& field);

@@ -111,7 +111,9 @@ struct Config {
       double bonus;
       double separate;
       double radius;
-
+      double deep_inside;
+      double camera_target_dist;
+      double kick_precision;
       Mapper speed;
     } dubins;
     struct AttackerRicochet {

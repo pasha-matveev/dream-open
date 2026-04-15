@@ -82,4 +82,6 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
     field.apply(robot);
   }
   robot.prev_emitter = robot.emitter;
+  last_dubins = cur_dubins;
+  cur_dubins = false;
 }

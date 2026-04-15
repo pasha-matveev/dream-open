@@ -59,7 +59,6 @@ static Vec compute_contr_point(const Vec& p, const Field& field) {
 
 static long long last_piter_visible = -10000;
 static Vec last_piter;
-static bool last_dubins = false;
 static const int dubins_y = 55;
 
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,

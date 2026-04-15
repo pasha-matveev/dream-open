@@ -5,12 +5,12 @@
 #include "utils/geo/polygon.h"
 #include "utils/millis.h"
 
-enum class AttackerRSide { NONE, LEFT, RIGHT };
-enum class AttackerRStatus { NONE, TAKE_BALL, ROTATE_1, MOVE, ROTATE_2, KICK };
+// enum class AttackerRSide { NONE, LEFT, RIGHT };
+// enum class AttackerRStatus { NONE, TAKE_BALL, ROTATE_1, MOVE, ROTATE_2, KICK
+// };
 
-static AttackerRSide r_side = AttackerRSide::NONE;
-static AttackerRStatus r_status = AttackerRStatus::NONE;
-static bool last_dubins = false;
+// static AttackerRSide r_side = AttackerRSide::NONE;
+// static AttackerRStatus r_status = AttackerRStatus::NONE;
 
 static int compute_power(double y) {
   if (y >= 243 - 12 - 45) {
@@ -102,9 +102,8 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     }
   } else {
     // Не взяли мяч
-    r_status = AttackerRStatus::NONE;
-    r_side = AttackerRSide::NONE;
-    last_dubins = false;
+    // r_status = AttackerRStatus::NONE;
+    // r_side = AttackerRSide::NONE;
     bool recently_visible = millis() - last_ball_visible < 3000;
     if (!recently_visible ||
         last_ball_position.y < config.strategy.attacker.border) {
@@ -127,7 +126,6 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       if (field.inside(last_ball_position) &&
           field.dist(last_ball_position) >= 4) {
         // Мяч далеко от бортов, используем dubins path
-        last_dubins = true;
         spdlog::info("DUBINS BALL");
         dubins_hit(robot, goal, compute_power(robot.position.y), false);
       } else {

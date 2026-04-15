@@ -1,13 +1,26 @@
+#include <spdlog/spdlog.h>
+
 #include "strategy/strategy.h"
 #include "utils/config.h"
 #include "utils/geo/circle.h"
 
 void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
-  robot.dribling = config.strategy.dribbling.value_l;
+  cur_dubins = true;
+  robot.dribling = 0;
+
+  if (robot.emitter) {
+    if (control) {
+      kick_to_goal(robot, goal, {});
+    } else {
+      robot.kicker_force = power;
+    }
+    return;
+  }
 
   Vec goal_direction;
 
-  if (goal.visible && (last_ball_position - robot.position).len() <= 5) {
+  if (goal.visible && (last_ball_position - robot.position).len() <=
+                          config.strategy.dubins.camera_target_dist) {
     // Подъехали близко к мячу, можно целиться по камере
     double dir_angle = goal.relative_angle + robot.field_angle;
     goal_direction = Vec{dir_angle};
@@ -42,29 +55,28 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   circle.draw(true);
   inactive_circle.draw(false);
 
-  if (robot.emitter) {
-    if (control) {
-      kick_to_goal(robot, goal, {});
-    } else {
-      robot.kicker_force = power;
-    }
-    return;
-  }
-
   double kick_angle =
       normalize_angle(goal_direction.field_angle() -
                       (last_ball_position - robot.position).field_angle());
 
   Vec movement_direction;
   double len;
-  if (abs(kick_angle) <= 0.04) {
+  if (abs(kick_angle) <= config.strategy.dubins.kick_precision) {
     // Едем напрямую к мячу
     Vec vel = last_ball_position - robot.position;
     movement_direction = vel;
     len = vel.len();
-  } else if (circle.inside(robot.position) ||
-             circle.dist(robot.position) <= 0) {
-    // Внутри круга / на круге
+  } else if (circle.dist(robot.position) < 0 &&
+             circle.dist(robot.position) < config.strategy.dubins.deep_inside) {
+    // Глубоко внутри круга // Выталкиваемся в точку напротив ворот
+    Vec t = goal_direction.resize(-circle.r) + circle.center;
+    movement_direction = t - robot.position;
+    len = 0;
+    len += movement_direction.len();
+    len += circle.path_len(t, destination, left);
+    len += config.strategy.dubins.bonus;
+  } else if (circle.inside(robot.position)) {
+    // На круге
     Vec center_dir = circle.center - robot.position;
     if (left) {
       movement_direction = center_dir.turn_right();

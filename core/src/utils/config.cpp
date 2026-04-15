@@ -124,8 +124,12 @@ void load_config() {
 
   const auto& dubins = strategy["dubins"];
   loaded.strategy.dubins.radius = dubins["radius"].GetDouble();
+  loaded.strategy.dubins.deep_inside = dubins["deep_inside"].GetDouble();
   loaded.strategy.dubins.bonus = dubins["bonus"].GetDouble();
   loaded.strategy.dubins.separate = dubins["separate"].GetDouble();
+  loaded.strategy.dubins.camera_target_dist =
+      dubins["camera_target_dist"].GetDouble();
+  loaded.strategy.dubins.kick_precision = dubins["kick_precision"].GetDouble();
   loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
   const auto& target_left = strategy["target_left"];

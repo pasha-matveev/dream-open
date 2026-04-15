@@ -125,6 +125,8 @@
       "bonus": 5,
       "separate": 1,
       "radius": 12,
+      "camera_target_dist": 10,
+      "kick_precision": 0.02,
       "speed": {
         "param_l": 20,
         "param_r": 40,

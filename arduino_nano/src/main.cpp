@@ -95,7 +95,7 @@ void loop() {
       robot.speed = read_data<float>();
       robot.rotation = read_data<float>();
       robot.rotation_limit = read_data<float>();
-      robot.dribling.set_speed(read_data<int32_t>());
+      robot.dribling.set_rmp(read_data<int32_t>());
       robot.kicker_force = read_data<int32_t>();
       rgb_led = read_data<bool>();
       robot.pause = read_data<bool>();
@@ -108,25 +108,26 @@ void loop() {
   //   robot.kicker.set_force(robot.kicker_force);
   // }
 
+  // Ручная проверка удара
   bool mega_kick = false;
-  if (test_state || millis() <= test_state_cooldown) {
-    robot.dribling.set_speed(ROBOT ? 50 : 30);
-  } else if (alive_tm < millis()) {
-    // usb не работает
-    robot.dribling.set_speed(0);
-  }
-  if (robot.button.state() && millis() > cooldown) {
-    if (test_state) {
-      mega_kick = true;
-      robot.kicker_force = 100;
-      test_state = false;
-      test_state_cooldown = millis() + 500;
-    } else {
-      test_state = true;
-    }
-    cooldown = millis() + 1000;
-  }
-  robot.button.was_pressed = false;
+  // if (test_state || millis() <= test_state_cooldown) {
+  //   robot.dribling.set_speed(ROBOT ? 50 : 30);
+  // } else if (alive_tm < millis()) {
+  //   // usb не работает
+  //   robot.dribling.set_speed(0);
+  // }
+  // if (robot.button.state() && millis() > cooldown) {
+  //   if (test_state) {
+  //     mega_kick = true;
+  //     robot.kicker_force = 100;
+  //     test_state = false;
+  //     test_state_cooldown = millis() + 500;
+  //   } else {
+  //     test_state = true;
+  //   }
+  //   cooldown = millis() + 1000;
+  // }
+  // robot.button.was_pressed = false;
 
   // if (robot.kicker.is_charged() && !blue) {
   //   pixels.setPixelColor(1, pixels.Color(0, 0, 255));

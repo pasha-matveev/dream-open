@@ -104,15 +104,15 @@ struct Config {
       double x, y;
     };
     Mapper dribbling;
+    struct {
+      int border;
+    } attacker;
     struct Dubins {
       double bonus;
       double separate;
       double radius;
 
       Mapper speed;
-
-      bool attacker_control;
-      bool keeper_control;
     } dubins;
     struct AttackerRicochet {
       bool enabled;

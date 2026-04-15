@@ -119,18 +119,15 @@ void load_config() {
   loaded.strategy.enabled = strategy["enabled"].GetBool();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
 
+  const auto& attacker = strategy["attacker"];
+  loaded.strategy.attacker.border = attacker["border"].GetInt();
+
   const auto& dubins = strategy["dubins"];
-  loaded.strategy.dubins.attacker_control =
-      dubins["attacker_control"].GetBool();
-  loaded.strategy.dubins.keeper_control = dubins["keeper_control"].GetBool();
   loaded.strategy.dubins.radius = dubins["radius"].GetDouble();
   loaded.strategy.dubins.bonus = dubins["bonus"].GetDouble();
   loaded.strategy.dubins.separate = dubins["separate"].GetDouble();
   loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
-  const auto& attacker_ricochet = strategy["attacker_ricochet"];
-  loaded.strategy.attacker_ricochet.enabled =
-      attacker_ricochet["enabled"].GetBool();
   const auto& target_left = strategy["target_left"];
   loaded.strategy.target_left.x = target_left["x"].GetDouble();
   loaded.strategy.target_left.y = target_left["y"].GetDouble();

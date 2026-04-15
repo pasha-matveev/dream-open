@@ -94,7 +94,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         // Подъехали по dubins, продолжаем использовать эту стратегию
         spdlog::info("DUBINS KICK");
         cur_dubins = true;
-        dubins_hit(robot, goal, 100, config.strategy.dubins.keeper_control);
+        dubins_hit(robot, goal, 100, false);
       } else {
         // Просто целимся и стреляем
         spdlog::info("SIMPLE KICK");
@@ -114,7 +114,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           // Мяч в зоне удара, используем dubins_path
           spdlog::info("DUBINS PROTECT");
           cur_dubins = true;
-          dubins_hit(robot, goal, 100, config.strategy.dubins.keeper_control);
+          dubins_hit(robot, goal, 100, false);
         } else if (last_ball_position.y > robot.position.y) {
           spdlog::info("RAM");
           drive_target(robot, last_ball_position, 3, 120, 50);

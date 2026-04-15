@@ -29,8 +29,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     if (last_dubins) {
       spdlog::info("HIT DUBINS");
       // Подъехали по окружности, используем удар оттуда
-      dubins_hit(robot, goal, compute_power(robot.position.y),
-                 config.strategy.dubins.attacker_control);
+      dubins_hit(robot, goal, compute_power(robot.position.y), false);
     } else {
       kick_to_goal(robot, goal, {});
       // Vec hole_position = robot.ball_hole_position();
@@ -131,8 +130,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         // Мяч далеко от бортов, используем dubins path
         last_dubins = true;
         spdlog::info("DUBINS BALL");
-        dubins_hit(robot, goal, compute_power(robot.position.y),
-                   config.strategy.dubins.attacker_control);
+        dubins_hit(robot, goal, compute_power(robot.position.y), false);
       } else {
         // Мяч близко к бортам, играем как обычно
         spdlog::info("DRIVE_BALL {} {}", last_ball_position.x,

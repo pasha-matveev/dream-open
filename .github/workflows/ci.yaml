@@ -17,10 +17,10 @@ jobs:
       arduino_nano: ${{ steps.filter.outputs.arduino_nano }}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Filter paths
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             core:
@@ -42,7 +42,7 @@ jobs:
         working-directory: ./core
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install libraries for libcamera
         run: sudo apt update && sudo apt install -y libboost-dev libgnutls28-dev openssl libtiff-dev pybind11-dev qtbase5-dev libqt5core5a libqt5widgets5 meson python3-yaml python3-ply libglib2.0-dev libgstreamer-plugins-base1.0-dev python3-jinja2
       - name: Build and install libcamera
@@ -83,7 +83,7 @@ jobs:
         working-directory: ./lidar
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Fetch submodule
         run: git submodule update --init
       - name: Install X11
@@ -103,14 +103,14 @@ jobs:
         working-directory: ./arduino_nano
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
-      - uses: actions/cache@v4
+        uses: actions/checkout@v6
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
             ~/.platformio/.cache
           key: ${{ runner.os }}-pio
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install PlatformIO Core

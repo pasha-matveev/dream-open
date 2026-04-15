@@ -67,7 +67,6 @@ class Strategy {
 
   double compute_ricochet(Robot& robot, bool left);
 
-  // Big chunks
   void dubins_hit(Robot& robot, Object& goal, int power, bool control);
 
   // Root strategies

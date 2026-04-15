@@ -10,8 +10,6 @@
 #include "utils/geo/vec.h"
 #include "utils/millis.h"
 
-using namespace std::chrono;
-
 Strategy::Strategy() { role = config.strategy.role; }
 
 void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {

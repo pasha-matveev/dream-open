@@ -116,7 +116,6 @@ struct Config {
 
       bool attacker_control;
       bool keeper_control;
-      int goal_dist;
     } dubins;
     struct AttackerRicochet {
       bool enabled;

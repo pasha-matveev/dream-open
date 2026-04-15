@@ -21,44 +21,20 @@
     "ball": {
       "setup": false,
       "min_area": 10,
-      "hsv_min": [
-        95,
-        104,
-        97
-      ],
-      "hsv_max": [
-        120,
-        255,
-        255
-      ]
+      "hsv_min": [95, 104, 97],
+      "hsv_max": [120, 255, 255]
     },
     "goal": {
       "type": "yellow",
       "setup": false,
       "min_area": 20,
       "yellow": {
-        "hsv_min": [
-          88,
-          83,
-          84
-        ],
-        "hsv_max": [
-          97,
-          255,
-          255
-        ]
+        "hsv_min": [88, 83, 84],
+        "hsv_max": [97, 255, 255]
       },
       "blue": {
-        "hsv_min": [
-          0,
-          160,
-          160
-        ],
-        "hsv_max": [
-          30,
-          255,
-          255
-        ]
+        "hsv_min": [0, 160, 160],
+        "hsv_max": [30, 255, 255]
       }
     }
   },
@@ -77,11 +53,7 @@
     },
     "buttons": {
       "enabled": true,
-      "pins": [
-        11,
-        9,
-        10
-      ]
+      "pins": [11, 9, 10]
     },
     "display": {
       "enabled": false,
@@ -116,18 +88,19 @@
     "slow_dribling": 0,
     "dribling_duration": 600,
     "dubins": {
-      "attacker_control": false,
-      "keeper_control": false,
-      "radius": 12,
-      "inside_threshold": 2,
       "bonus": 5,
-      "delta": 1,
-      "threshold": 2,
-      "base_speed": 40,
-      "max_speed": 120,
-      "base_dist": 20,
-      "max_dist": 40,
-      "goal_dist": 10,
+      "separate": 1,
+      "radius": 12,
+
+      "speed": {
+        "param_l": 20,
+        "param_r": 40,
+        "value_l": 40,
+        "value_r": 120
+      },
+
+      "attacker_control": false,
+      "keeper_control": false
     },
     "enabled": true,
     "attacker_ricochet": {

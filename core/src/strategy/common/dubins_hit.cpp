@@ -19,14 +19,12 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
 
   Vec destination =
       last_ball_position + goal_direction.resize(-config.strategy.dubins.bonus);
-  Vec left_center =
-      destination +
-      goal_direction.turn_left().resize(config.strategy.dubins.radius) +
-      goal_direction.turn_right().resize(config.strategy.dubins.separate);
-  Vec right_center =
-      destination +
-      goal_direction.turn_right().resize(config.strategy.dubins.radius) +
-      goal_direction.turn_left().resize(config.strategy.dubins.separate);
+  Vec left_center = destination + goal_direction.turn_left().resize(
+                                      config.strategy.dubins.radius +
+                                      config.strategy.dubins.separate);
+  Vec right_center = destination + goal_direction.turn_right().resize(
+                                       config.strategy.dubins.radius +
+                                       config.strategy.dubins.separate);
   Circle left_circle{left_center, config.strategy.dubins.radius};
   Circle right_circle{right_center, config.strategy.dubins.radius};
 
@@ -39,8 +37,10 @@ void Strategy::dubins_hit(Robot& robot, Object& goal, int power, bool control) {
   }
 
   Circle& circle = left ? left_circle : right_circle;
+  Circle& inactive_circle = left ? right_circle : left_circle;
 
-  circle.draw();
+  circle.draw(true);
+  inactive_circle.draw(false);
 
   if (robot.emitter) {
     if (control) {

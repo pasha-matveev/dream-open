@@ -131,8 +131,6 @@ void load_config() {
   loaded.strategy.dubins.separate = dubins["separate"].GetDouble();
   loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
-  loaded.strategy.dubins.goal_dist = dubins["goal_dist"].GetInt();
-
   const auto& attacker_ricochet = strategy["attacker_ricochet"];
   loaded.strategy.attacker_ricochet.enabled =
       attacker_ricochet["enabled"].GetBool();

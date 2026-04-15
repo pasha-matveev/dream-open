@@ -42,7 +42,7 @@ Vec Circle::tangent_right(const Vec& p) const {
   return t;
 }
 
-void Circle::draw() const {
+void Circle::draw(bool is_active) const {
   if (!sfml_window || !sfml_window->isOpen()) {
     return;
   }
@@ -50,7 +50,8 @@ void Circle::draw() const {
   auto sfml_r = cm_to_px(r);
   auto shape = sf::CircleShape(sfml_r);
   shape.setPosition(toSFML(center) - Vec{sfml_r, sfml_r});
-  shape.setOutlineColor(sf::Color(255, 0, 0));
+  sf::Color color = is_active ? sf::Color(255, 0, 0) : sf::Color(0, 0, 255);
+  shape.setOutlineColor(color);
   shape.setOutlineThickness(2);
   shape.setFillColor(sf::Color::Transparent);
   sfml_window->draw(shape);

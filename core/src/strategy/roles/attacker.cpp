@@ -22,8 +22,6 @@ static int compute_power(double y) {
 
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
                             Field& field) {
-  const int BORDER = 100;
-
   if (robot.emitter) {
     // Взяли мяч
     if (last_dubins) {
@@ -108,7 +106,8 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     r_side = AttackerRSide::NONE;
     last_dubins = false;
     bool recently_visible = millis() - last_ball_visible < 3000;
-    if (!recently_visible || last_ball_position.y < BORDER) {
+    if (!recently_visible ||
+        last_ball_position.y < config.strategy.attacker.border) {
       // Мяч у вратаря или мы его не видим
       Vec target;
       if (recently_visible && last_ball_position.x < 91) {

@@ -32,7 +32,7 @@ bool Strategy::turn(Robot& robot, const TurnParams& params) {
   }
   robot.rotation = delta;
   desired_dribling(robot, params.accelerated_dribbling);
-  if (abs(delta) <= 0.015) {
+  if (abs(delta) <= config.strategy.turn_precision) {
     // поворот закончен
     return true;
   }

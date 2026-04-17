@@ -112,6 +112,7 @@
     "enabled": true,
     "role": "keeper",
     "fps": 120,
+    "turn_precision": 0.02,
     "dribbling": {
       "param_l": 0,
       "param_r": 600,

@@ -101,6 +101,7 @@ struct Config {
     string role;
     int fps;
     bool predict;
+    double turn_precision;
 
     struct Target {
       double x, y;

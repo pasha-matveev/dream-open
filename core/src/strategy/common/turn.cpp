@@ -1,4 +1,5 @@
 #include "strategy/strategy.h"
+#include "utils/config.h"
 #include "utils/millis.h"
 
 constexpr int TURN_ACCEL_TIME = 300;

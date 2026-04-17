@@ -99,7 +99,6 @@ struct Config {
   struct Strategy {
     bool enabled;
     string role;
-    bool predict;
     double turn_precision;
 
     struct Motion {

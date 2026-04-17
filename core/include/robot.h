@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <queue>
 
 #include "gpio/buzzer.h"
@@ -13,6 +14,11 @@
 using namespace LibSerial;
 
 enum class RobotState { RUNNING, PAUSE, KICKOFF_LEFT, KICKOFF_RIGHT };
+
+struct LidarPose {
+  Vec position;
+  double field_angle;
+};
 
 class Robot {
  private:
@@ -82,7 +88,10 @@ class Robot {
 
   void init_hardware(Object& ball, Object& goal);
 
-  bool compute_lidar();
+  // Возвращает измеренную позу от лидара, если свежие данные пришли.
+  // Не модифицирует robot.position / robot.field_angle — это делает
+  // стратегия через EMA-блендинг с предсказанием.
+  std::optional<LidarPose> compute_lidar();
   void calibrate();
   void look_forward();
   void compute_gyro_angle();

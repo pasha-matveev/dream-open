@@ -39,9 +39,25 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   if (config.serial.enabled) {
     robot.compute_gyro_angle();
   }
-  bool lidar_data = robot.compute_lidar();
-  if (!lidar_data && config.serial.enabled && config.strategy.predict) {
+  // Всегда двигаем позу предсказанием; лидар потом её уточняет EMA-блендингом.
+  if (config.serial.enabled) {
     robot.predict_position(dt);
+  }
+  if (auto measured = robot.compute_lidar(); measured.has_value()) {
+    if (has_lidar_fix) {
+      // Экспоненциальное сглаживание позы с лидаром.
+      static constexpr double ALPHA_XY = 0.3;
+      static constexpr double ALPHA_ANG = 0.5;
+      robot.position =
+          measured->position * ALPHA_XY + robot.position * (1.0 - ALPHA_XY);
+      double diff = normalize_angle(measured->field_angle - robot.field_angle);
+      robot.field_angle = normalize_angle(robot.field_angle + ALPHA_ANG * diff);
+    } else {
+      // Первый кадр — хард-снап, предсказания ещё нет.
+      robot.position = measured->position;
+      robot.field_angle = measured->field_angle;
+      has_lidar_fix = true;
+    }
   }
   if (config.visualization.interactive) {
     // В интерактивной визуализации ball.field_position / ball.relative_angle

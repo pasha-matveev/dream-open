@@ -119,7 +119,7 @@ void load_config() {
   loaded.strategy.fps = strategy["fps"].GetInt();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
   loaded.strategy.predict = strategy["predict"].GetBool();
-  loaded.strategy.turn_precision = strategy["turn_prevision"].GetBool();
+  loaded.strategy.turn_precision = strategy["turn_precision"].GetDouble();
 
   const auto& attacker = strategy["attacker"];
   loaded.strategy.attacker.border = attacker["border"].GetDouble();

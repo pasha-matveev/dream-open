@@ -119,11 +119,11 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       // Мяч в лунке
       if (last_dubins) {
         // Подъехали по dubins, продолжаем использовать эту стратегию
-        spdlog::info("DUBINS KICK");
+        // spdlog::info("DUBINS KICK");
         dubins_hit(robot, goal, field, 100, false);
       } else {
         // Просто целимся и стреляем
-        spdlog::info("SIMPLE KICK");
+        // spdlog::info("SIMPLE KICK");
         kick_to_goal(robot, goal, {});
         // hit(robot, goal, 100, 200, true, 0, 0.02, true);
       }
@@ -133,23 +133,23 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         if (last_ball_position.y >= config.strategy.keeper.global_border) {
           // Мяч за нашей зоной, защищаем ворота
           Vec target = compute_contr_point(last_ball_position, field);
-          spdlog::info("LONG PROTECT {} {}", target.x, target.y);
+          // spdlog::info("LONG PROTECT {} {}", target.x, target.y);
           drive_target(robot, target, 20, 100);
           robot.rotation = last_ball_relative_angle;
         } else if (last_ball_position.y >=
                        config.strategy.keeper.dubins_border &&
                    dubins_hit(robot, goal, field, 100, false)) {
           // Мяч в зоне удара, используем dubins_path
-          spdlog::info("DUBINS PROTECT");
+          // spdlog::info("DUBINS PROTECT");
         } else if (last_ball_position.y > robot.position.y) {
           // Просто бьем мяч корпусом
-          spdlog::info("RAM");
+          // spdlog::info("RAM");
           drive_target(robot, last_ball_position, 3, 120, 50);
           robot.rotation = -robot.field_angle;
         } else {
           // Мяч близко, _аккуратно_ его берем
-          spdlog::info("NEAR PROTECT {} {} {}", ball_visible_tm,
-                       last_ball_position.x, last_ball_position.y);
+          // spdlog::info("NEAR PROTECT {} {} {}", ball_visible_tm,
+          //  last_ball_position.x, last_ball_position.y);
           drive_ball(robot, last_ball_position);
         }
       } else {

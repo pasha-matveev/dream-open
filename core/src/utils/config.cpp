@@ -116,10 +116,15 @@ void load_config() {
   const auto& strategy = doc["strategy"];
   loaded.strategy.enabled = strategy["enabled"].GetBool();
   loaded.strategy.role = strategy["role"].GetString();
-  loaded.strategy.fps = strategy["fps"].GetInt();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
   loaded.strategy.predict = strategy["predict"].GetBool();
   loaded.strategy.turn_precision = strategy["turn_precision"].GetDouble();
+
+  const auto& motion = strategy["motion"];
+  loaded.strategy.motion.max_linear_accel =
+      motion["max_linear_accel"].GetDouble();
+  loaded.strategy.motion.max_angular_accel =
+      motion["max_angular_accel"].GetDouble();
 
   const auto& attacker = strategy["attacker"];
   loaded.strategy.attacker.border = attacker["border"].GetDouble();

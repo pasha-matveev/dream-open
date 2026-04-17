@@ -99,9 +99,13 @@ struct Config {
   struct Strategy {
     bool enabled;
     string role;
-    int fps;
     bool predict;
     double turn_precision;
+
+    struct Motion {
+      double max_linear_accel;
+      double max_angular_accel;
+    } motion;
 
     struct Target {
       double x, y;

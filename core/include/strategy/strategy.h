@@ -20,6 +20,14 @@ class Strategy {
   // Остановить робота до этого времени
   long long stop_until = -1;
 
+  // Момент начала предыдущего тика стратегии (для вычисления реального dt).
+  long long last_tick_ms = -1;
+  // Последний вычисленный dt, с ограничением [0, 0.1] сек.
+  double last_dt = 0.0;
+  // Скользящее среднее dt для логирования фактического FPS.
+  double avg_dt = 0.0;
+  long long last_fps_log_ms = 0;
+
   // Последний раз, когда видели мяч
   long long last_ball_visible = -10000;
   Vec last_ball_position;
@@ -79,5 +87,6 @@ class Strategy {
 
  public:
   void run(Robot& robot, Object& ball, Object& goal, Field& field);
+  double get_last_dt() const { return last_dt; }
   Strategy();
 };

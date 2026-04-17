@@ -3,6 +3,7 @@
 #include <libserial/SerialPort.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <iostream>
 #include <thread>
 
@@ -22,8 +23,8 @@ void Robot::read_from_arduino() {
 static bool written = false;
 
 void Robot::write_to_arduino() {
-  speed = vel.len();
-  direction = vel.field_angle() - field_angle;
+  speed = actual_vel.len();
+  direction = actual_vel.field_angle() - field_angle;
   uart->write_data<char>('W');
   uart->write_data<float>(
       normalize_angle2(-gyro_angle - normalize_angle2(direction)));
@@ -185,21 +186,19 @@ void Robot::compute_gyro_angle() {
   // field_angle = normalize_angle(gyro_angle - top_angle);
 }
 
-void Robot::predict_position() {
-  // Угол по гироскопу
+void Robot::predict_position(double dt) {
   field_angle = normalize_angle(gyro_angle - top_angle);
+  position = position + actual_vel * dt;
+}
 
-  // Позиция по логике
-  double len = (double)speed / config.strategy.fps;
-  if (len > 0) {
-    double dir = vel.field_angle();
-    Vec shift = Vec{dir} * len;
-    position = position + shift;
+void Robot::apply_motion_limits(double dt) {
+  if (dt <= 0) return;
+  double max_linear_step = config.strategy.motion.max_linear_accel * dt;
+  Vec delta = vel - actual_vel;
+  if (delta.len() > max_linear_step) {
+    delta = delta.resize(max_linear_step);
   }
-
-  // field_angle +=
-  //     clamp(rotation / 60.0, -1.0 * rotation_limit / 60.0, rotation_limit
-  //     / 60.0);
+  actual_vel += delta;
 }
 
 double Robot::relative_angle(const Vec& p) const {

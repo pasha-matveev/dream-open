@@ -76,7 +76,7 @@ bool Visualization::running() {
 }
 
 void Visualization::run(Robot& robot, Object& ball, Object& goal,
-                        const Field& field) {
+                        const Field& field, double dt) {
   if (!running()) return;
   draw_polygon(field, sf::Color::White);
   // draw_polygon(left_attacker_r, zone_color);
@@ -98,8 +98,10 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     if (robot.state == RobotState::PAUSE) {
       robot.state = RobotState::RUNNING;
     }
-    // rotation
-    double max_rotation = robot.rotation_limit / config.strategy.fps / 3;
+    // rotation: robot.rotation — это целевой относительный угол; делаем шаг к
+    // нему, ограниченный rotation_limit (rad/s) с коэффициентом /3 для
+    // совместимости со старым поведением.
+    double max_rotation = robot.rotation_limit * dt / 3;
     robot.field_angle += clamp(robot.rotation, -1 * max_rotation, max_rotation);
     if (robot.emitter && override_ball) {
       ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
@@ -107,9 +109,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
 
     // move
     robot.field_angle = normalize_angle(robot.field_angle);
-    Vec m = robot.vel.resize(robot.vel.len() / config.strategy.fps);
-
-    robot.position = robot.position + m;
+    robot.position = robot.position + robot.actual_vel * dt;
   }
 
   if (override_ball) {

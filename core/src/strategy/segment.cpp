@@ -3,8 +3,10 @@
 #include <spdlog/spdlog.h>
 
 #include <cassert>
+#include <cmath>
 
 #include "robot.h"
+#include "utils/config.h"
 #include "utils/geo/precision.h"
 
 using namespace std;
@@ -55,15 +57,22 @@ double Segment::dist(const Vec& p) const {
 }
 
 void Segment::apply(Robot& robot) const {
-  double d = normal_dist(robot.position);
+  // Разметка поля смещена на 12 см от бортика; радиус робота 9 см; 2 см
+  // запас на торможение — остаётся свободного расстояния (d + 2) до контакта.
+  double d = normal_dist(robot.position) + 2.0;
   Vec ox = b - a;
   Vec oy = ox.turn_left();
 
   double vx = robot.vel.proection(ox);
   double vy = robot.vel.proection(oy);
-  if (d <= 10) {
-    vy = min(vy, d * 0.9);
-  }
+
+  // Максимальная нормальная скорость, при которой робот ещё успеет
+  // затормозить до нуля на расстоянии d с заданным a_max:
+  //   v_safe = sqrt(2 * a_max * d)
+  double d_safe = max(0.0, d);
+  double v_safe =
+      sqrt(2.0 * config.strategy.motion.max_linear_accel * d_safe);
+  vy = min(vy, v_safe);
 
   Vec vvx = ox.resize(vx);
   Vec vvy = oy.resize(vy);

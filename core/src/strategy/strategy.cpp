@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
@@ -13,14 +14,45 @@
 Strategy::Strategy() { role = config.strategy.role; }
 
 void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
+  long long now = millis();
+  double dt = 0.0;
+  if (last_tick_ms >= 0) {
+    dt = std::clamp((now - last_tick_ms) / 1000.0, 0.0, 0.1);
+  }
+  last_tick_ms = now;
+  last_dt = dt;
+
+  if (dt > 0) {
+    if (avg_dt == 0.0) {
+      avg_dt = dt;
+    } else {
+      avg_dt = 0.9 * avg_dt + 0.1 * dt;
+    }
+  }
+  if (now - last_fps_log_ms >= 1000) {
+    last_fps_log_ms = now;
+    if (avg_dt > 0) {
+      spdlog::info("Strategy FPS: {:.1f}", 1.0 / avg_dt);
+    }
+  }
+
   if (config.serial.enabled) {
     robot.compute_gyro_angle();
   }
   bool lidar_data = robot.compute_lidar();
   if (!lidar_data && config.serial.enabled && config.strategy.predict) {
-    robot.predict_position();
+    robot.predict_position(dt);
   }
-  if (!config.visualization.interactive && robot.camera->new_data()) {
+  if (config.visualization.interactive) {
+    // В интерактивной визуализации ball.field_position / ball.relative_angle
+    // ставятся через мышь в visualization.cpp и ball.visible поднимается там
+    // же. Здесь только пробрасываем состояние в last_ball_*.
+    if (ball.visible) {
+      last_ball_visible = millis();
+      last_ball_position = ball.field_position;
+      last_ball_relative_angle = ball.relative_angle;
+    }
+  } else if (robot.camera->new_data()) {
     ball.compute_field_position(robot);
     if (ball.visible) {
       assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
@@ -35,8 +67,10 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   }
 
   if (millis() < stop_until) {
-    robot.vel = robot.vel.resize(0);
+    robot.vel = {0, 0};
+    robot.rotation = 0;
     robot.rotation_limit = 0;
+    robot.apply_motion_limits(dt);
     return;
   }
 
@@ -44,11 +78,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   robot.dribling = 0;
   robot.rotation = 0;
   robot.vel = {0, 0};
-  if (robot.emitter) {
-    robot.rotation_limit = 15;
-  } else {
-    robot.rotation_limit = 30;
-  }
+  robot.rotation_limit = 50;
 
   if (config.strategy.enabled) {
     reset_kick = true;
@@ -84,4 +114,6 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   robot.prev_emitter = robot.emitter;
   last_dubins = cur_dubins;
   cur_dubins = false;
+
+  robot.apply_motion_limits(dt);
 }

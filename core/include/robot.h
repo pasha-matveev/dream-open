@@ -64,8 +64,15 @@ class Robot {
   int first_time = 0;
   bool kicker_charged = false;
 
+  // Желаемая скорость от стратегии (команда).
   Vec vel{0, 0};
+  // Целевой относительный угол поворота корпуса (радианы). Arduino доворачивает
+  // к нему с ограничением по rotation_limit. Семантически это угол, а не
+  // угловая скорость, поэтому slew-лимитер к нему не применяется.
   double rotation = 0;
+  // Сглаженная slew-лимитером оценка реальной линейной скорости робота.
+  // Именно она отправляется на моторы и используется для предсказания позиции.
+  Vec actual_vel{0, 0};
   double rotation_limit = 100;
   int dribling = 0;
   int kicker_force = 0;
@@ -83,7 +90,10 @@ class Robot {
   void read_from_arduino();
   void write_to_arduino();
 
-  void predict_position();
+  void predict_position(double dt);
+  // Сглаживает vel/rotation в actual_vel/actual_rotation с ограничением
+  // по линейному и угловому ускорению из config.strategy.motion.
+  void apply_motion_limits(double dt);
   double relative_angle(const Vec& p) const;
   Vec ball_hole_position() const;
 };

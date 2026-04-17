@@ -111,8 +111,11 @@
   "strategy": {
     "enabled": true,
     "role": "keeper",
-    "fps": 120,
     "turn_precision": 0.02,
+    "motion": {
+      "max_linear_accel": 200,
+      "max_angular_accel": 20
+    },
     "dribbling": {
       "param_l": 0,
       "param_r": 600,

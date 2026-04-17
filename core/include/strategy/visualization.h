@@ -39,6 +39,6 @@ class Visualization {
   ~Visualization();
   void begin();
   bool running();
-  void run(Robot& robot, Object& ball, Object& goal, const Field&);
+  void run(Robot& robot, Object& ball, Object& goal, const Field&, double dt);
   void draw_polygon(const Polygon&, const sf::Color& color);
 };

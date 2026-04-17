@@ -110,6 +110,9 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
           key: ${{ runner.os }}-pio
+      - id: init-robot
+        name: Copy robot id file
+        run: cp include/Const.h.example include/Const.h
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"

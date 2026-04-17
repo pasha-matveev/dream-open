@@ -132,8 +132,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         // Видим мяч
         if (last_ball_position.y >= config.strategy.keeper.global_border) {
           // Мяч за нашей зоной, защищаем ворота
-          spdlog::info("LONG PROTECT");
           Vec target = compute_contr_point(last_ball_position, field);
+          spdlog::info("LONG PROTECT {} {}", target.x, target.y);
           drive_target(robot, target, 20, 100);
           robot.rotation = last_ball_relative_angle;
         } else if (last_ball_position.y >=

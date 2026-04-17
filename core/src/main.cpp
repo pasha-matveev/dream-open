@@ -142,7 +142,7 @@ int main() {
       if (cv::waitKey(compute_delay(cycle_start)) == 27) {
         break;
       }
-    } else {
+    } else if (config.visualization.enabled) {
       auto sleep_ms = compute_delay(cycle_start);
       if (sleep_ms > 0) {
         this_thread::sleep_for(chrono::milliseconds(sleep_ms));

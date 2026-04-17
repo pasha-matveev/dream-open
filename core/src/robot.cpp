@@ -191,9 +191,11 @@ void Robot::predict_position() {
 
   // Позиция по логике
   double len = (double)speed / config.strategy.fps;
-  double dir = field_angle + direction;
-  Vec shift = {-1 * sin(dir) * len, cos(dir) * len};
-  position = position + shift;
+  if (len > 0) {
+    double dir = vel.field_angle();
+    Vec shift = Vec{dir} * len;
+    position = position + shift;
+  }
 
   // field_angle +=
   //     clamp(rotation / 60.0, -1.0 * rotation_limit / 60.0, rotation_limit

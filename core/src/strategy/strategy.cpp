@@ -36,26 +36,24 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
     }
   }
 
-  if (config.serial.enabled) {
-    robot.compute_gyro_angle();
-  }
   // Всегда двигаем позу предсказанием; лидар потом её уточняет EMA-блендингом.
   if (config.serial.enabled) {
+    robot.compute_gyro_angle();
     robot.predict_position(dt);
   }
   if (auto measured = robot.compute_lidar(); measured.has_value()) {
     if (has_lidar_fix) {
-      // Экспоненциальное сглаживание позы с лидаром.
+      // Позицию сглаживаем EMA с лидаром. Угол оставляем от гироскопа —
+      // он точнее короткосрочно; долгосрочный дрейф правит calibrate() по
+      // стабильной позе внутри compute_lidar.
       static constexpr double ALPHA_XY = 0.3;
-      static constexpr double ALPHA_ANG = 0.5;
       robot.position =
           measured->position * ALPHA_XY + robot.position * (1.0 - ALPHA_XY);
-      double diff = normalize_angle(measured->field_angle - robot.field_angle);
-      robot.field_angle = normalize_angle(robot.field_angle + ALPHA_ANG * diff);
     } else {
-      // Первый кадр — хард-снап, предсказания ещё нет.
+      // Первый кадр — хард-снап позиции и синхронизация гироскопа к лидару.
       robot.position = measured->position;
-      robot.field_angle = measured->field_angle;
+      robot.calibrate(measured->field_angle);
+      robot.compute_gyro_angle();
       has_lidar_fix = true;
     }
   }

@@ -92,7 +92,10 @@ class Robot {
   // Не модифицирует robot.position / robot.field_angle — это делает
   // стратегия через EMA-блендинг с предсказанием.
   std::optional<LidarPose> compute_lidar();
+  // Калибрует top_angle так, что гироскоп будет выдавать текущий field_angle.
   void calibrate();
+  // Калибрует top_angle так, что гироскоп будет выдавать measured_field_angle.
+  void calibrate(double measured_field_angle);
   void look_forward();
   void compute_gyro_angle();
 

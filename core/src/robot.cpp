@@ -123,6 +123,10 @@ void Robot::calibrate() {
   top_angle = normalize_angle(gyro_angle - field_angle);
 }
 
+void Robot::calibrate(double measured_field_angle) {
+  top_angle = normalize_angle(gyro_angle - measured_field_angle);
+}
+
 std::optional<LidarPose> Robot::compute_lidar() {
   if (!lidar) return std::nullopt;
   auto res = lidar->compute(*this);
@@ -160,7 +164,8 @@ std::optional<LidarPose> Robot::compute_lidar() {
       continue;
     }
     double movement = (measured.position - entry.position).len();
-    double angle = abs(normalize_angle(measured.field_angle - entry.field_angle));
+    double angle =
+        abs(normalize_angle(measured.field_angle - entry.field_angle));
     if (movement > config.lidar.calibration.movement ||
         angle > config.lidar.calibration.angle) {
       lidar_history.pop();
@@ -176,11 +181,10 @@ std::optional<LidarPose> Robot::compute_lidar() {
 }
 
 void Robot::compute_gyro_angle() {
-  // field_angle = normalize_angle(gyro_angle - top_angle);
+  field_angle = normalize_angle(gyro_angle - top_angle);
 }
 
 void Robot::predict_position(double dt) {
-  field_angle = normalize_angle(gyro_angle - top_angle);
   position = position + actual_vel * dt;
 }
 

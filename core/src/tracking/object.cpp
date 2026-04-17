@@ -120,6 +120,7 @@ void Object::compute_field_position(const Robot& robot) {
   field_position = robot.position + offset;
   if (field_position.x < -10 || field_position.x > 182 + 10 ||
       field_position.y < -10 || field_position.y > 243 + 40) {
+    visible = false;
     spdlog::warn("Wrong object position: {} {}", field_position.x,
                  field_position.y);
   }

@@ -47,7 +47,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   if (robot.emitter) {
     robot.rotation_limit = 15;
   } else {
-    robot.rotation_limit = 20;
+    robot.rotation_limit = 30;
   }
 
   if (config.strategy.enabled) {

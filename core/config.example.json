@@ -121,6 +121,14 @@
     "attacker": {
       "border": 100
     },
+    "keeper": {
+      "global_border": 70,
+      "dubins_border": 55,
+      "line": {
+        "padding": 60,
+        "y": 36
+      }
+    },
     "dubins": {
       "bonus": 5,
       "separate": 1,

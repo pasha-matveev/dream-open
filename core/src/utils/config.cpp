@@ -121,7 +121,14 @@ void load_config() {
   loaded.strategy.predict = strategy["predict"].GetBool();
 
   const auto& attacker = strategy["attacker"];
-  loaded.strategy.attacker.border = attacker["border"].GetInt();
+  loaded.strategy.attacker.border = attacker["border"].GetDouble();
+
+  const auto& keeper = strategy["keeper"];
+  loaded.strategy.keeper.global_border = keeper["global_border"].GetDouble();
+  loaded.strategy.keeper.dubins_border = keeper["dubins_border"].GetDouble();
+  const auto& keeper_line = keeper["line"];
+  loaded.strategy.keeper.line.padding = keeper_line["padding"].GetDouble();
+  loaded.strategy.keeper.line.y = keeper_line["y"].GetDouble();
 
   const auto& dubins = strategy["dubins"];
   loaded.strategy.dubins.radius = dubins["radius"].GetDouble();

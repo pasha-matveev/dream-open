@@ -28,17 +28,21 @@ static optional<Vec> nearest_obstacle(Robot& robot) {
   return nearest_obstacle;
 }
 
-constexpr double LL = 12 + 48;
-constexpr double RR = 182 - 12 - 48;
-constexpr double YY = 35.0;
-
+// Как защищать ворота от Питера
 static Vec compute_radial(const Vec& p, const Field& field) {
-  Vec fallback = {clamp(p.x, LL, RR), YY};
-  Vec center{91.0, 0.0};
+  // Хотим стоять на границе поля
+  Vec center{91.0, 0.0};  // центр псевдоокружности (за границами поля)
   Vec dir = p - center;
   dir = dir.resize(1000000);
+  // ищем пересечение луча и нижней границы поля
   auto [np, idx] = field.find_intersection(center, dir);
   if (idx == -1) {
+    double xl = config.strategy.keeper.line.padding;
+    double xr = 180 - config.strategy.keeper.line.padding;
+    double y = config.strategy.keeper.line.y;
+
+    Vec fallback = {clamp(p.x, xl, xr), y};
+    // что-то странное, вместо окружности просто стоим на прямой
     return fallback;
   }
   double desired_len = (np - center).len() + 2;
@@ -46,11 +50,16 @@ static Vec compute_radial(const Vec& p, const Field& field) {
   return res;
 }
 
+// Как защищать ворота от мяча
 static Vec compute_contr_point(const Vec& p, const Field& field) {
   if (p.y > 35) {
     // Точка сверху, стоим на проекции
-    double x = clamp<double>(p.x, LL, RR);
-    return {x, YY};
+    double xl = config.strategy.keeper.line.padding;
+    double xr = 180 - config.strategy.keeper.line.padding;
+    double y = config.strategy.keeper.line.y;
+
+    double x = clamp(p.x, xl, xr);
+    return {x, y};
   } else {
     // Точка внизу, стоим на окружности
     return compute_radial(p, field);
@@ -59,7 +68,6 @@ static Vec compute_contr_point(const Vec& p, const Field& field) {
 
 static long long last_piter_visible = -10000;
 static Vec last_piter;
-static const int dubins_y = 55;
 
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           Field& field) {
@@ -85,14 +93,12 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   }
 
   robot.dribling = config.strategy.dribbling.value_l;
-  bool cur_dubins = false;
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
       if (last_dubins) {
         // Подъехали по dubins, продолжаем использовать эту стратегию
         spdlog::info("DUBINS KICK");
-        cur_dubins = true;
         dubins_hit(robot, goal, field, 100, false);
       } else {
         // Просто целимся и стреляем
@@ -103,30 +109,31 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     } else {
       if (ball_ok) {
         // Видим мяч
-        if (last_ball_position.y >= 70) {
+        if (last_ball_position.y >= config.strategy.keeper.global_border) {
           // Мяч за нашей зоной, защищаем ворота
           spdlog::info("LONG PROTECT");
           Vec target = compute_contr_point(last_ball_position, field);
           drive_target(robot, target, 20, 100);
-          robot.rotation = -robot.field_angle;
-        } else if (last_ball_position.y >= dubins_y) {
+          robot.rotation = last_ball_relative_angle;
+        } else if (last_ball_position.y >=
+                   config.strategy.keeper.dubins_border) {
           // Мяч в зоне удара, используем dubins_path
           spdlog::info("DUBINS PROTECT");
-          cur_dubins = true;
           dubins_hit(robot, goal, field, 100, false);
         } else if (last_ball_position.y > robot.position.y) {
+          // Просто бьем мяч корпусом
           spdlog::info("RAM");
           drive_target(robot, last_ball_position, 3, 120, 50);
           robot.rotation = -robot.field_angle;
         } else {
-          // Мяч близко, бьем как обычно
+          // Мяч близко, _аккуратно_ его берем
           spdlog::info("NEAR PROTECT");
           drive_ball(robot, last_ball_position);
         }
       } else {
         // Не видим мяч
         spdlog::info("IDLE");
-        Vec target{91, 35};
+        Vec target{91.0, config.strategy.keeper.line.y};
         drive_target(robot, target, 2);
         robot.rotation = -robot.field_angle;
       }
@@ -140,5 +147,4 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     robot.rotation = normalize_angle(
         (last_piter - robot.position).field_angle() - robot.field_angle);
   }
-  last_dubins = cur_dubins;
 }

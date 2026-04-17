@@ -105,10 +105,22 @@ struct Config {
     struct Target {
       double x, y;
     };
+
     Mapper dribbling;
-    struct {
-      int border;
+
+    struct Attacker {
+      double border;
     } attacker;
+
+    struct Keeper {
+      double global_border;
+      double dubins_border;
+      struct Line {
+        double padding;
+        double y;
+      } line;
+    } keeper;
+
     struct Dubins {
       double bonus;
       double separate;
@@ -118,9 +130,11 @@ struct Config {
       double kick_precision;
       Mapper speed;
     } dubins;
+
     struct AttackerRicochet {
       bool enabled;
     } attacker_ricochet;
+
     Target target_left;
     Target target_right;
   } strategy;

@@ -1,1 +1,0 @@
-#define ROBOT 0  // 0 - black robot, 1 - green robot

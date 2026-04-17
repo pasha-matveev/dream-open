@@ -22,12 +22,12 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   }
   if (!config.visualization.interactive && robot.camera->new_data()) {
     ball.compute_field_position(robot);
-  }
-
-  if (ball.visible) {
-    last_ball_visible = millis();
-    last_ball_position = ball.field_position;
-    last_ball_relative_angle = ball.relative_angle;
+    if (ball.visible) {
+      assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
+      last_ball_visible = millis();
+      last_ball_position = ball.field_position;
+      last_ball_relative_angle = ball.relative_angle;
+    }
   }
 
   if (robot.emitter && !robot.prev_emitter) {

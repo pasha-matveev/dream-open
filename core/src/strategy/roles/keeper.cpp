@@ -5,6 +5,7 @@
 #include <optional>
 
 #include "strategy/strategy.h"
+#include "strategy/visualization.h"
 #include "utils/config.h"
 #include "utils/millis.h"
 
@@ -73,15 +74,20 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           Field& field) {
   auto obstacle = nearest_obstacle(robot);
 
-  if (obstacle.has_value()) {
+  if (obstacle.has_value() && (*obstacle - robot.position).len() >= 11 &&
+      (field.inside(*obstacle) || field.dist(*obstacle) <= 6)) {
     last_piter_visible = millis();
     last_piter = *obstacle;
+    Vec dir = last_piter - robot.position;
+    spdlog::error("Piter {} {}", last_piter.x, last_piter.y);
+    spdlog::error("Dir {} {}, {}", dir.x, dir.y, dir.len());
   }
 
   long long ball_visible_tm = millis() - last_ball_visible;
   long long piter_visible_tm = millis() - last_piter_visible;
   bool ball_ok = ball_visible_tm <= 2000;
-  bool piter_ok = piter_visible_tm <= 2000;
+  // bool piter_ok = piter_visible_tm <= 2000;
+  bool piter_ok = false;
 
   bool is_piter;
   if (ball.visible || robot.emitter) {
@@ -91,6 +97,21 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   } else {
     is_piter = piter_ok;
   }
+
+  // if (piter_ok) {
+  //   if (!sfml_window || !sfml_window->isOpen()) {
+  //     return;
+  //   }
+
+  //   auto sfml_r = cm_to_px(9);
+  //   auto shape = sf::CircleShape(sfml_r);
+  //   shape.setPosition(toSFML(last_piter) - Vec{sfml_r, sfml_r});
+  //   sf::Color color = sf::Color(255, 255, 255);
+  //   shape.setOutlineColor(color);
+  //   shape.setOutlineThickness(2);
+  //   shape.setFillColor(sf::Color::Transparent);
+  //   sfml_window->draw(shape);
+  // }
 
   robot.dribling = config.strategy.dribbling.value_l;
   if (!is_piter) {
@@ -116,10 +137,10 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           drive_target(robot, target, 20, 100);
           robot.rotation = last_ball_relative_angle;
         } else if (last_ball_position.y >=
-                   config.strategy.keeper.dubins_border) {
+                       config.strategy.keeper.dubins_border &&
+                   dubins_hit(robot, goal, field, 100, false)) {
           // Мяч в зоне удара, используем dubins_path
           spdlog::info("DUBINS PROTECT");
-          dubins_hit(robot, goal, field, 100, false);
         } else if (last_ball_position.y > robot.position.y) {
           // Просто бьем мяч корпусом
           spdlog::info("RAM");
@@ -127,12 +148,13 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           robot.rotation = -robot.field_angle;
         } else {
           // Мяч близко, _аккуратно_ его берем
-          spdlog::info("NEAR PROTECT");
+          spdlog::info("NEAR PROTECT {} {} {}", ball_visible_tm,
+                       last_ball_position.x, last_ball_position.y);
           drive_ball(robot, last_ball_position);
         }
       } else {
         // Не видим мяч
-        spdlog::info("IDLE");
+        // spdlog::info("IDLE");
         Vec target{91.0, config.strategy.keeper.line.y};
         drive_target(robot, target, 2);
         robot.rotation = -robot.field_angle;

@@ -33,7 +33,10 @@ class Strategy {
   // Последний раз, когда видели мяч
   long long last_ball_visible = -10000;
   Vec last_ball_position;
-  double last_ball_relative_angle;
+  double last_ball_relative_angle(Robot& robot) {
+    return normalize_angle((last_ball_position - robot.position).field_angle() -
+                           robot.field_angle);
+  }
 
   // Kick
   enum class KickStatus { NONE, ROTATE, TIMEOUT, KICK, READY };

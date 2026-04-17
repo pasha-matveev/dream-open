@@ -126,7 +126,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
   double target_relative =
       normalize_angle(goal_direction.field_angle() - robot.field_angle);
 
-  robot.rotation = last_ball_relative_angle;
+  robot.rotation = last_ball_relative_angle(robot);
 
   return true;
 }

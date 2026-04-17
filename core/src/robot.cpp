@@ -147,35 +147,36 @@ std::optional<LidarPose> Robot::compute_lidar() {
 
   lidar_history.push({millis(), measured.field_angle, measured.position});
 
-  while (true) {
-    if (lidar_history.empty()) break;
-    auto entry = lidar_history.front();
-    long long elapsed = millis() - entry.time;
-    if (elapsed < config.lidar.calibration.delay) {
-      // Еще не прошло достаточно времени
-      break;
-    }
-    if (elapsed >
-        config.lidar.calibration.delay + config.lidar.calibration.threshold) {
-      spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
-                   elapsed, config.lidar.calibration.delay,
-                   config.lidar.calibration.threshold);
-      lidar_history.pop();
-      continue;
-    }
-    double movement = (measured.position - entry.position).len();
-    double angle =
-        abs(normalize_angle(measured.field_angle - entry.field_angle));
-    if (movement > config.lidar.calibration.movement ||
-        angle > config.lidar.calibration.angle) {
-      lidar_history.pop();
-      continue;
-    }
-    // Лидар стабилен — выравниваем гироскоп к измеренному углу.
-    top_angle = normalize_angle(gyro_angle - measured.field_angle);
-    lidar_history.pop();
-    break;
-  }
+  // while (true) {
+  //   if (lidar_history.empty()) break;
+  //   auto entry = lidar_history.front();
+  //   long long elapsed = millis() - entry.time;
+  //   if (elapsed < config.lidar.calibration.delay) {
+  //     // Еще не прошло достаточно времени
+  //     break;
+  //   }
+  //   if (elapsed >
+  //       config.lidar.calibration.delay + config.lidar.calibration.threshold)
+  //       {
+  //     spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
+  //                  elapsed, config.lidar.calibration.delay,
+  //                  config.lidar.calibration.threshold);
+  //     lidar_history.pop();
+  //     continue;
+  //   }
+  //   double movement = (measured.position - entry.position).len();
+  //   double angle =
+  //       abs(normalize_angle(measured.field_angle - entry.field_angle));
+  //   if (movement > config.lidar.calibration.movement ||
+  //       angle > config.lidar.calibration.angle) {
+  //     lidar_history.pop();
+  //     continue;
+  //   }
+  //   // Лидар стабилен — выравниваем гироскоп к измеренному углу.
+  //   top_angle = normalize_angle(gyro_angle - measured.field_angle);
+  //   lidar_history.pop();
+  //   break;
+  // }
 
   return measured;
 }

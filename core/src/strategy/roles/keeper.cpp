@@ -135,7 +135,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           Vec target = compute_contr_point(last_ball_position, field);
           // spdlog::info("LONG PROTECT {} {}", target.x, target.y);
           drive_target(robot, target, 20, 100);
-          robot.rotation = last_ball_relative_angle;
+          // robot.rotation = last_ball_relative_angle;
+          robot.rotation = 0;
         } else if (last_ball_position.y >=
                        config.strategy.keeper.dubins_border &&
                    dubins_hit(robot, goal, field, 100, false)) {

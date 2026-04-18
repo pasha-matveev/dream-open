@@ -111,10 +111,10 @@ void loop() {
   // Ручная проверка удара
   bool mega_kick = false;
   // if (test_state || millis() <= test_state_cooldown) {
-  //   robot.dribling.set_speed(ROBOT ? 50 : 30);
+  //   robot.dribling.set_rmp(6000);
   // } else if (alive_tm < millis()) {
   //   // usb не работает
-  //   robot.dribling.set_speed(0);
+  //   robot.dribling.set_rmp(0);
   // }
   // if (robot.button.state() && millis() > cooldown) {
   //   if (test_state) {

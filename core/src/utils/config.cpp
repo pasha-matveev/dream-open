@@ -130,6 +130,8 @@ void load_config() {
 
   const auto& attacker = strategy["attacker"];
   loaded.strategy.attacker.border = attacker["border"].GetDouble();
+  loaded.strategy.attacker.dubins_enabled =
+      attacker["dubins_enabled"].GetBool();
 
   const auto& keeper = strategy["keeper"];
   loaded.strategy.keeper.global_border = keeper["global_border"].GetDouble();

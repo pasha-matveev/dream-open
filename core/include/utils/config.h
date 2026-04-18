@@ -117,6 +117,7 @@ struct Config {
 
     struct Attacker {
       double border;
+      bool dubins_enabled;
     } attacker;
 
     struct Keeper {

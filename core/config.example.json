@@ -125,7 +125,8 @@
       "value_r": 8000
     },
     "attacker": {
-      "border": 100
+      "border": 100,
+      "dubins_enabled": false
     },
     "keeper": {
       "global_border": 70,

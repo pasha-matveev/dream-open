@@ -48,12 +48,13 @@ class Strategy {
     int power = 70;
     int control_time = 600;
     bool curved_rotation = true;
-    int kick_timeout = 0;
+    int kick_timeout = 300;
     double precision = 0.015;
     bool accelerate_dribbling = true;
   };
   void kick(Robot& robot, const KickParams& params);
   void kick_to_goal(Robot& robot, Object& goal, KickParams params);
+  double compute_power(double y);
 
   // Turn
   long long turn_start_time = -1;

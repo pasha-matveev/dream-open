@@ -12,11 +12,11 @@
 // static AttackerRSide r_side = AttackerRSide::NONE;
 // static AttackerRStatus r_status = AttackerRStatus::NONE;
 
-static int compute_power(double y) {
+double Strategy::compute_power(double y) {
   if (y >= 243 - 12 - 45) {
-    return 75;
+    return 10;
   } else {
-    return 100;
+    return 20;
   }
 }
 

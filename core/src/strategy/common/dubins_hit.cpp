@@ -11,7 +11,7 @@ bool circle_ok(Circle& circle, Field& field) {
   return dist >= 10;
 }
 
-bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
+bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
                           bool control) {
   robot.dribling = 0;
 
@@ -20,7 +20,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
     if (control) {
       kick_to_goal(robot, goal, {});
     } else {
-      robot.kicker_force = power;
+      robot.kicker_force = compute_power(robot.position.y);
     }
     return true;
   }

@@ -113,6 +113,7 @@ struct Config {
     };
 
     Mapper dribbling;
+    double dribbling_slow;
 
     struct Attacker {
       double border;

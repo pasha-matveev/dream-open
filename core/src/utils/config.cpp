@@ -117,6 +117,7 @@ void load_config() {
   loaded.strategy.enabled = strategy["enabled"].GetBool();
   loaded.strategy.role = strategy["role"].GetString();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
+  loaded.strategy.dribbling_slow = strategy["dribbling_slow"].GetDouble();
   loaded.strategy.turn_precision = strategy["turn_precision"].GetDouble();
 
   const auto& motion = strategy["motion"];

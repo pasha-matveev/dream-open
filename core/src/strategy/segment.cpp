@@ -70,9 +70,14 @@ void Segment::apply(Robot& robot) const {
   // Максимальная нормальная скорость, при которой робот ещё успеет
   // затормозить до нуля на расстоянии d с заданным a_max:
   //   v_safe = sqrt(2 * a_max * d)
-  double d_safe = max(0.0, d);
-  double v_safe = sqrt(2.0 * config.strategy.motion.max_linear_accel * d_safe) *
-                  config.strategy.motion.decel_k;
+  double v_safe;
+  if (d >= 0) {
+    v_safe = sqrt(2.0 * config.strategy.motion.max_linear_accel * d) *
+             config.strategy.motion.decel_k;
+  } else {
+    d = abs(d);
+    v_safe = -1 * d * 2;
+  }
   vy = min(vy, v_safe);
 
   Vec vvx = ox.resize(vx);

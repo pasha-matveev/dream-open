@@ -6,16 +6,16 @@
 
 void Dribling::init() {
   ESC_left.attach(left_pin);
-  ESC_right.attach(right_pin);
+  if (ROBOT) ESC_right.attach(right_pin);
   delay(1000);
   ESC_left.writeMicroseconds(800);
-  ESC_right.writeMicroseconds(800);
+  if (ROBOT) ESC_right.writeMicroseconds(800);
   delay(2000);
   ESC_left.writeMicroseconds(2200);
-  ESC_right.writeMicroseconds(2200);
+  if (ROBOT) ESC_right.writeMicroseconds(2200);
   delay(2000);
   ESC_left.writeMicroseconds(1450);
-  ESC_right.writeMicroseconds(1450);
+  if (ROBOT) ESC_right.writeMicroseconds(1450);
   delay(3000);
 }
 
@@ -47,5 +47,9 @@ void Dribling::run() {
   int power_right = constrain(raw_right, 1440, 1600);
 
   ESC_left.writeMicroseconds(power_left);
-  ESC_right.writeMicroseconds(power_right);
+
+  if (ROBOT) {
+    // Ignore right motor on black robot
+    ESC_right.writeMicroseconds(power_right);
+  }
 }

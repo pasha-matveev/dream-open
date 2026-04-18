@@ -1,6 +1,8 @@
 #pragma once
 #include <Servo.h>
 
+#include "Const.h"
+
 class Dribling {
  private:
   Servo ESC_left;
@@ -9,10 +11,10 @@ class Dribling {
   const int left_pin = 6;
   const int right_pin = 5;
 
-  float left_k = 0.00624654;
-  float left_b = 1450.01331;
-  float right_k = 0.0246352;
-  float right_b = 1441.63139;
+  float left_k = ROBOT ? 0.00624654 : 0.0240184;
+  float left_b = ROBOT ? 1450.01331 : 1443.63237;
+  float right_k = ROBOT ? 0.0246352 : 0;
+  float right_b = ROBOT ? 1441.63139 : 0;
 
   int desired_rpm = 0;
 

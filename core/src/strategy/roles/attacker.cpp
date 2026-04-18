@@ -16,7 +16,7 @@ double Strategy::compute_power(double y) {
   if (y >= 243 - 12 - 45) {
     return 10;
   } else {
-    return 15;
+    return 10;
   }
 }
 

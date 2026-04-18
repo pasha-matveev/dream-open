@@ -7,7 +7,7 @@ bool Strategy::drive_target(Robot& robot, const Vec& target, double k,
   double d_safe = vel.len();
   double v_safe;
   if (is_ball) {
-    d_safe -= 8;
+    d_safe -= 7;
     if (d_safe > 0) {
       v_safe =
           sqrt(2.0 * config.strategy.motion.max_linear_accel * d_safe) * 0.5;

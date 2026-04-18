@@ -104,6 +104,8 @@ struct Config {
     struct Motion {
       double max_linear_accel;
       double max_angular_accel;
+      double decel_k;
+      double wall_limit;
     } motion;
 
     struct Target {

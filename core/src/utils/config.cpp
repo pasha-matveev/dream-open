@@ -124,6 +124,8 @@ void load_config() {
       motion["max_linear_accel"].GetDouble();
   loaded.strategy.motion.max_angular_accel =
       motion["max_angular_accel"].GetDouble();
+  loaded.strategy.motion.decel_k = motion["decel_k"].GetDouble();
+  loaded.strategy.motion.wall_limit = motion["wall_limit"].GetDouble();
 
   const auto& attacker = strategy["attacker"];
   loaded.strategy.attacker.border = attacker["border"].GetDouble();

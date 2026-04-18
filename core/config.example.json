@@ -114,7 +114,9 @@
     "turn_precision": 0.02,
     "motion": {
       "max_linear_accel": 200,
-      "max_angular_accel": 20
+      "max_angular_accel": 20,
+      "decel_k": 0.6,
+      "wall_limit": 4
     },
     "dribbling": {
       "param_l": 0,

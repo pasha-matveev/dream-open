@@ -121,6 +121,7 @@ struct Config {
     struct Keeper {
       double global_border;
       double dubins_border;
+      bool ram_enabled;
       struct Line {
         double padding;
         double y;

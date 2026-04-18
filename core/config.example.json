@@ -130,6 +130,7 @@
     "keeper": {
       "global_border": 70,
       "dubins_border": 55,
+      "ram_enabled": false,
       "line": {
         "padding": 60,
         "y": 36

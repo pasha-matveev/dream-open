@@ -133,6 +133,7 @@ void load_config() {
   const auto& keeper = strategy["keeper"];
   loaded.strategy.keeper.global_border = keeper["global_border"].GetDouble();
   loaded.strategy.keeper.dubins_border = keeper["dubins_border"].GetDouble();
+  loaded.strategy.keeper.ram_enabled = keeper["ram_enabled"].GetBool();
   const auto& keeper_line = keeper["line"];
   loaded.strategy.keeper.line.padding = keeper_line["padding"].GetDouble();
   loaded.strategy.keeper.line.y = keeper_line["y"].GetDouble();

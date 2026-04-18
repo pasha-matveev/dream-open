@@ -142,7 +142,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                    dubins_hit(robot, goal, field, 100, false)) {
           // Мяч в зоне удара, используем dubins_path
           // spdlog::info("DUBINS PROTECT");
-        } else if (last_ball_position.y > robot.position.y) {
+        } else if (config.strategy.keeper.ram_enabled &&
+                   last_ball_position.y > robot.position.y) {
           // Просто бьем мяч корпусом
           // spdlog::info("RAM");
           drive_target(robot, last_ball_position, 3, 120, 50);

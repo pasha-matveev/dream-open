@@ -43,8 +43,8 @@ void Dribling::run() {
   int raw_left = left_k * desired_rpm + left_b;
   int raw_right = right_k * (desired_rpm + 500) + right_b;
 
-  int power_left = constrain(raw_left, 1440, 1600);
-  int power_right = constrain(raw_right, 1440, 1600);
+  int power_left = constrain(raw_left, 1450, 1600);
+  int power_right = constrain(raw_right, 1450, 1600);
 
   ESC_left.writeMicroseconds(power_left);
 

@@ -107,6 +107,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
         run_test_circle(robot);
       } else if (role == "test_dribling") {
         run_test_dribling(robot);
+      } else if (role == "test_mirror") {
+        run_test_mirror(robot, ball);
       } else if (role == "test") {
         run_test(robot, goal);
       } else {

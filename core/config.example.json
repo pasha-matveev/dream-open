@@ -17,7 +17,6 @@
       "x": 486,
       "y": 512
     },
-    "k": 1.29,
     "ball": {
       "setup": false,
       "min_area": 10,

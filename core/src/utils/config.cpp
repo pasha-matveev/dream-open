@@ -53,7 +53,6 @@ void load_config() {
   const auto& center = tracking["center"];
   loaded.tracking.center.x = center["x"].GetInt();
   loaded.tracking.center.y = center["y"].GetInt();
-  loaded.tracking.k = tracking["k"].GetDouble();
   const auto& ball = tracking["ball"];
   loaded.tracking.ball.setup = ball["setup"].GetBool();
   loaded.tracking.ball.min_area = ball["min_area"].GetInt();

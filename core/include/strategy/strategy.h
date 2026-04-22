@@ -88,6 +88,7 @@ class Strategy {
   void run_keeper(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_attacker(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_challenge(Robot& robot, Object& ball, Object& goal);
+  void run_test_mirror(Robot& robot, Object& ball);
   void run_test_circle(Robot& robot);
   void run_test_dribling(Robot& robot);
   void run_test(Robot& robot, Object& goal);

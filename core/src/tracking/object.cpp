@@ -13,7 +13,7 @@ Object::~Object() {};
 
 double Object::get_pixels_dist() {
   int radius = config.tracking.radius;
-  Vec mirror_center = {radius, radius};
+  Vec mirror_center{radius, radius};
   return (center - mirror_center).len();
 }
 
@@ -106,8 +106,7 @@ double Object::get_cm() {
   if (override_dist != -1) {
     return override_dist;
   }
-  double old_pixels =
-      get_pixels_dist() * 800 * config.tracking.k / config.tracking.width;
+  double old_pixels = get_pixels_dist() * 800 * 1.36 / config.tracking.width;
   return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
 }
 

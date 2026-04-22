@@ -13,8 +13,6 @@ bool circle_ok(Circle& circle, Field& field) {
 
 bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
                           bool control) {
-  robot.dribling = 0;
-
   if (robot.emitter) {
     cur_dubins = true;
     if (control) {

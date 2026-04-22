@@ -106,8 +106,9 @@ double Object::get_cm() {
   if (override_dist != -1) {
     return override_dist;
   }
-  double old_pixels = get_pixels_dist() * 800 * 1.36 / config.tracking.width;
-  return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
+  return config.tracking.formula.a /
+             (config.tracking.formula.b - get_pixels_dist()) -
+         config.tracking.formula.c;
 }
 
 void Object::compute_field_position(const Robot& robot) {

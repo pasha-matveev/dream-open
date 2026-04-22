@@ -28,6 +28,11 @@ struct Config {
       int x = 0;
       int y = 0;
     } center;
+    struct Formula {
+      double a;
+      double b;
+      double c;
+    } formula;
     struct Ball {
       bool setup;
       int min_area;

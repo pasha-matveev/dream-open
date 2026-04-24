@@ -112,6 +112,7 @@ struct Config {
     } predict;
 
     struct BallFilter {
+      bool enabled;
       double alpha_xy;      // для позиции
       double beta_xy;       // для скорости
       double friction_tau;  // время остановки мяча от трения

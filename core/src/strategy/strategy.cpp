@@ -68,20 +68,28 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
       last_ball_position = ball.field_position;
     }
   } else {
-    ball_filter.predict(dt);
+    if (config.strategy.ball_filter.enabled) {
+      ball_filter.predict(dt);
+    }
     if (robot.camera->new_data()) {
       ball.compute_field_position(robot);
       if (ball.visible) {
         assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
         last_ball_visible = millis();
-        ball_filter.update(ball.field_position, now);
+        if (config.strategy.ball_filter.enabled) {
+          ball_filter.update(ball.field_position, now);
+        }
       }
     }
-    if (!ball.visible) {
-      ball_filter.lost(now);
-    }
-    if (ball_filter.is_initialized()) {
-      last_ball_position = ball_filter.position();
+    if (config.strategy.ball_filter.enabled) {
+      if (!ball.visible) {
+        ball_filter.lost(now);
+      }
+      if (ball_filter.is_initialized()) {
+        last_ball_position = ball_filter.position();
+      }
+    } else {
+      last_ball_position = ball.field_position;
     }
   }
 

@@ -12,11 +12,11 @@
 // static AttackerRSide r_side = AttackerRSide::NONE;
 // static AttackerRStatus r_status = AttackerRStatus::NONE;
 
-static int compute_power(double y) {
+double Strategy::compute_power(double y) {
   if (y >= 243 - 12 - 45) {
-    return 75;
+    return 10;
   } else {
-    return 100;
+    return 10;
   }
 }
 
@@ -145,14 +145,16 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       //   drive_state = DriveState::DUBINS;
       // }
 
-      if (true) {
-        // Мяч далеко от бортов, используем dubins path
-        bool res = dubins_hit(robot, goal, field,
-                              compute_power(robot.position.y), false);
-        if (!res) {
-          // Мяч близко к бортам, играем как обычно
-          drive_ball(robot, last_ball_position);
-        }
+      // Мяч далеко от бортов, используем dubins path
+
+      bool res = false;
+      if (config.strategy.attacker.dubins_enabled) {
+        res = dubins_hit(robot, goal, field, compute_power(robot.position.y),
+                         false);
+      }
+      if (!res) {
+        // Мяч близко к бортам, играем как обычно
+        drive_ball(robot, last_ball_position);
       }
     }
   }

@@ -11,16 +11,14 @@ bool circle_ok(Circle& circle, Field& field) {
   return dist >= 10;
 }
 
-bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
+bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
                           bool control) {
-  robot.dribling = 0;
-
   if (robot.emitter) {
     cur_dubins = true;
     if (control) {
       kick_to_goal(robot, goal, {});
     } else {
-      robot.kicker_force = power;
+      robot.kicker_force = compute_power(robot.position.y);
     }
     return true;
   }
@@ -83,13 +81,14 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
 
   Vec movement_direction;
   double len;
+  robot.dribling = config.strategy.dribbling_slow;
   if (abs(kick_angle) <= config.strategy.dubins.kick_precision) {
     // Едем напрямую к мячу
     Vec vel = last_ball_position - robot.position;
     movement_direction = vel;
     len = vel.len();
   } else if (circle.dist(robot.position) < 0 &&
-             -1 * circle.dist(robot.position) <
+             abs(circle.dist(robot.position)) >
                  config.strategy.dubins.deep_inside) {
     // Глубоко внутри круга // Выталкиваемся в точку напротив ворот
     Vec t = goal_direction.resize(-circle.r) + circle.center;
@@ -126,7 +125,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int power,
   double target_relative =
       normalize_angle(goal_direction.field_angle() - robot.field_angle);
 
-  robot.rotation = last_ball_relative_angle;
+  robot.rotation = last_ball_relative_angle(robot);
 
   return true;
 }

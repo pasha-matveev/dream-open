@@ -11,7 +11,7 @@ void Strategy::drive_ball(Robot& robot, const Vec& ball) {
   } else {
     k = 4;
   }
-  drive_target(robot, ball, k);
+  drive_target(robot, ball, k, 120, 0, true);
   robot.dribling = config.strategy.dribbling.value_l;
   robot.rotation_limit = 40;
 }

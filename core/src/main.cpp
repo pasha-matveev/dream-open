@@ -35,14 +35,34 @@ int main() {
   // 11 7
   if (config.strategy.role == "keeper" || config.strategy.role == "challenge") {
     spdlog::info("Running as keeper");
-    const int AX = 38;
-    const int BX = 45;
-    const int CX = 53;
-    const int CY = 36;
-    const int MY = 70;
-    field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
-                    {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},
-                    {CX, CY},       {BX, 20}};
+    // const int AX = 38;
+    // const int BX = 45;
+    // const int CX = 53;
+    // const int CY = 36;
+    // const int MY = 70;
+    // field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
+    //                 {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},
+    //                 {CX, CY},       {BX, 20}};
+
+    field_points = {{BDR, BDR},
+                    {BDR, 243 - BDR},
+                    {51, 243 - BDR},
+                    {51, 221},
+                    {55, 213},
+                    {66, 206},
+                    {116, 206},
+                    {127, 213},
+                    {131, 221},
+                    {131, 243 - BDR},
+                    {182 - BDR, 243 - BDR},
+
+                    {182 - BDR, BDR},
+                    {182 - 12 - 35, BDR},
+                    {182 - 12 - 35, 30},
+                    {182 - 12 - 55, 40},
+                    {12 + 55, 40},
+                    {12 + 35, 30},
+                    {12 + 35, BDR}};
   } else {
     spdlog::info("Running as attacker");
     field_points = {{BDR, BDR},
@@ -93,20 +113,15 @@ int main() {
     visualization = new Visualization();
   }
 
-  int delay = 1000 / config.strategy.fps;
-  int read_time = 0;
-  int strategy_time = 0;
-  int write_time = 0;
-  long long st = 0;
+  // Минимальная длительность цикла (мс) для интерактивной визуализации без
+  // serial: ограничиваем частоту, чтобы не спинить CPU. С serial цикл всё
+  // равно ограничен обменом с arduino.
+  int min_period_ms = 1000 / config.visualization.frames;
 
   auto compute_delay = [&](long long cycle_start) -> long long {
     long long elapsed = millis() - cycle_start;
-    long long actual_delay = delay - elapsed;
+    long long actual_delay = min_period_ms - elapsed;
     if (actual_delay <= 0) {
-      spdlog::error(
-          "Strategy FPS not achievable: cycle took {} out of {}. Read: {}; "
-          "Strategy: {}; Write: {}",
-          elapsed, delay, read_time, strategy_time, write_time);
       if (config.tracking.preview.enabled) {
         actual_delay = 1;
       } else {
@@ -121,26 +136,19 @@ int main() {
       visualization->begin();
     }
     long long cycle_start = millis();
-    st = millis();
     if (config.serial.enabled) {
       robot.read_from_arduino();
     }
-    read_time = millis() - st;
-    // ... strategy ...
-    st = millis();
     strategy.run(robot, ball, goal, field);
-    strategy_time = millis() - st;
-    st = millis();
     if (config.serial.enabled) {
       robot.write_to_arduino();
     }
-    write_time = millis() - st;
     if (stop_requested) {
       break;
     }
     // visualisation
     if (config.visualization.enabled) {
-      visualization->run(robot, ball, goal, field);
+      visualization->run(robot, ball, goal, field, strategy.get_last_dt());
       if (visualization->closed) {
         break;
       }
@@ -154,7 +162,7 @@ int main() {
       if (cv::waitKey(compute_delay(cycle_start)) == 27) {
         break;
       }
-    } else {
+    } else if (config.visualization.enabled) {
       auto sleep_ms = compute_delay(cycle_start);
       if (sleep_ms > 0) {
         this_thread::sleep_for(chrono::milliseconds(sleep_ms));

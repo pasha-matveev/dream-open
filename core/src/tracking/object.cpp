@@ -13,7 +13,7 @@ Object::~Object() {};
 
 double Object::get_pixels_dist() {
   int radius = config.tracking.radius;
-  Vec mirror_center = {radius, radius};
+  Vec mirror_center{radius, radius};
   return (center - mirror_center).len();
 }
 
@@ -106,9 +106,9 @@ double Object::get_cm() {
   if (override_dist != -1) {
     return override_dist;
   }
-  double old_pixels =
-      get_pixels_dist() * 800 * config.tracking.k / config.tracking.width;
-  return 7612.57165 / (392.22648 - old_pixels) - 17.45807;
+  return config.tracking.formula.a /
+             (config.tracking.formula.b - get_pixels_dist()) -
+         config.tracking.formula.c;
 }
 
 void Object::compute_field_position(const Robot& robot) {
@@ -124,8 +124,8 @@ void Object::compute_field_position(const Robot& robot) {
     // if (field_position.x < -10 || field_position.x > 182 + 10 ||
     //     field_position.y < -10 || field_position.y > 243 + 40) {
     visible = false;
-    spdlog::warn("Wrong object position: {} {}", field_position.x,
-                 field_position.y);
+    // spdlog::warn("Wrong object position: {} {}", field_position.x,
+    //  field_position.y);
     return;
   }
   visible = true;

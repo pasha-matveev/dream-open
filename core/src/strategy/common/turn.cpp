@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include "strategy/strategy.h"
 #include "utils/config.h"
 #include "utils/millis.h"
@@ -33,7 +35,13 @@ bool Strategy::turn(Robot& robot, const TurnParams& params) {
   }
   robot.rotation = delta;
   desired_dribling(robot, params.accelerated_dribbling);
-  if (abs(delta) <= config.strategy.turn_precision) {
+  bool low_precision = robot.position.y > 240 - 60 && 40 < robot.position.x &&
+                       robot.position.x < 182 - 40;
+  double prec = low_precision ? 0.1 : config.strategy.turn_precision;
+  if (low_precision) {
+    spdlog::info("LOW PRECISION");
+  }
+  if (abs(delta) <= prec) {
     // поворот закончен
     return true;
   }

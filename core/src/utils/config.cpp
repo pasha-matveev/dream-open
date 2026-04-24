@@ -53,7 +53,10 @@ void load_config() {
   const auto& center = tracking["center"];
   loaded.tracking.center.x = center["x"].GetInt();
   loaded.tracking.center.y = center["y"].GetInt();
-  loaded.tracking.k = tracking["k"].GetDouble();
+  const auto& formula = tracking["formula"];
+  loaded.tracking.formula.a = formula["a"].GetDouble();
+  loaded.tracking.formula.b = formula["b"].GetDouble();
+  loaded.tracking.formula.c = formula["c"].GetDouble();
   const auto& ball = tracking["ball"];
   loaded.tracking.ball.setup = ball["setup"].GetBool();
   loaded.tracking.ball.min_area = ball["min_area"].GetInt();
@@ -116,17 +119,27 @@ void load_config() {
   const auto& strategy = doc["strategy"];
   loaded.strategy.enabled = strategy["enabled"].GetBool();
   loaded.strategy.role = strategy["role"].GetString();
-  loaded.strategy.fps = strategy["fps"].GetInt();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
-  loaded.strategy.predict = strategy["predict"].GetBool();
+  loaded.strategy.dribbling_slow = strategy["dribbling_slow"].GetDouble();
   loaded.strategy.turn_precision = strategy["turn_precision"].GetDouble();
+
+  const auto& motion = strategy["motion"];
+  loaded.strategy.motion.max_linear_accel =
+      motion["max_linear_accel"].GetDouble();
+  loaded.strategy.motion.max_angular_accel =
+      motion["max_angular_accel"].GetDouble();
+  loaded.strategy.motion.decel_k = motion["decel_k"].GetDouble();
+  loaded.strategy.motion.wall_limit = motion["wall_limit"].GetDouble();
 
   const auto& attacker = strategy["attacker"];
   loaded.strategy.attacker.border = attacker["border"].GetDouble();
+  loaded.strategy.attacker.dubins_enabled =
+      attacker["dubins_enabled"].GetBool();
 
   const auto& keeper = strategy["keeper"];
   loaded.strategy.keeper.global_border = keeper["global_border"].GetDouble();
   loaded.strategy.keeper.dubins_border = keeper["dubins_border"].GetDouble();
+  loaded.strategy.keeper.ram_enabled = keeper["ram_enabled"].GetBool();
   const auto& keeper_line = keeper["line"];
   loaded.strategy.keeper.line.padding = keeper_line["padding"].GetDouble();
   loaded.strategy.keeper.line.y = keeper_line["y"].GetDouble();

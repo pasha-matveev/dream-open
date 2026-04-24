@@ -17,7 +17,11 @@
       "x": 486,
       "y": 512
     },
-    "k": 1.29,
+    "formula": {
+      "a": 5475.10307,
+      "b": 361.23008,
+      "c": 8.11836
+    },
     "ball": {
       "setup": false,
       "min_area": 10,
@@ -111,8 +115,13 @@
   "strategy": {
     "enabled": true,
     "role": "keeper",
-    "fps": 120,
     "turn_precision": 0.02,
+    "motion": {
+      "max_linear_accel": 200,
+      "max_angular_accel": 20,
+      "decel_k": 0.6,
+      "wall_limit": 4
+    },
     "dribbling": {
       "param_l": 0,
       "param_r": 600,
@@ -120,11 +129,13 @@
       "value_r": 8000
     },
     "attacker": {
-      "border": 100
+      "border": 100,
+      "dubins_enabled": false
     },
     "keeper": {
       "global_border": 70,
       "dubins_border": 55,
+      "ram_enabled": false,
       "line": {
         "padding": 60,
         "y": 36

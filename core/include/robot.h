@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <queue>
 
 #include "gpio/buzzer.h"
@@ -13,6 +14,11 @@
 using namespace LibSerial;
 
 enum class RobotState { RUNNING, PAUSE, KICKOFF_LEFT, KICKOFF_RIGHT };
+
+struct LidarPose {
+  Vec position;
+  double field_angle;
+};
 
 class Robot {
  private:
@@ -64,8 +70,15 @@ class Robot {
   int first_time = 0;
   bool kicker_charged = false;
 
+  // Желаемая скорость от стратегии (команда).
   Vec vel{0, 0};
+  // Целевой относительный угол поворота корпуса (радианы). Arduino доворачивает
+  // к нему с ограничением по rotation_limit. Семантически это угол, а не
+  // угловая скорость, поэтому slew-лимитер к нему не применяется.
   double rotation = 0;
+  // Сглаженная slew-лимитером оценка реальной линейной скорости робота.
+  // Именно она отправляется на моторы и используется для предсказания позиции.
+  Vec actual_vel{0, 0};
   double rotation_limit = 100;
   int dribling = 0;
   int kicker_force = 0;
@@ -75,15 +88,24 @@ class Robot {
 
   void init_hardware(Object& ball, Object& goal);
 
-  bool compute_lidar();
+  // Возвращает измеренную позу от лидара, если свежие данные пришли.
+  // Не модифицирует robot.position / robot.field_angle — это делает
+  // стратегия через EMA-блендинг с предсказанием.
+  std::optional<LidarPose> compute_lidar();
+  // Калибрует top_angle так, что гироскоп будет выдавать текущий field_angle.
   void calibrate();
+  // Калибрует top_angle так, что гироскоп будет выдавать measured_field_angle.
+  void calibrate(double measured_field_angle);
   void look_forward();
   void compute_gyro_angle();
 
   void read_from_arduino();
   void write_to_arduino();
 
-  void predict_position();
+  void predict_position(double dt);
+  // Сглаживает vel/rotation в actual_vel/actual_rotation с ограничением
+  // по линейному и угловому ускорению из config.strategy.motion.
+  void apply_motion_limits(double dt);
   double relative_angle(const Vec& p) const;
   Vec ball_hole_position() const;
 };

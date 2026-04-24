@@ -3,6 +3,7 @@
 #include <libserial/SerialPort.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <iostream>
 #include <thread>
 
@@ -22,8 +23,8 @@ void Robot::read_from_arduino() {
 static bool written = false;
 
 void Robot::write_to_arduino() {
-  speed = vel.len();
-  direction = vel.field_angle() - field_angle;
+  speed = actual_vel.len();
+  direction = actual_vel.field_angle() - field_angle;
   uart->write_data<char>('W');
   uart->write_data<float>(
       normalize_angle2(-gyro_angle - normalize_angle2(direction)));
@@ -122,84 +123,80 @@ void Robot::calibrate() {
   top_angle = normalize_angle(gyro_angle - field_angle);
 }
 
-bool Robot::compute_lidar() {
-  if (!lidar) return false;
+void Robot::calibrate(double measured_field_angle) {
+  top_angle = normalize_angle(gyro_angle - measured_field_angle);
+}
+
+std::optional<LidarPose> Robot::compute_lidar() {
+  if (!lidar) return std::nullopt;
   auto res = lidar->compute(*this);
 
-  if (!res.computed) return false;
+  if (!res.computed) return std::nullopt;
 
   double angle1 = gyro_angle - top_angle;
   double angle2 = res.rotation;
-  bool inv = false;
   if (abs(normalize_angle(angle1 - angle2)) > M_PI / 2) {
-    inv = true;
     res.v = res.v * -1;
     res.rotation += M_PI;
   }
 
   Vec center = {182.0 / 2, 243.0 / 2};
-  position = center + res.v;
-  field_angle = normalize_angle(res.rotation);
+  LidarPose measured{center + res.v, normalize_angle(res.rotation)};
 
-  // Если не нужно калиброваться, то заканчиваем
-  if (!config.lidar.calibration.enabled) return true;
+  if (!config.lidar.calibration.enabled) return measured;
 
-  lidar_history.push({millis(), field_angle, position});
+  lidar_history.push({millis(), measured.field_angle, measured.position});
 
-  while (true) {
-    if (lidar_history.empty()) break;
-    auto entry = lidar_history.front();
-    long long elapsed = millis() - entry.time;
-    if (elapsed < config.lidar.calibration.delay) {
-      // Еще не прошло достаточно времени
-      break;
-    }
-    if (elapsed >
-        config.lidar.calibration.delay + config.lidar.calibration.threshold) {
-      // Прошло слишком много времени
-      spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
-                   elapsed, config.lidar.calibration.delay,
-                   config.lidar.calibration.threshold);
-      lidar_history.pop();
-      continue;
-    }
-    // TODO: check all entries
-    double movement = (position - entry.position).len();
-    double angle = abs(normalize_angle(field_angle - entry.field_angle));
-    if (movement > config.lidar.calibration.movement ||
-        angle > config.lidar.calibration.angle) {
-      // Слишком большой сдвиг
-      lidar_history.pop();
-      continue;
-    }
-    // Все нормально, калибруемся
-    calibrate();
-    lidar_history.pop();
-    break;
-  }
+  // while (true) {
+  //   if (lidar_history.empty()) break;
+  //   auto entry = lidar_history.front();
+  //   long long elapsed = millis() - entry.time;
+  //   if (elapsed < config.lidar.calibration.delay) {
+  //     // Еще не прошло достаточно времени
+  //     break;
+  //   }
+  //   if (elapsed >
+  //       config.lidar.calibration.delay + config.lidar.calibration.threshold)
+  //       {
+  //     spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
+  //                  elapsed, config.lidar.calibration.delay,
+  //                  config.lidar.calibration.threshold);
+  //     lidar_history.pop();
+  //     continue;
+  //   }
+  //   double movement = (measured.position - entry.position).len();
+  //   double angle =
+  //       abs(normalize_angle(measured.field_angle - entry.field_angle));
+  //   if (movement > config.lidar.calibration.movement ||
+  //       angle > config.lidar.calibration.angle) {
+  //     lidar_history.pop();
+  //     continue;
+  //   }
+  //   // Лидар стабилен — выравниваем гироскоп к измеренному углу.
+  //   top_angle = normalize_angle(gyro_angle - measured.field_angle);
+  //   lidar_history.pop();
+  //   break;
+  // }
 
-  return true;
+  return measured;
 }
 
 void Robot::compute_gyro_angle() {
-  // field_angle = normalize_angle(gyro_angle - top_angle);
+  field_angle = normalize_angle(gyro_angle - top_angle);
 }
 
-void Robot::predict_position() {
-  // Угол по гироскопу
-  field_angle = normalize_angle(gyro_angle - top_angle);
+void Robot::predict_position(double dt) {
+  position = position + actual_vel * dt;
+}
 
-  // Позиция по логике
-  double len = (double)speed / config.strategy.fps;
-  if (len > 0) {
-    double dir = vel.field_angle();
-    Vec shift = Vec{dir} * len;
-    position = position + shift;
+void Robot::apply_motion_limits(double dt) {
+  if (dt <= 0) return;
+  double max_linear_step = config.strategy.motion.max_linear_accel * dt;
+  Vec delta = vel - actual_vel;
+  if (delta.len() > max_linear_step) {
+    delta = delta.resize(max_linear_step);
   }
-
-  // field_angle +=
-  //     clamp(rotation / 60.0, -1.0 * rotation_limit / 60.0, rotation_limit
-  //     / 60.0);
+  actual_vel += delta;
 }
 
 double Robot::relative_angle(const Vec& p) const {

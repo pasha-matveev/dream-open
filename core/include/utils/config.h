@@ -157,6 +157,7 @@ struct Config {
       double deep_inside;
       double camera_target_dist;
       Switch kick_precision;
+      double aim_bonus;
       Mapper speed;
     } dubins;
 

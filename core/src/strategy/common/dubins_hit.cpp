@@ -75,18 +75,26 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   circle.draw(true);
   inactive_circle.draw(false);
 
-  double kick_angle =
-      normalize_angle(goal_direction.field_angle() -
-                      (last_ball_position - robot.position).field_angle());
+  // Метрика "на линии удара" в сантиметрах: lateral — поперечное смещение
+  // от прямой ball->goal, longitudinal — продольное (отрицательное = робот
+  // сзади мяча со стороны, противоположной воротам). Так шум позиции не
+  // раскачивает порог при приближении к мячу.
+  Vec shot_dir = goal_direction.resize(1);
+  Vec ball_to_robot = robot.position - last_ball_position;
+  double longitudinal = ball_to_robot * shot_dir;
+  double lateral = abs(ball_to_robot % shot_dir);
+  bool on_shot_line = config.strategy.dubins.kick_precision.compute(lateral);
 
   Vec movement_direction;
   double len;
   robot.dribling = config.strategy.dribbling_slow;
-  if (config.strategy.dubins.kick_precision.compute(abs(kick_angle))) {
-    // Едем напрямую к мячу
-    Vec vel = last_ball_position - robot.position;
-    movement_direction = vel;
-    len = vel.len();
+  if (on_shot_line && longitudinal < 0) {
+    // На линии удара и сзади мяча. Целимся в точку за мячом со стороны
+    // ворот — движение автоматически стягивает остаточный поперечный промах.
+    Vec aim =
+        last_ball_position + shot_dir * config.strategy.dubins.bonus;
+    movement_direction = aim - robot.position;
+    len = (last_ball_position - robot.position).len();
   } else if (circle.dist(robot.position) < 0 &&
              abs(circle.dist(robot.position)) >
                  config.strategy.dubins.deep_inside) {

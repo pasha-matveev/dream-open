@@ -166,6 +166,7 @@ void load_config() {
   loaded.strategy.dubins.camera_target_dist =
       dubins["camera_target_dist"].GetDouble();
   loaded.strategy.dubins.kick_precision = Switch{dubins["kick_precision"]};
+  loaded.strategy.dubins.aim_bonus = dubins["aim_bonus"].GetDouble();
   loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
   const auto& target_left = strategy["target_left"];

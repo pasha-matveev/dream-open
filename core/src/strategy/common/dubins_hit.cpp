@@ -3,6 +3,7 @@
 #include "strategy/strategy.h"
 #include "utils/config.h"
 #include "utils/geo/circle.h"
+#include "utils/millis.h"
 
 bool circle_ok(Circle& circle, Field& field) {
   if (!field.inside(circle.center)) return false;
@@ -11,10 +12,14 @@ bool circle_ok(Circle& circle, Field& field) {
   return dist >= 10;
 }
 
+static int drive_ms = -1;
+static Vec drive_ball_position;
+
 bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
                           bool control) {
   if (robot.emitter) {
     cur_dubins = true;
+    drive_ms = -1;
     if (control) {
       kick_to_goal(robot, goal, {});
     } else {
@@ -88,12 +93,17 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   Vec movement_direction;
   double len;
   robot.dribling = config.strategy.dribbling_slow;
-  if (on_shot_line && longitudinal < 0) {
+  if (on_shot_line && longitudinal < 0 && drive_ms == -1) {
+    drive_ms = millis() + 300;
+    drive_ball_position = last_ball_position;
+  }
+  if (millis() < drive_ms) {
     // На линии удара и сзади мяча. Целимся в точку за мячом со стороны
     // ворот — движение автоматически стягивает остаточный поперечный промах.
-    Vec aim = last_ball_position + shot_dir * config.strategy.dubins.bonus;
-    movement_direction = aim - robot.position;
-    len = (last_ball_position - robot.position).len();
+    // Vec aim = last_ball_position + shot_dir * config.strategy.dubins.bonus;
+    // movement_direction = aim - robot.position;
+    movement_direction = drive_ball_position - robot.position;
+    len = (drive_ball_position - robot.position).len();
     spdlog::info("FORWARD");
   } else if (circle.dist(robot.position) < 0 &&
              abs(circle.dist(robot.position)) >
@@ -136,7 +146,9 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   double target_relative =
       normalize_angle(goal_direction.field_angle() - robot.field_angle);
 
-  robot.rotation = last_ball_relative_angle(robot);
+  // robot.rotation = last_ball_relative_angle(robot);
+  robot.rotation =
+      normalize_angle(goal_direction.field_angle() - robot.field_angle);
 
   return true;
 }

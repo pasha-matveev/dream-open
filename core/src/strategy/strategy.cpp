@@ -71,7 +71,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
     if (config.strategy.ball_filter.enabled) {
       ball_filter.predict(dt);
     }
-    if (robot.camera->new_data()) {
+    if (robot.camera && robot.camera->new_data()) {
       ball.compute_field_position(robot);
       if (ball.visible) {
         assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);

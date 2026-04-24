@@ -111,6 +111,16 @@ struct Config {
       double alpha_xy;
     } predict;
 
+    struct BallFilter {
+      double alpha_xy;      // для позиции
+      double beta_xy;       // для скорости
+      double friction_tau;  // время остановки мяча от трения
+      double latency_ms;
+      double max_jump;  // максимальное перемещения мяча, при котором мы
+                        // сбрасываем фильтр
+      double lost_timeout_ms;
+    } ball_filter;
+
     struct Motion {
       double max_linear_accel;
       double max_angular_accel;

@@ -60,17 +60,28 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   if (config.visualization.interactive) {
     // В интерактивной визуализации ball.field_position / ball.relative_angle
     // ставятся через мышь в visualization.cpp и ball.visible поднимается там
-    // же. Здесь только пробрасываем состояние в last_ball_*.
+    // же. Здесь только пробрасываем состояние в last_ball_*. Фильтр в этом
+    // режиме не работает: позиция от мыши — идеальная "истина", фильтр её
+    // только исказит.
     if (ball.visible) {
       last_ball_visible = millis();
       last_ball_position = ball.field_position;
     }
-  } else if (robot.camera->new_data()) {
-    ball.compute_field_position(robot);
-    if (ball.visible) {
-      assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
-      last_ball_visible = millis();
-      last_ball_position = ball.field_position;
+  } else {
+    ball_filter.predict(dt);
+    if (robot.camera->new_data()) {
+      ball.compute_field_position(robot);
+      if (ball.visible) {
+        assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
+        last_ball_visible = millis();
+        ball_filter.update(ball.field_position, now);
+      }
+    }
+    if (!ball.visible) {
+      ball_filter.lost(now);
+    }
+    if (ball_filter.is_initialized()) {
+      last_ball_position = ball_filter.position();
     }
   }
 

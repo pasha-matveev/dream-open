@@ -120,6 +120,14 @@
       "enabled": true,
       "alpha_xy": 0.3
     },
+    "ball_filter": {
+      "alpha_xy": 0.35,
+      "beta_xy": 0.15,
+      "friction_tau": 0.6,
+      "latency_ms": 40,
+      "max_jump": 40,
+      "lost_timeout_ms": 500
+    },
     "motion": {
       "max_linear_accel": 200,
       "max_angular_accel": 20,

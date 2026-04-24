@@ -123,6 +123,17 @@ void load_config() {
   const auto& predict = strategy["predict"];
   loaded.strategy.predict.enabled = predict["enabled"].GetBool();
   loaded.strategy.predict.alpha_xy = predict["alpha_xy"].GetDouble();
+
+  const auto& ball_filter = strategy["ball_filter"];
+  loaded.strategy.ball_filter.alpha_xy = ball_filter["alpha_xy"].GetDouble();
+  loaded.strategy.ball_filter.beta_xy = ball_filter["beta_xy"].GetDouble();
+  loaded.strategy.ball_filter.friction_tau =
+      ball_filter["friction_tau"].GetDouble();
+  loaded.strategy.ball_filter.latency_ms =
+      ball_filter["latency_ms"].GetDouble();
+  loaded.strategy.ball_filter.max_jump = ball_filter["max_jump"].GetDouble();
+  loaded.strategy.ball_filter.lost_timeout_ms =
+      ball_filter["lost_timeout_ms"].GetDouble();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
   loaded.strategy.dribbling_slow = strategy["dribbling_slow"].GetDouble();
 

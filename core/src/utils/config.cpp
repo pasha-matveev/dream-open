@@ -125,6 +125,7 @@ void load_config() {
   loaded.strategy.predict.alpha_xy = predict["alpha_xy"].GetDouble();
 
   const auto& ball_filter = strategy["ball_filter"];
+  loaded.strategy.ball_filter.enabled = ball_filter["enabled"].GetBool();
   loaded.strategy.ball_filter.alpha_xy = ball_filter["alpha_xy"].GetDouble();
   loaded.strategy.ball_filter.beta_xy = ball_filter["beta_xy"].GetDouble();
   loaded.strategy.ball_filter.friction_tau =

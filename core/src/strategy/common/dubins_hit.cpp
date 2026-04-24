@@ -91,10 +91,10 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   if (on_shot_line && longitudinal < 0) {
     // На линии удара и сзади мяча. Целимся в точку за мячом со стороны
     // ворот — движение автоматически стягивает остаточный поперечный промах.
-    Vec aim =
-        last_ball_position + shot_dir * config.strategy.dubins.bonus;
+    Vec aim = last_ball_position + shot_dir * config.strategy.dubins.bonus;
     movement_direction = aim - robot.position;
     len = (last_ball_position - robot.position).len();
+    spdlog::info("FORWARD");
   } else if (circle.dist(robot.position) < 0 &&
              abs(circle.dist(robot.position)) >
                  config.strategy.dubins.deep_inside) {
@@ -105,6 +105,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
     len += movement_direction.len();
     len += circle.path_len(t, destination, left);
     len += config.strategy.dubins.bonus;
+    spdlog::info("DEEP INSIDE");
   } else if (circle.inside(robot.position)) {
     // На круге
     Vec center_dir = circle.center - robot.position;
@@ -115,6 +116,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
     }
     len = circle.path_len(robot.position, destination, left) +
           config.strategy.dubins.bonus;
+    spdlog::info("CIRCLE");
   } else {
     // Едем к кругу по касательной
     Vec tangent;
@@ -126,6 +128,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
     movement_direction = tangent - robot.position;
     len = circle.path_len(tangent, destination, left) +
           config.strategy.dubins.bonus + movement_direction.len();
+    spdlog::info("TANGENT");
   }
   double speed = config.strategy.dubins.speed.map(len);
   robot.vel = movement_direction.resize(speed);

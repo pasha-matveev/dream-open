@@ -106,6 +106,11 @@ struct Config {
     string role;
     double turn_precision;
 
+    struct Predict {
+      bool enabled;
+      double alpha_xy;
+    } predict;
+
     struct Motion {
       double max_linear_accel;
       double max_angular_accel;

@@ -46,9 +46,9 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
       // Позицию сглаживаем EMA с лидаром. Угол оставляем от гироскопа —
       // он точнее короткосрочно; долгосрочный дрейф правит calibrate() по
       // стабильной позе внутри compute_lidar.
-      static constexpr double ALPHA_XY = 0.3;
       robot.position =
-          measured->position * ALPHA_XY + robot.position * (1.0 - ALPHA_XY);
+          measured->position * config.strategy.predict.alpha_xy +
+          robot.position * (1.0 - config.strategy.predict.alpha_xy);
     } else {
       // Первый кадр — хард-снап позиции и синхронизация гироскопа к лидару.
       robot.position = measured->position;

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "utils/mapper.h"
+#include "utils/switch.h"
 
 using namespace std;
 
@@ -105,6 +106,11 @@ struct Config {
     string role;
     double turn_precision;
 
+    struct Predict {
+      bool enabled;
+      double alpha_xy;
+    } predict;
+
     struct Motion {
       double max_linear_accel;
       double max_angular_accel;
@@ -140,7 +146,7 @@ struct Config {
       double radius;
       double deep_inside;
       double camera_target_dist;
-      double kick_precision;
+      Switch kick_precision;
       Mapper speed;
     } dubins;
 

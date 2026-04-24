@@ -119,9 +119,12 @@ void load_config() {
   const auto& strategy = doc["strategy"];
   loaded.strategy.enabled = strategy["enabled"].GetBool();
   loaded.strategy.role = strategy["role"].GetString();
+  loaded.strategy.turn_precision = strategy["turn_precision"].GetDouble();
+  const auto& predict = strategy["predict"];
+  loaded.strategy.predict.enabled = predict["enabled"].GetBool();
+  loaded.strategy.predict.alpha_xy = predict["alpha_xy"].GetDouble();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
   loaded.strategy.dribbling_slow = strategy["dribbling_slow"].GetDouble();
-  loaded.strategy.turn_precision = strategy["turn_precision"].GetDouble();
 
   const auto& motion = strategy["motion"];
   loaded.strategy.motion.max_linear_accel =
@@ -151,7 +154,7 @@ void load_config() {
   loaded.strategy.dubins.separate = dubins["separate"].GetDouble();
   loaded.strategy.dubins.camera_target_dist =
       dubins["camera_target_dist"].GetDouble();
-  loaded.strategy.dubins.kick_precision = dubins["kick_precision"].GetDouble();
+  loaded.strategy.dubins.kick_precision = Switch{dubins["kick_precision"]};
   loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
   const auto& target_left = strategy["target_left"];

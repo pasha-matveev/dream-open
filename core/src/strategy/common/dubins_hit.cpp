@@ -82,7 +82,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   Vec movement_direction;
   double len;
   robot.dribling = config.strategy.dribbling_slow;
-  if (abs(kick_angle) <= config.strategy.dubins.kick_precision) {
+  if (config.strategy.dubins.kick_precision.compute(abs(kick_angle))) {
     // Едем напрямую к мячу
     Vec vel = last_ball_position - robot.position;
     movement_direction = vel;

@@ -116,6 +116,10 @@
     "enabled": true,
     "role": "keeper",
     "turn_precision": 0.02,
+    "predict": {
+      "enabled": true,
+      "alpha_xy": 0.3
+    },
     "motion": {
       "max_linear_accel": 200,
       "max_angular_accel": 20,

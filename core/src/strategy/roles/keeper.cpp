@@ -74,20 +74,18 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           Field& field) {
   auto obstacle = nearest_obstacle(robot);
 
+  // Если препятствие действительно можно считать роботом
   if (obstacle.has_value() && (*obstacle - robot.position).len() >= 11 &&
       (field.inside(*obstacle) || field.dist(*obstacle) <= 6)) {
     last_piter_visible = millis();
     last_piter = *obstacle;
     Vec dir = last_piter - robot.position;
-    spdlog::error("Piter {} {}", last_piter.x, last_piter.y);
-    spdlog::error("Dir {} {}, {}", dir.x, dir.y, dir.len());
   }
 
   long long ball_visible_tm = millis() - last_ball_visible;
   long long piter_visible_tm = millis() - last_piter_visible;
   bool ball_ok = ball_visible_tm <= 2000;
-  // bool piter_ok = piter_visible_tm <= 2000;
-  bool piter_ok = false;
+  bool piter_ok = piter_visible_tm <= 2000;
 
   bool is_piter;
   if (ball.visible || robot.emitter) {
@@ -125,7 +123,6 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         // Просто целимся и стреляем
         // spdlog::info("SIMPLE KICK");
         kick_to_goal(robot, goal, {});
-        // hit(robot, goal, 100, 200, true, 0, 0.02, true);
       }
     } else {
       if (ball_ok) {

@@ -120,6 +120,14 @@
       "enabled": true,
       "alpha_xy": 0.3
     },
+    "ball_filter": {
+      "alpha_xy": 0.35,
+      "beta_xy": 0.15,
+      "friction_tau": 0.6,
+      "latency_ms": 40,
+      "max_jump": 40,
+      "lost_timeout_ms": 500
+    },
     "motion": {
       "max_linear_accel": 200,
       "max_angular_accel": 20,
@@ -152,9 +160,10 @@
       "deep_inside": 3,
       "camera_target_dist": 10,
       "kick_precision": {
-        "middle": 0.1,
-        "deviation": 0.03
+        "middle": 1.5,
+        "deviation": 0.5
       },
+      "aim_bonus": 15,
       "speed": {
         "param_l": 20,
         "param_r": 40,

@@ -123,6 +123,18 @@ void load_config() {
   const auto& predict = strategy["predict"];
   loaded.strategy.predict.enabled = predict["enabled"].GetBool();
   loaded.strategy.predict.alpha_xy = predict["alpha_xy"].GetDouble();
+
+  const auto& ball_filter = strategy["ball_filter"];
+  loaded.strategy.ball_filter.enabled = ball_filter["enabled"].GetBool();
+  loaded.strategy.ball_filter.alpha_xy = ball_filter["alpha_xy"].GetDouble();
+  loaded.strategy.ball_filter.beta_xy = ball_filter["beta_xy"].GetDouble();
+  loaded.strategy.ball_filter.friction_tau =
+      ball_filter["friction_tau"].GetDouble();
+  loaded.strategy.ball_filter.latency_ms =
+      ball_filter["latency_ms"].GetDouble();
+  loaded.strategy.ball_filter.max_jump = ball_filter["max_jump"].GetDouble();
+  loaded.strategy.ball_filter.lost_timeout_ms =
+      ball_filter["lost_timeout_ms"].GetDouble();
   loaded.strategy.dribbling = Mapper(strategy["dribbling"]);
   loaded.strategy.dribbling_slow = strategy["dribbling_slow"].GetDouble();
 
@@ -155,6 +167,7 @@ void load_config() {
   loaded.strategy.dubins.camera_target_dist =
       dubins["camera_target_dist"].GetDouble();
   loaded.strategy.dubins.kick_precision = Switch{dubins["kick_precision"]};
+  loaded.strategy.dubins.aim_bonus = dubins["aim_bonus"].GetDouble();
   loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
   const auto& target_left = strategy["target_left"];

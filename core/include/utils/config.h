@@ -129,6 +129,10 @@ struct Config {
       double wall_limit;
     } motion;
 
+    struct Drive {
+      Mapper ball_speed;
+    } drive;
+
     struct Target {
       double x, y;
     };

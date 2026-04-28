@@ -146,6 +146,9 @@ void load_config() {
   loaded.strategy.motion.decel_k = motion["decel_k"].GetDouble();
   loaded.strategy.motion.wall_limit = motion["wall_limit"].GetDouble();
 
+  const auto& drive = strategy["drive"];
+  loaded.strategy.drive.ball_speed = Mapper(drive["ball_speed"]);
+
   const auto& attacker = strategy["attacker"];
   loaded.strategy.attacker.border = attacker["border"].GetDouble();
   loaded.strategy.attacker.dubins_enabled =

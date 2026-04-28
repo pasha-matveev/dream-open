@@ -77,8 +77,7 @@ class Strategy {
 
   // common actions
   bool drive_target(Robot& robot, const Vec& target, double k,
-                    double max_speed = 120, double min_speed = 0,
-                    bool is_ball = false);
+                    double max_speed = 120, double min_speed = 0);
   void drive_ball(Robot& robot, const Vec& ball);
   void accelerated_dribbling(Robot& robot);
   void desired_dribling(Robot& robot, bool ac_dribling);
@@ -94,7 +93,8 @@ class Strategy {
   void run_test_mirror(Robot& robot, Object& ball);
   void run_test_circle(Robot& robot);
   void run_test_dribling(Robot& robot);
-  void run_test(Robot& robot, Object& goal);
+  void run_test_movement(Robot& robot);
+  void run_test(Robot& robot, Object& ball, Object& goal);
 
  public:
   void run(Robot& robot, Object& ball, Object& goal, Field& field);

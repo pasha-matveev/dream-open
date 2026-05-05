@@ -3,6 +3,16 @@ cmake_minimum_required(VERSION 3.18)
 
 project(core)
 
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+endif()
+find_program(MOLD_LINKER mold)
+if(MOLD_LINKER)
+    add_link_options("-fuse-ld=mold")
+endif()
+
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 aux_source_directory(src SRC_FILES)
@@ -67,13 +77,16 @@ if (UNIX AND NOT APPLE)
 # WiringPi
 find_library(WiringPi_LIB wiringPi REQUIRED)
 
+# LCCV
+find_library(LCCV_LIB lccv REQUIRED HINTS /usr/local/lib)
+
 # LibCamera
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCAMERA REQUIRED IMPORTED_TARGET libcamera)
 include_directories(${LIBCAMERA_INCLUDE_DIRS})
 
-target_link_libraries(core PRIVATE -llccv ${WiringPi_LIB})
-target_link_libraries(core PRIVATE -llccv PkgConfig::LIBCAMERA)
+target_link_libraries(core PRIVATE ${LCCV_LIB} ${WiringPi_LIB})
+target_link_libraries(core PRIVATE PkgConfig::LIBCAMERA)
 
 endif()
 

@@ -1,5 +1,9 @@
 #include <spdlog/spdlog.h>
 
+#include "strategy/ball_tracker.h"
+#include "strategy/dubins.h"
+#include "strategy/kick.h"
+#include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "utils/config.h"
 #include "utils/geo/polygon.h"
@@ -12,25 +16,19 @@
 // static AttackerRSide r_side = AttackerRSide::NONE;
 // static AttackerRStatus r_status = AttackerRStatus::NONE;
 
-double Strategy::compute_power(double y) {
-  if (y >= 243 - 12 - 45) {
-    return 10;
-  } else {
-    return 10;
-  }
-}
-
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
                             Field& field) {
   if (robot.emitter) {
     // Взяли мяч
-    if (last_dubins) {
+    if (dubins_->was_active_last_tick()) {
       spdlog::info("KICK DUBINS");
       // Подъехали по окружности, используем удар оттуда
-      dubins_hit(robot, goal, field, compute_power(robot.position.y), false);
+      dubins_->dubins_hit(robot, goal, field,
+                          KickController::compute_power(robot.position.y),
+                          false);
     } else {
       spdlog::info("KICK GOAL");
-      kick_to_goal(robot, goal, {});
+      kick_->execute_to_goal(robot, goal, {});
       // Vec hole_position = robot.ball_hole_position();
       // if (!robot.prev_emitter) {
       //   // Только что взяли мяч
@@ -105,12 +103,12 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     // Не взяли мяч
     // r_status = AttackerRStatus::NONE;
     // r_side = AttackerRSide::NONE;
-    bool recently_visible = millis() - last_ball_visible < 3000;
-    if (!recently_visible ||
-        last_ball_position.y < config.strategy.attacker.border) {
+    bool recently_visible = ball_->recently_visible(millis(), 3000);
+    Vec ball_pos = ball_->position();
+    if (!recently_visible || ball_pos.y < config.strategy.attacker.border) {
       // Мяч у вратаря или мы его не видим
       Vec target;
-      if (recently_visible && last_ball_position.x < 91) {
+      if (recently_visible && ball_pos.x < 91) {
         // Едем к левому краю
         target = {20, 120};
       } else {
@@ -119,9 +117,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       }
       spdlog::info("DRIVE PASSIVE");
       drive_target(robot, target, 4);
-      robot.rotation =
-          normalize_angle((last_ball_position - robot.position).field_angle() -
-                          robot.field_angle);
+      robot.rotation = ball_->relative_angle(robot);
     } else {
       // Мяч на нашей половине
 
@@ -149,12 +145,14 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
 
       bool res = false;
       if (config.strategy.attacker.dubins_enabled) {
-        res = dubins_hit(robot, goal, field, compute_power(robot.position.y),
-                         false);
+        res = dubins_->dubins_hit(robot, goal, field,
+                                  KickController::compute_power(
+                                      robot.position.y),
+                                  false);
       }
       if (!res) {
         // Мяч близко к бортам, играем как обычно
-        drive_ball(robot, last_ball_position);
+        drive_ball(robot, ball_pos);
       }
     }
   }

@@ -1,15 +1,18 @@
+#include "strategy/turn.h"
+
 #include <spdlog/spdlog.h>
 
-#include "strategy/strategy.h"
+#include "robot.h"
+#include "strategy/motion.h"
 #include "utils/config.h"
 #include "utils/millis.h"
 
 constexpr int TURN_ACCEL_TIME = 300;
 
-bool Strategy::turn(Robot& robot, const TurnParams& params) {
-  reset_turn = false;
+bool TurnController::execute(Robot& robot, const TurnParams& params) {
+  reset_pending_ = false;
   double delta = params.target_field_angle - robot.field_angle;
-  long long passed = millis() - turn_start_time;
+  long long passed = millis() - start_time_;
   double k = min(1.0, (double)passed / TURN_ACCEL_TIME);
   if (params.curved_rotation) {
     if (abs(delta) <= 0.035) {

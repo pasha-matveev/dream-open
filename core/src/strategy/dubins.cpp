@@ -1,36 +1,40 @@
+#include "strategy/dubins.h"
+
 #include <spdlog/spdlog.h>
 
-#include "strategy/strategy.h"
+#include "robot.h"
+#include "strategy/ball_tracker.h"
+#include "strategy/field.h"
+#include "strategy/kick.h"
+#include "tracking/object.h"
 #include "utils/config.h"
 #include "utils/geo/circle.h"
 #include "utils/millis.h"
 
-bool circle_ok(Circle& circle, Field& field) {
+static bool circle_ok(Circle& circle, Field& field) {
   if (!field.inside(circle.center)) return false;
   double dist = field.dist(circle.center) - circle.r;
   // чтобы робот проехал, должна быть хотя бы половина корпуса
   return dist >= 10;
 }
 
-static int drive_ms = -1;
-static Vec drive_ball_position;
-
-bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
-                          bool control) {
+bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
+                                  int _, bool control) {
   if (robot.emitter) {
-    cur_dubins = true;
-    drive_ms = -1;
+    cur_dubins_ = true;
+    drive_ms_ = -1;
     if (control) {
-      kick_to_goal(robot, goal, {});
+      kick_->execute_to_goal(robot, goal, {});
     } else {
-      robot.kicker_force = compute_power(robot.position.y);
+      robot.kicker_force = KickController::compute_power(robot.position.y);
     }
     return true;
   }
 
+  Vec ball_pos = ball_->position();
   Vec goal_direction;
 
-  if (goal.visible && (last_ball_position - robot.position).len() <=
+  if (goal.visible && (ball_pos - robot.position).len() <=
                           config.strategy.dubins.camera_target_dist) {
     // Подъехали близко к мячу, можно целиться по камере
     double dir_angle = goal.relative_angle + robot.field_angle;
@@ -38,11 +42,11 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   } else {
     // Целимся по логике
     Vec target{91, 240};
-    goal_direction = target - last_ball_position;
+    goal_direction = target - ball_pos;
   }
 
   Vec destination =
-      last_ball_position + goal_direction.resize(-config.strategy.dubins.bonus);
+      ball_pos + goal_direction.resize(-config.strategy.dubins.bonus);
   Vec left_center = destination + goal_direction.turn_left().resize(
                                       config.strategy.dubins.radius +
                                       config.strategy.dubins.separate);
@@ -58,7 +62,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   if (!left_ok && !right_ok) {
     return false;
   }
-  cur_dubins = true;
+  cur_dubins_ = true;
 
   bool left;
   if (left_ok && right_ok) {
@@ -85,7 +89,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   // сзади мяча со стороны, противоположной воротам). Так шум позиции не
   // раскачивает порог при приближении к мячу.
   Vec shot_dir = goal_direction.resize(1);
-  Vec ball_to_robot = robot.position - last_ball_position;
+  Vec ball_to_robot = robot.position - ball_pos;
   double longitudinal = ball_to_robot * shot_dir;
   double lateral = abs(ball_to_robot % shot_dir);
   bool on_shot_line = config.strategy.dubins.kick_precision.compute(lateral);
@@ -93,17 +97,17 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   Vec movement_direction;
   double len;
   robot.dribling = config.strategy.dribbling_slow;
-  if (on_shot_line && longitudinal < 0 && drive_ms == -1) {
-    drive_ms = millis() + 300;
-    drive_ball_position = last_ball_position;
+  if (on_shot_line && longitudinal < 0 && drive_ms_ == -1) {
+    drive_ms_ = millis() + 300;
+    drive_ball_position_ = ball_pos;
   }
-  if (millis() < drive_ms) {
+  if (millis() < drive_ms_) {
     // На линии удара и сзади мяча. Целимся в точку за мячом со стороны
     // ворот — движение автоматически стягивает остаточный поперечный промах.
-    // Vec aim = last_ball_position + shot_dir * config.strategy.dubins.bonus;
+    // Vec aim = ball_pos + shot_dir * config.strategy.dubins.bonus;
     // movement_direction = aim - robot.position;
-    movement_direction = drive_ball_position - robot.position;
-    len = (drive_ball_position - robot.position).len();
+    movement_direction = drive_ball_position_ - robot.position;
+    len = (drive_ball_position_ - robot.position).len();
     spdlog::info("FORWARD");
   } else if (circle.dist(robot.position) < 0 &&
              abs(circle.dist(robot.position)) >
@@ -143,10 +147,7 @@ bool Strategy::dubins_hit(Robot& robot, Object& goal, Field& field, int _,
   double speed = config.strategy.dubins.speed.map(len);
   robot.vel = movement_direction.resize(speed);
 
-  double target_relative =
-      normalize_angle(goal_direction.field_angle() - robot.field_angle);
-
-  // robot.rotation = last_ball_relative_angle(robot);
+  // robot.rotation = ball_->relative_angle(robot);
   robot.rotation =
       normalize_angle(goal_direction.field_angle() - robot.field_angle);
 

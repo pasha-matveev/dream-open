@@ -1,7 +1,7 @@
-#include "strategy/strategy.h"
+#include "strategy/motion.h"
 #include "utils/config.h"
 
-void Strategy::drive_ball(Robot& robot, const Vec& ball) {
+void drive_ball(Robot& robot, const Vec& ball) {
   double k;
   double dist = (ball - robot.position).len();
   if (dist < 16) {

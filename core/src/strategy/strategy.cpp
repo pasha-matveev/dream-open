@@ -7,11 +7,24 @@
 #include <chrono>
 #include <cstdint>
 
+#include "strategy/ball_tracker.h"
+#include "strategy/dubins.h"
+#include "strategy/kick.h"
+#include "strategy/turn.h"
 #include "utils/config.h"
 #include "utils/geo/vec.h"
 #include "utils/millis.h"
 
-Strategy::Strategy() { role = config.strategy.role; }
+Strategy::Strategy()
+    : ball_(std::make_unique<BallTracker>()),
+      turn_(std::make_unique<TurnController>()),
+      kick_(std::make_unique<KickController>(turn_.get())),
+      dubins_(
+          std::make_unique<DubinsController>(kick_.get(), ball_.get())) {
+  role = config.strategy.role;
+}
+
+Strategy::~Strategy() = default;
 
 void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   long long now = millis();
@@ -57,41 +70,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
       has_lidar_fix = true;
     }
   }
-  if (config.visualization.interactive) {
-    // В интерактивной визуализации ball.field_position / ball.relative_angle
-    // ставятся через мышь в visualization.cpp и ball.visible поднимается там
-    // же. Здесь только пробрасываем состояние в last_ball_*. Фильтр в этом
-    // режиме не работает: позиция от мыши — идеальная "истина", фильтр её
-    // только исказит.
-    if (ball.visible) {
-      last_ball_visible = millis();
-      last_ball_position = ball.field_position;
-    }
-  } else {
-    if (config.strategy.ball_filter.enabled) {
-      ball_filter.predict(dt);
-    }
-    if (robot.camera && robot.camera->new_data()) {
-      ball.compute_field_position(robot);
-      if (ball.visible) {
-        assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
-        last_ball_visible = millis();
-        if (config.strategy.ball_filter.enabled) {
-          ball_filter.update(ball.field_position, now);
-        }
-      }
-    }
-    if (config.strategy.ball_filter.enabled) {
-      if (!ball.visible) {
-        ball_filter.lost(now);
-      }
-      if (ball_filter.is_initialized()) {
-        last_ball_position = ball_filter.position();
-      }
-    } else {
-      last_ball_position = ball.field_position;
-    }
-  }
+  ball_->update(robot, ball, dt, now, config.visualization.interactive);
 
   if (robot.emitter && !robot.prev_emitter) {
     robot.first_time = millis();
@@ -112,8 +91,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   robot.rotation_limit = 50;
 
   if (config.strategy.enabled) {
-    reset_kick = true;
-    reset_turn = true;
+    kick_->mark_for_reset();
+    turn_->mark_for_reset();
 
     if (robot.state == RobotState::RUNNING) {
       if (role == "attacker") {
@@ -135,18 +114,12 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
       }
     }
 
-    if (reset_kick) {
-      kick_status = KickStatus::NONE;
-      kick_timeout_stamp = -10000;
-    }
-    if (reset_turn) {
-      turn_start_time = -1;
-    }
+    kick_->apply_reset_if_pending();
+    turn_->apply_reset_if_pending();
     field.apply(robot);
   }
   robot.prev_emitter = robot.emitter;
-  last_dubins = cur_dubins;
-  cur_dubins = false;
+  dubins_->on_tick_end();
 
   robot.apply_motion_limits(dt);
 }

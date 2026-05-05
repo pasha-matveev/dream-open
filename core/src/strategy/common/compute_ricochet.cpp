@@ -1,6 +1,6 @@
-#include "strategy/strategy.h"
+#include "strategy/motion.h"
 
-double Strategy::compute_ricochet(Robot& robot, bool left) {
+double compute_ricochet(Robot& robot, bool left) {
   Vec ball_position = robot.ball_hole_position();
   Vec target{91, 230};
   double a;

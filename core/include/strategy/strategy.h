@@ -1,21 +1,25 @@
 #pragma once
 
-#include <queue>
+#include <memory>
 
 #include "robot.h"
-#include "strategy/ball_filter.h"
 #include "strategy/field.h"
 #include "tracking/object.h"
 
-// const Polygon left_attacker_r{{{0, 194}, {0, 243}, {91, 243}}};
-// const Polygon right_attacker_r{{{91, 243}, {182, 243}, {182, 194}}};
-
-constexpr double DL = 26;
-const Field dubins_field{
-    {{DL, DL}, {DL, 243 - DL}, {182 - DL, 243 - DL}, {182 - DL, DL}}};
+class BallTracker;
+class TurnController;
+class KickController;
+class DubinsController;
 
 class Strategy {
  private:
+  // Порядок объявления = порядок инициализации. Контроллеры с DI должны идти
+  // после своих зависимостей.
+  std::unique_ptr<BallTracker> ball_;
+  std::unique_ptr<TurnController> turn_;
+  std::unique_ptr<KickController> kick_;
+  std::unique_ptr<DubinsController> dubins_;
+
   string role;
 
   // Остановить робота до этого времени
@@ -31,62 +35,6 @@ class Strategy {
   double avg_dt = 0.0;
   long long last_fps_log_ms = 0;
 
-  // Последний раз, когда видели мяч
-  long long last_ball_visible = -10000;
-  Vec last_ball_position;
-  BallFilter ball_filter;
-
-  double last_ball_relative_angle(Robot& robot) {
-    return normalize_angle((last_ball_position - robot.position).field_angle() -
-                           robot.field_angle);
-  }
-
-  // Kick
-  enum class KickStatus { NONE, ROTATE, TIMEOUT, KICK, READY };
-  KickStatus kick_status = KickStatus::NONE;
-  long long kick_timeout_stamp = -10000;
-  bool reset_kick = false;
-  struct KickParams {
-    double relative_dir;
-    int power = 70;
-    int control_time = 600;
-    bool curved_rotation = true;
-    int kick_timeout = 300;
-    double precision = 0.015;
-    bool accelerate_dribbling = true;
-  };
-  void kick(Robot& robot, const KickParams& params);
-  void kick_to_goal(Robot& robot, Object& goal, KickParams params);
-  double compute_power(double y);
-
-  // Turn
-  long long turn_start_time = -1;
-  bool reset_turn = false;
-  struct TurnParams {
-    double target_field_angle;
-    bool curved_rotation = true;
-    bool accelerated_dribbling = true;
-  };
-  bool turn(Robot& robot, const TurnParams& params);
-
-  // Dubins
-  bool last_dubins = false;  // Был ли dubins вызван в предыдущей итерации
-  bool cur_dubins = false;   // Был ли dubins вызван в текущей итерации
-  bool dubins_hit(Robot& robot, Object& goal, Field& field, int power,
-                  bool control);
-
-  // common actions
-  bool drive_target(Robot& robot, const Vec& target, double k,
-                    double max_speed = 120, double min_speed = 0,
-                    bool is_ball = false);
-  void drive_ball(Robot& robot, const Vec& ball);
-  void accelerated_dribbling(Robot& robot);
-  void desired_dribling(Robot& robot, bool ac_dribling);
-
-  bool take_ball(Robot& robot, long long forward_timeout);
-
-  double compute_ricochet(Robot& robot, bool left);
-
   // Root strategies
   void run_keeper(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_attacker(Robot& robot, Object& ball, Object& goal, Field& field);
@@ -97,7 +45,11 @@ class Strategy {
   void run_test(Robot& robot, Object& goal);
 
  public:
+  Strategy();
+  ~Strategy();
+  Strategy(const Strategy&) = delete;
+  Strategy& operator=(const Strategy&) = delete;
+
   void run(Robot& robot, Object& ball, Object& goal, Field& field);
   double get_last_dt() const { return last_dt; }
-  Strategy();
 };

@@ -1,7 +1,7 @@
-#include "strategy/strategy.h"
+#include "strategy/motion.h"
 #include "utils/millis.h"
 
-bool Strategy::take_ball(Robot& robot, long long forward_timeout) {
+bool take_ball(Robot& robot, long long forward_timeout) {
   long long passed_time = millis() - robot.first_time;
   long long left_time = forward_timeout - passed_time;
   bool finished = false;

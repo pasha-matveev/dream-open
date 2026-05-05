@@ -1,3 +1,4 @@
+#include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "utils/config.h"
 #include "utils/millis.h"

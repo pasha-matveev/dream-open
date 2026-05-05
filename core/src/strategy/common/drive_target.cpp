@@ -1,8 +1,8 @@
-#include "strategy/strategy.h"
+#include "strategy/motion.h"
 #include "utils/config.h"
 
-bool Strategy::drive_target(Robot& robot, const Vec& target, double k,
-                            double max_speed, double min_speed, bool is_ball) {
+bool drive_target(Robot& robot, const Vec& target, double k, double max_speed,
+                  double min_speed, bool is_ball) {
   Vec vel = target - robot.position;
   double d_safe = vel.len();
   double v_safe;

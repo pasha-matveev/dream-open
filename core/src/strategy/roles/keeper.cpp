@@ -4,6 +4,10 @@
 #include <cmath>
 #include <optional>
 
+#include "strategy/ball_tracker.h"
+#include "strategy/dubins.h"
+#include "strategy/kick.h"
+#include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "strategy/visualization.h"
 #include "utils/config.h"
@@ -82,7 +86,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     Vec dir = last_piter - robot.position;
   }
 
-  long long ball_visible_tm = millis() - last_ball_visible;
+  long long ball_visible_tm = millis() - ball_->last_visible_ms();
   long long piter_visible_tm = millis() - last_piter_visible;
   bool ball_ok = ball_visible_tm <= 2000;
   bool piter_ok = piter_visible_tm <= 2000;
@@ -115,40 +119,40 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
-      if (last_dubins) {
+      if (dubins_->was_active_last_tick()) {
         // Подъехали по dubins, продолжаем использовать эту стратегию
         // spdlog::info("DUBINS KICK");
-        dubins_hit(robot, goal, field, 100, false);
+        dubins_->dubins_hit(robot, goal, field, 100, false);
       } else {
         // Просто целимся и стреляем
         // spdlog::info("SIMPLE KICK");
-        kick_to_goal(robot, goal, {});
+        kick_->execute_to_goal(robot, goal, {});
       }
     } else {
       if (ball_ok) {
         // Видим мяч
-        if (last_ball_position.y >= config.strategy.keeper.global_border) {
+        Vec ball_pos = ball_->position();
+        if (ball_pos.y >= config.strategy.keeper.global_border) {
           // Мяч за нашей зоной, защищаем ворота
-          Vec target = compute_contr_point(last_ball_position, field);
+          Vec target = compute_contr_point(ball_pos, field);
           // spdlog::info("LONG PROTECT {} {}", target.x, target.y);
           drive_target(robot, target, 20, 100);
-          robot.rotation = last_ball_relative_angle(robot);
-        } else if (last_ball_position.y >=
-                       config.strategy.keeper.dubins_border &&
-                   dubins_hit(robot, goal, field, 100, false)) {
+          robot.rotation = ball_->relative_angle(robot);
+        } else if (ball_pos.y >= config.strategy.keeper.dubins_border &&
+                   dubins_->dubins_hit(robot, goal, field, 100, false)) {
           // Мяч в зоне удара, используем dubins_path
           // spdlog::info("DUBINS PROTECT");
         } else if (config.strategy.keeper.ram_enabled &&
-                   last_ball_position.y > robot.position.y) {
+                   ball_pos.y > robot.position.y) {
           // Просто бьем мяч корпусом
           // spdlog::info("RAM");
-          drive_target(robot, last_ball_position, 3, 120, 50);
+          drive_target(robot, ball_pos, 3, 120, 50);
           robot.rotation = -robot.field_angle;
         } else {
           // Мяч близко, _аккуратно_ его берем
-          // spdlog::info("NEAR PROTECT {} {} {}", ball_visible_tm,
-          //  last_ball_position.x, last_ball_position.y);
-          drive_ball(robot, last_ball_position);
+          // spdlog::info("NEAR PROTECT {} {} {}", ball_visible_tm, ball_pos.x,
+          // ball_pos.y);
+          drive_ball(robot, ball_pos);
         }
       } else {
         // Не видим мяч

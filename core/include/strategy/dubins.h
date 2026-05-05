@@ -10,8 +10,15 @@ class BallTracker;
 
 class DubinsController {
  public:
-  DubinsController(KickController* kick, BallTracker* ball)
-      : kick_(kick), ball_(ball) {}
+  DubinsController() = default;
+
+  // Двухфазная инициализация: после конструктора нужно вызвать init() с
+  // зависимостями. Это разделяет создание и связывание, чтобы порядок
+  // объявления полей в Strategy не был ловушкой.
+  void init(KickController* kick, BallTracker* ball) {
+    kick_ = kick;
+    ball_ = ball;
+  }
 
   bool dubins_hit(Robot& robot, Object& goal, Field& field, int power,
                   bool control);
@@ -23,8 +30,8 @@ class DubinsController {
   bool was_active_last_tick() const { return last_dubins_; }
 
  private:
-  KickController* kick_;
-  BallTracker* ball_;
+  KickController* kick_ = nullptr;
+  BallTracker* ball_ = nullptr;
   bool last_dubins_ = false;
   bool cur_dubins_ = false;
   int drive_ms_ = -1;

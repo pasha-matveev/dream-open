@@ -15,12 +15,19 @@
 #include "utils/geo/vec.h"
 #include "utils/millis.h"
 
-Strategy::Strategy()
-    : ball_(std::make_unique<BallTracker>()),
-      turn_(std::make_unique<TurnController>()),
-      kick_(std::make_unique<KickController>(turn_.get())),
-      dubins_(
-          std::make_unique<DubinsController>(kick_.get(), ball_.get())) {
+Strategy::Strategy() {
+  // Фаза 1: создаём все контроллеры без зависимостей. Порядок не важен —
+  // ни один контроллер не трогает другой в конструкторе.
+  ball_ = std::make_unique<BallTracker>();
+  turn_ = std::make_unique<TurnController>();
+  kick_ = std::make_unique<KickController>();
+  dubins_ = std::make_unique<DubinsController>();
+
+  // Фаза 2: связываем зависимости явно. Циклы между контроллерами теперь
+  // тоже возможны (если вдруг понадобятся в будущем).
+  kick_->init(turn_.get());
+  dubins_->init(kick_.get(), ball_.get());
+
   role = config.strategy.role;
 }
 

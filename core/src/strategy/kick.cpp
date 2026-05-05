@@ -1,5 +1,7 @@
 #include "strategy/kick.h"
 
+#include <cassert>
+
 #include "robot.h"
 #include "strategy/motion.h"
 #include "strategy/turn.h"
@@ -8,6 +10,7 @@
 #include "utils/millis.h"
 
 void KickController::execute(Robot& robot, const KickParams& params) {
+  assert(turn_ != nullptr && "KickController::init() not called");
   reset_pending_ = false;
 
   // Переходы

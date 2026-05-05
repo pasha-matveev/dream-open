@@ -2,6 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <cassert>
+
 #include "robot.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/field.h"
@@ -20,6 +22,8 @@ static bool circle_ok(Circle& circle, Field& field) {
 
 bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
                                   int _, bool control) {
+  assert(kick_ != nullptr && ball_ != nullptr &&
+         "DubinsController::init() not called");
   if (robot.emitter) {
     cur_dubins_ = true;
     drive_ms_ = -1;

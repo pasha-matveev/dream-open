@@ -13,8 +13,8 @@ class DubinsController;
 
 class Strategy {
  private:
-  // Порядок объявления = порядок инициализации. Контроллеры с DI должны идти
-  // после своих зависимостей.
+  // Контроллеры. Связи между ними настраиваются в Strategy() через init() —
+  // см. strategy.cpp. Порядок объявления тут роли не играет.
   std::unique_ptr<BallTracker> ball_;
   std::unique_ptr<TurnController> turn_;
   std::unique_ptr<KickController> kick_;

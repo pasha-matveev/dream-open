@@ -18,7 +18,12 @@ class KickController {
  public:
   enum class Status { NONE, ROTATE, TIMEOUT, KICK, READY };
 
-  explicit KickController(TurnController* turn) : turn_(turn) {}
+  KickController() = default;
+
+  // Двухфазная инициализация: после конструктора нужно вызвать init() с
+  // зависимостями. Это разделяет создание и связывание, чтобы порядок
+  // объявления полей в Strategy не был ловушкой.
+  void init(TurnController* turn) { turn_ = turn; }
 
   void execute(Robot& robot, const KickParams& params);
   void execute_to_goal(Robot& robot, Object& goal, KickParams params);
@@ -34,7 +39,7 @@ class KickController {
   static double compute_power(double y);
 
  private:
-  TurnController* turn_;
+  TurnController* turn_ = nullptr;
   Status status_ = Status::NONE;
   long long timeout_stamp_ = -10000;
   bool reset_pending_ = false;

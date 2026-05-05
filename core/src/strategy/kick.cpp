@@ -23,6 +23,9 @@ void KickController::execute(Robot& robot, const KickParams& params) {
 
   // Обработка
   if (status_ == Status::NONE) {
+    // Медленно едем на мяч, ускоряя дриблинг
+    // TODO: control_time в настройках
+    // TODO: control_speed в настройках
     long long passed_time = millis() - robot.first_time;
     long long left_time = params.control_time - passed_time;
     double speed = 10.0 * left_time / params.control_time;
@@ -37,8 +40,10 @@ void KickController::execute(Robot& robot, const KickParams& params) {
                 .accelerated_dribbling = params.accelerate_dribbling});
 
     if (finished) {
+      // TODO: kick_timout в настройках
       if (params.kick_timeout) {
         status_ = Status::TIMEOUT;
+        // TODO: плавное замедление
         robot.dribling = config.strategy.dribbling_slow;
         timeout_stamp_ = millis() + params.kick_timeout;
       } else {

@@ -7,6 +7,7 @@
 #include "utils/config.h"
 #include "utils/millis.h"
 
+// TODO: параметры поворота в настройках
 constexpr int TURN_ACCEL_TIME = 300;
 
 bool TurnController::execute(Robot& robot, const TurnParams& params) {
@@ -27,6 +28,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
         vel = vel.turn_left();
         vel = vel.rotate(-0.1);
       }
+      // TODO: вынести в настройки
       // Длина (17) и скорость поворота (15) подобраны
       vel = vel.resize(19.0 * k);
       robot.vel = vel;

@@ -162,6 +162,10 @@ struct Config {
       Mapper speed;
     } dubins;
 
+    struct Control {
+      Mapper speed;
+    } control;
+
     struct AttackerRicochet {
       bool enabled;
     } attacker_ricochet;

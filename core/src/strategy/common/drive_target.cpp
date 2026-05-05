@@ -1,23 +1,23 @@
+#include <spdlog/spdlog.h>
+
 #include "strategy/motion.h"
 #include "utils/config.h"
 
-bool drive_target(Robot& robot, const Vec& target, double k, double max_speed,
+bool drive_target(Robot& robot, const Vec& target, double max_speed,
                   double min_speed, bool is_ball) {
   Vec vel = target - robot.position;
   double d_safe = vel.len();
-  double v_safe;
+  double v_safe = sqrt(2.0 * config.strategy.motion.max_linear_accel * d_safe);
   if (is_ball) {
-    d_safe -= 7;
-    if (d_safe > 0) {
-      v_safe =
-          sqrt(2.0 * config.strategy.motion.max_linear_accel * d_safe) * 0.5;
-    } else {
-      v_safe = 2;
+    double mapper_vel = config.strategy.control.speed.map(d_safe);
+    if (mapper_vel > v_safe) {
+      spdlog::error("Mapper speed higher than estimated safe speed: {} / {}",
+                    mapper_vel, v_safe);
     }
-  } else {
-    v_safe = sqrt(2.0 * config.strategy.motion.max_linear_accel * d_safe);
+    v_safe = min(v_safe, mapper_vel);
   }
-  bool finished = vel.len() <= 2.0;
+  // TODO: в конфигурации
+  bool finished = (target - robot.position).len() <= 2;
   if (finished) {
     vel = {0, 0};
   } else {

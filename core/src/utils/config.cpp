@@ -170,6 +170,9 @@ void load_config() {
   loaded.strategy.dubins.aim_bonus = dubins["aim_bonus"].GetDouble();
   loaded.strategy.dubins.speed = Mapper(dubins["speed"]);
 
+  const auto& control = strategy["control"];
+  loaded.strategy.control.speed = Mapper{control["speed"]};
+
   const auto& target_left = strategy["target_left"];
   loaded.strategy.target_left.x = target_left["x"].GetDouble();
   loaded.strategy.target_left.y = target_left["y"].GetDouble();

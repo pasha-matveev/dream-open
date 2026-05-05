@@ -171,6 +171,14 @@
         "value_r": 120
       }
     },
+    "control": {
+      "speed": {
+        "param_l": 18,
+        "param_r": 80,
+        "value_l": 8,
+        "value_r": 120
+      }
+    },
     "target_left": {
       "x": 91,
       "y": 230

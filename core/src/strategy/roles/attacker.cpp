@@ -145,10 +145,9 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
 
       bool res = false;
       if (config.strategy.attacker.dubins_enabled) {
-        res = dubins_->dubins_hit(robot, goal, field,
-                                  KickController::compute_power(
-                                      robot.position.y),
-                                  false);
+        res = dubins_->dubins_hit(
+            robot, goal, field, KickController::compute_power(robot.position.y),
+            false);
       }
       if (!res) {
         // Мяч близко к бортам, играем как обычно

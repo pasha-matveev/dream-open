@@ -19,9 +19,10 @@ void Robot::read_from_arduino() {
 
   raw_emitter = uart->read_data<int32_t>();
   if (raw_emitter < config.serial.emitter.threshold) {
-    last_emitter = millis();
+    last_seen = millis();
   }
-  emitter = (millis() - last_emitter) < config.serial.emitter.optimist;
+  prev_emitter = emitter;
+  emitter = (millis() - last_seen) < config.serial.emitter.optimist;
 
   kicker_charged = uart->read_data<bool>();
 }

@@ -15,7 +15,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
 
   // Переходы
   if (status_ == Status::NONE) {
-    if (robot.first_time + params.control_time >= millis()) {
+    if (robot.first_time + params.control_time < millis()) {
       status_ = Status::ROTATE;
     }
   } else if (status_ == Status::TIMEOUT) {

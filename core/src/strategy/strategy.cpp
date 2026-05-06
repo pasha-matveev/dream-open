@@ -127,7 +127,6 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
     turn_->apply_reset_if_pending();
     field.apply(robot);
   }
-  robot.prev_emitter = robot.emitter;
   dubins_->on_tick_end();
 
   robot.apply_motion_limits(dt);

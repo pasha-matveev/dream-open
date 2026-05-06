@@ -67,11 +67,11 @@ class Robot {
   double gyro_angle = 0;
 
   int raw_emitter = false;
-  long long last_emitter = -1000;
+  long long last_seen = -1000;
   bool emitter = false;
-
   bool prev_emitter = false;
-  int first_time = 0;
+  int first_time = -100000;
+
   bool kicker_charged = false;
 
   // Желаемая скорость от стратегии (команда).

@@ -4,17 +4,17 @@
 
 #include <cassert>
 
+#include "config/config.h"
+#include "config/strategy.h"
 #include "robot.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/field.h"
 #include "strategy/kick.h"
 #include "tracking/object.h"
-#include "config/config.h"
-#include "config/strategy.h"
-#include "utils/mapper.h"
-#include "utils/switch.h"
 #include "utils/geo/circle.h"
+#include "utils/mapper.h"
 #include "utils/millis.h"
+#include "utils/switch.h"
 
 static bool circle_ok(Circle& circle, Field& field) {
   if (!field.inside(circle.center)) return false;
@@ -41,6 +41,7 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
   Vec ball_pos = ball_->position();
   Vec goal_direction;
 
+  // TODO: camera visible fix
   if (goal.visible && (ball_pos - robot.position).len() <=
                           config->strategy->dubins->camera_target_dist) {
     // Подъехали близко к мячу, можно целиться по камере
@@ -99,7 +100,8 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
   Vec ball_to_robot = robot.position - ball_pos;
   double longitudinal = ball_to_robot * shot_dir;
   double lateral = abs(ball_to_robot % shot_dir);
-  bool on_shot_line = config->strategy->dubins->kick_precision->compute(lateral);
+  bool on_shot_line =
+      config->strategy->dubins->kick_precision->compute(lateral);
 
   Vec movement_direction;
   double len;

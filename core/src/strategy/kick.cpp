@@ -17,9 +17,11 @@ void KickController::execute(Robot& robot, const KickParams& params) {
   assert(turn_ != nullptr && "KickController::init() not called");
   reset_pending_ = false;
 
+  const int control_time = config->strategy->dribbling->param_r;
+
   // Переходы
   if (status_ == Status::NONE) {
-    if (robot.first_time + params.control_time < millis()) {
+    if (robot.first_time + control_time < millis()) {
       status_ = Status::ROTATE;
     }
   } else if (status_ == Status::TIMEOUT) {
@@ -34,8 +36,8 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     // TODO: control_time в настройках
     // TODO: control_speed в настройках
     long long passed_time = millis() - robot.first_time;
-    long long left_time = params.control_time - passed_time;
-    double speed = 10.0 * left_time / params.control_time;
+    long long left_time = control_time - passed_time;
+    double speed = 10.0 * left_time / control_time;
     robot.vel = Vec{robot.field_angle}.resize(speed);
     desired_dribling(robot, params.accelerate_dribbling);
     robot.rotation = 0;
@@ -79,7 +81,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
 void KickController::execute_to_goal(Robot& robot, Object& goal,
                                      KickParams params) {
   double target_angle;
-  if (goal.visible) {
+  if (goal.camera_visible) {
     target_angle = normalize_angle(goal.relative_angle);
   } else {
     Vec center{91, 237};

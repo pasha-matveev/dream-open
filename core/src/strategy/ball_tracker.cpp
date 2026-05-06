@@ -2,9 +2,9 @@
 
 #include <cassert>
 
-#include "robot.h"
 #include "config/config.h"
 #include "config/strategy.h"
+#include "robot.h"
 
 void BallTracker::update(Robot& robot, Object& ball, double dt, long long now,
                          bool interactive_mode) {

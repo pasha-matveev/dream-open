@@ -121,6 +121,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
         run_test(robot, goal);
       } else if (role == "test_emitter") {
         run_test_emitter(robot);
+      } else if (role == "test_ball_dist") {
+        run_test_ball_dist(robot);
       } else {
         spdlog::error("Unknown role: {}", role);
       }

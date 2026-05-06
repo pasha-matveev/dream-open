@@ -44,6 +44,7 @@ class Strategy {
   void run_test_circle(Robot& robot);
   void run_test_dribling(Robot& robot);
   void run_test_emitter(Robot& robot);
+  void run_test_ball_dist(Robot& robot);
   void run_test(Robot& robot, Object& goal);
 
  public:

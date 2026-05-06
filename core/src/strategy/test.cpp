@@ -1,9 +1,10 @@
 #include <spdlog/spdlog.h>
 
-#include "strategy/motion.h"
-#include "strategy/strategy.h"
 #include "config/config.h"
 #include "config/strategy.h"
+#include "strategy/ball_tracker.h"
+#include "strategy/motion.h"
+#include "strategy/strategy.h"
 #include "utils/mapper.h"
 #include "utils/millis.h"
 
@@ -24,6 +25,13 @@ void Strategy::run_test_dribling(Robot& robot) {
 }
 
 static int state = 0;
+
+void Strategy::run_test_ball_dist(Robot& robot) {
+  if (ball_->recently_visible(millis(), 1)) {
+    double dist = (ball_->position() - robot.position).len();
+    spdlog::warn("{}", dist);
+  }
+}
 
 void Strategy::run_test(Robot& robot, Object& goal) {
   const double PADDING = 70;

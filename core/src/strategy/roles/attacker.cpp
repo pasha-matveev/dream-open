@@ -1,12 +1,12 @@
 #include <spdlog/spdlog.h>
 
+#include "config/config.h"
+#include "config/strategy.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/kick.h"
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
-#include "config/config.h"
-#include "config/strategy.h"
 #include "utils/geo/polygon.h"
 #include "utils/millis.h"
 

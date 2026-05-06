@@ -7,14 +7,14 @@
 #include <chrono>
 #include <cstdint>
 
-#include "strategy/ball_tracker.h"
-#include "strategy/dubins.h"
-#include "strategy/kick.h"
-#include "strategy/turn.h"
 #include "config/config.h"
 #include "config/serial.h"
 #include "config/strategy.h"
 #include "config/visualization.h"
+#include "strategy/ball_tracker.h"
+#include "strategy/dubins.h"
+#include "strategy/kick.h"
+#include "strategy/turn.h"
 #include "utils/geo/vec.h"
 #include "utils/millis.h"
 

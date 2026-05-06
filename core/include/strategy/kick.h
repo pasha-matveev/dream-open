@@ -9,7 +9,7 @@ struct KickParams {
   int power = 70;
   int control_time = 600;
   bool curved_rotation = true;
-  int kick_timeout = 300;
+  int kick_timeout = 0;
   double precision = 0.015;
   bool accelerate_dribbling = true;
 };

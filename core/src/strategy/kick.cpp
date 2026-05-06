@@ -1,13 +1,16 @@
 #include "strategy/kick.h"
 
+#include <spdlog/spdlog.h>
+
 #include <cassert>
 
+#include "config/config.h"
+#include "config/strategy.h"
 #include "robot.h"
 #include "strategy/motion.h"
 #include "strategy/turn.h"
 #include "tracking/object.h"
-#include "config/config.h"
-#include "config/strategy.h"
+#include "utils/mapper.h"
 #include "utils/millis.h"
 
 void KickController::execute(Robot& robot, const KickParams& params) {
@@ -63,7 +66,11 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     robot.vel = {0, 0};
   } else if (status_ == Status::KICK) {
     robot.kicker_force = compute_power(robot.position.y);
-    robot.dribling = 0;
+    if (params.kick_timeout) {
+      robot.dribling = 0;
+    } else {
+      robot.dribling = config->strategy->dribbling->value_r;
+    }
     robot.rotation = 0;
     robot.vel = {0, 0};
   }
@@ -88,6 +95,6 @@ double KickController::compute_power(double y) {
   if (y >= 243 - 12 - 45) {
     return 10;
   } else {
-    return 10;
+    return 20;
   }
 }

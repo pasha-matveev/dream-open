@@ -153,6 +153,15 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       if (!res) {
         // Мяч близко к бортам, играем как обычно
         drive_ball(robot, ball_pos);
+        // Компенсация скорости мяча: если мяч катится, добавляем его
+        // скорость к команде, чтобы относительная скорость сближения
+        // соответствовала тому, что drive_target насчитал для статичной цели.
+        const auto& ff = *config->strategy->attacker->ff;
+        if (ff.enabled &&
+            ball_->recently_visible(millis(), ff.stale_ms) &&
+            ball_->velocity().len() >= ff.v_min) {
+          robot.vel += ball_->velocity();
+        }
       }
     }
   }

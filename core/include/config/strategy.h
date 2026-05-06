@@ -51,6 +51,12 @@ struct Strategy {
   struct Attacker {
     double border;
     bool dubins_enabled;
+    struct Ff {
+      bool enabled;
+      double v_min;
+      long long stale_ms;
+    };
+    std::unique_ptr<Ff> ff;
   };
   std::unique_ptr<Attacker> attacker;
 

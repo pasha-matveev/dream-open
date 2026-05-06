@@ -143,7 +143,12 @@
     },
     "attacker": {
       "border": 100,
-      "dubins_enabled": false
+      "dubins_enabled": false,
+      "ff": {
+        "enabled": true,
+        "v_min": 10,
+        "stale_ms": 200
+      }
     },
     "keeper": {
       "global_border": 70,

@@ -58,6 +58,10 @@ struct Config {
     string device;
     int rate = 0;
     bool interference = false;
+    struct Emitter {
+      double threshold;
+      int optimist;
+    } emitter;
   } serial;
 
   struct Gpio {

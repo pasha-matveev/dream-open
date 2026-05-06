@@ -83,6 +83,9 @@ void load_config() {
   loaded.serial.device = serial["device"].GetString();
   loaded.serial.rate = serial["rate"].GetInt();
   loaded.serial.interference = serial["interference"].GetBool();
+  const auto& emitter = serial["emitter"];
+  loaded.serial.emitter.threshold = emitter["threshold"].GetDouble();
+  loaded.serial.emitter.optimist = emitter["optimist"].GetInt();
 
   const auto& gpio = doc["gpio"];
   loaded.gpio.enabled = gpio["enabled"].GetBool();

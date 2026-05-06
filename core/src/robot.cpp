@@ -16,7 +16,13 @@
 void Robot::read_from_arduino() {
   uart->write_data<char>('R');
   gyro_angle = normalize_angle2(-1 * uart->read_data<float>());
-  emitter = uart->read_data<bool>();
+
+  raw_emitter = uart->read_data<int32_t>();
+  if (raw_emitter < config.serial.emitter.threshold) {
+    last_emitter = millis();
+  }
+  emitter = (millis() - last_emitter) < config.serial.emitter.optimist;
+
   kicker_charged = uart->read_data<bool>();
 }
 

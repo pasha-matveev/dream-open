@@ -65,7 +65,11 @@ class Robot {
   double field_angle = M_PI / 2;
 
   double gyro_angle = 0;
+
+  int raw_emitter = false;
+  long long last_emitter = -1000;
   bool emitter = false;
+
   bool prev_emitter = false;
   int first_time = 0;
   bool kicker_charged = false;

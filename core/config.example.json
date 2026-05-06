@@ -70,7 +70,11 @@
     "enabled": true,
     "device": "auto",
     "rate": 115200,
-    "interference": false
+    "interference": false,
+    "emitter": {
+      "threshold": 450,
+      "optimist": 100
+    }
   },
   "gpio": {
     "enabled": true,

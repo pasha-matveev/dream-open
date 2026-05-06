@@ -5,7 +5,8 @@
 #include "strategy/kick.h"
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
 #include "utils/geo/polygon.h"
 #include "utils/millis.h"
 
@@ -90,7 +91,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       // } else if (r_status == AttackerRStatus::ROTATE_2) {
       //   // Особая стратегия: поворот и удар
       //   spdlog::info("ROTATE 2");
-      //   if (config.strategy.attacker_ricochet.enabled) {
+      //   if (config->strategy->attacker_ricochet->enabled) {
       //     double alpha;
       //     alpha = compute_ricochet(robot, r_left);
       //     kick_dir(robot, alpha, 100, 0, true, 0, 0.01);
@@ -105,7 +106,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     // r_side = AttackerRSide::NONE;
     bool recently_visible = ball_->recently_visible(millis(), 3000);
     Vec ball_pos = ball_->position();
-    if (!recently_visible || ball_pos.y < config.strategy.attacker.border) {
+    if (!recently_visible || ball_pos.y < config->strategy->attacker->border) {
       // Мяч у вратаря или мы его не видим
       Vec target;
       if (recently_visible && ball_pos.x < 91) {
@@ -144,7 +145,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       // Мяч далеко от бортов, используем dubins path
 
       bool res = false;
-      if (config.strategy.attacker.dubins_enabled) {
+      if (config->strategy->attacker->dubins_enabled) {
         res = dubins_->dubins_hit(
             robot, goal, field, KickController::compute_power(robot.position.y),
             false);

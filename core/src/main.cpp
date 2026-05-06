@@ -9,7 +9,11 @@
 #include "strategy/strategy.h"
 #include "strategy/visualization.h"
 #include "tracking/object.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/serial.h"
+#include "config/strategy.h"
+#include "config/tracking.h"
+#include "config/visualization.h"
 #include "utils/geo/circle.h"
 #include "utils/millis.h"
 
@@ -33,7 +37,7 @@ int main() {
   vector<Vec> field_points;
 
   // 11 7
-  if (config.strategy.role == "keeper" || config.strategy.role == "challenge") {
+  if (config->strategy->role == "keeper" || config->strategy->role == "challenge") {
     spdlog::info("Running as keeper");
     // const int AX = 38;
     // const int BX = 45;
@@ -87,19 +91,19 @@ int main() {
   }
   Field field(field_points);
 
-  if (config.tracking.preview.enabled) {
-    cv::namedWindow(config.tracking.preview.window_name, cv::WINDOW_AUTOSIZE);
+  if (config->tracking->preview_enabled) {
+    cv::namedWindow("Camera", cv::WINDOW_AUTOSIZE);
   }
 
-  Object ball(config.tracking.ball.hsv_min, config.tracking.ball.hsv_max,
-              config.tracking.ball.setup, config.tracking.ball.min_area);
-  Object goal(config.tracking.goal.type == "yellow"
-                  ? config.tracking.goal.yellow.hsv_min
-                  : config.tracking.goal.blue.hsv_min,
-              config.tracking.goal.type == "yellow"
-                  ? config.tracking.goal.yellow.hsv_max
-                  : config.tracking.goal.blue.hsv_max,
-              config.tracking.goal.setup, config.tracking.goal.min_area);
+  Object ball(config->tracking->ball->hsv_min, config->tracking->ball->hsv_max,
+              config->tracking->ball->setup, config->tracking->ball->min_area);
+  Object goal(config->tracking->goal->type == "yellow"
+                  ? config->tracking->goal->yellow->hsv_min
+                  : config->tracking->goal->blue->hsv_min,
+              config->tracking->goal->type == "yellow"
+                  ? config->tracking->goal->yellow->hsv_max
+                  : config->tracking->goal->blue->hsv_max,
+              config->tracking->goal->setup, config->tracking->goal->min_area);
   Robot robot;
   spdlog::info("Initializing hardware...");
   robot.init_hardware(ball, goal);
@@ -109,20 +113,20 @@ int main() {
 
   Visualization* visualization = nullptr;
 
-  if (config.visualization.enabled) {
+  if (config->visualization->enabled) {
     visualization = new Visualization();
   }
 
   // Минимальная длительность цикла (мс) для интерактивной визуализации без
   // serial: ограничиваем частоту, чтобы не спинить CPU. С serial цикл всё
   // равно ограничен обменом с arduino.
-  int min_period_ms = 1000 / config.visualization.frames;
+  int min_period_ms = 1000 / config->visualization->frames;
 
   auto compute_delay = [&](long long cycle_start) -> long long {
     long long elapsed = millis() - cycle_start;
     long long actual_delay = min_period_ms - elapsed;
     if (actual_delay <= 0) {
-      if (config.tracking.preview.enabled) {
+      if (config->tracking->preview_enabled) {
         actual_delay = 1;
       } else {
         actual_delay = 0;
@@ -132,29 +136,29 @@ int main() {
   };
 
   while (!stop_requested) {
-    if (config.visualization.enabled) {
+    if (config->visualization->enabled) {
       visualization->begin();
     }
     long long cycle_start = millis();
-    if (config.serial.enabled) {
+    if (config->serial->enabled) {
       robot.read_from_arduino();
     }
     strategy.run(robot, ball, goal, field);
-    if (config.serial.enabled) {
+    if (config->serial->enabled) {
       robot.write_to_arduino();
     }
     if (stop_requested) {
       break;
     }
     // visualisation
-    if (config.visualization.enabled) {
+    if (config->visualization->enabled) {
       visualization->run(robot, ball, goal, field, strategy.get_last_dt());
       if (visualization->closed) {
         break;
       }
     }
     // delay
-    if (config.tracking.preview.enabled) {
+    if (config->tracking->preview_enabled) {
       try {
         robot.camera->show_preview();
       } catch (...) {
@@ -162,7 +166,7 @@ int main() {
       if (cv::waitKey(compute_delay(cycle_start)) == 27) {
         break;
       }
-    } else if (config.visualization.enabled) {
+    } else if (config->visualization->enabled) {
       auto sleep_ms = compute_delay(cycle_start);
       if (sleep_ms > 0) {
         this_thread::sleep_for(chrono::milliseconds(sleep_ms));

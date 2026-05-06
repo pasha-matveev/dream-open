@@ -9,12 +9,13 @@
 #include "gpio/buzzer.h"
 #include "media/music.h"
 #include "robot.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/gpio.h"
 
 using namespace std;
 
 static void run_music(Buzzer* b) {
-  b->play_song(get_notes(config.gpio.buzzer.notes));
+  b->play_song(get_notes(config->gpio->buzzer->notes));
 }
 
 static void toggle_music(WPIWfiStatus status, void* p) {
@@ -29,7 +30,7 @@ static void toggle_music(WPIWfiStatus status, void* p) {
 
 static void setup_music_button(Buzzer* buzzer) {
   if (buzzer == nullptr) return;
-  const int pin = config.gpio.buttons.pins[0];
+  const int pin = config->gpio->buttons->pins[0];
   pinMode(pin, INPUT);
   wiringPiISR2(pin, INT_EDGE_FALLING, toggle_music, 30, buzzer);
 }
@@ -46,7 +47,7 @@ static void handle_pause_button(WPIWfiStatus status, void* p) {
 
 static void setup_pause_button(Robot* robot) {
   assert(robot != nullptr);
-  const int pin = config.gpio.buttons.pins[0];
+  const int pin = config->gpio->buttons->pins[0];
   pinMode(pin, INPUT);
   wiringPiISR2(pin, INT_EDGE_FALLING, handle_pause_button, 250, robot);
 }
@@ -75,14 +76,14 @@ static void handle_right_button(WPIWfiStatus status, void* p) {
 
 static void setup_left_button(Robot* robot) {
   assert(robot != nullptr);
-  const int pin = config.gpio.buttons.pins[1];
+  const int pin = config->gpio->buttons->pins[1];
   pinMode(pin, INPUT);
   wiringPiISR2(pin, INT_EDGE_FALLING, handle_left_button, 250, robot);
 }
 
 static void setup_right_button(Robot* robot) {
   assert(robot != nullptr);
-  const int pin = config.gpio.buttons.pins[2];
+  const int pin = config->gpio->buttons->pins[2];
   pinMode(pin, INPUT);
   wiringPiISR2(pin, INT_EDGE_FALLING, handle_right_button, 250, robot);
 }

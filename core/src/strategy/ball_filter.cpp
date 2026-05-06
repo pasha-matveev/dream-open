@@ -4,19 +4,20 @@
 #include <algorithm>
 #include <cmath>
 
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
 
 void BallFilter::predict(double dt) {
   if (!initialized) return;
   pos += vel * dt;
-  const double tau = config.strategy.ball_filter.friction_tau;
+  const double tau = config->strategy->ball_filter->friction_tau;
   if (tau > 0) {
     vel *= std::exp(-dt / tau);
   }
 }
 
 void BallFilter::update(const Vec& z, long long now_ms) {
-  const auto& cfg = config.strategy.ball_filter;
+  const auto& cfg = *config->strategy->ball_filter;
 
   if (!initialized) {
     pos = z;
@@ -48,12 +49,12 @@ void BallFilter::update(const Vec& z, long long now_ms) {
 void BallFilter::lost(long long now_ms) {
   if (!initialized) return;
   if (last_update_ms >= 0 &&
-      now_ms - last_update_ms > config.strategy.ball_filter.lost_timeout_ms) {
+      now_ms - last_update_ms > config->strategy->ball_filter->lost_timeout_ms) {
     initialized = false;
     vel = {0, 0};
   }
 }
 
 Vec BallFilter::position() const {
-  return pos + vel * (config.strategy.ball_filter.latency_ms / 1000.0);
+  return pos + vel * (config->strategy->ball_filter->latency_ms / 1000.0);
 }

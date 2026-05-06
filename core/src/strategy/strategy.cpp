@@ -11,7 +11,10 @@
 #include "strategy/dubins.h"
 #include "strategy/kick.h"
 #include "strategy/turn.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/serial.h"
+#include "config/strategy.h"
+#include "config/visualization.h"
 #include "utils/geo/vec.h"
 #include "utils/millis.h"
 
@@ -28,7 +31,7 @@ Strategy::Strategy() {
   kick_->init(turn_.get());
   dubins_->init(kick_.get(), ball_.get());
 
-  role = config.strategy.role;
+  role = config->strategy->role;
 }
 
 Strategy::~Strategy() = default;
@@ -57,7 +60,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   }
 
   // Всегда двигаем позу предсказанием; лидар потом её уточняет EMA-блендингом.
-  if (config.serial.enabled) {
+  if (config->serial->enabled) {
     robot.compute_gyro_angle();
     robot.predict_position(dt);
   }
@@ -67,8 +70,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
       // он точнее короткосрочно; долгосрочный дрейф правит calibrate() по
       // стабильной позе внутри compute_lidar.
       robot.position =
-          measured->position * config.strategy.predict.alpha_xy +
-          robot.position * (1.0 - config.strategy.predict.alpha_xy);
+          measured->position * config->strategy->predict->alpha_xy +
+          robot.position * (1.0 - config->strategy->predict->alpha_xy);
     } else {
       // Первый кадр — хард-снап позиции и синхронизация гироскопа к лидару.
       robot.position = measured->position;
@@ -77,7 +80,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
       has_lidar_fix = true;
     }
   }
-  ball_->update(robot, ball, dt, now, config.visualization.interactive);
+  ball_->update(robot, ball, dt, now, config->visualization->interactive);
 
   if (robot.emitter && !robot.prev_emitter) {
     robot.first_time = millis();
@@ -97,7 +100,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   robot.vel = {0, 0};
   robot.rotation_limit = 50;
 
-  if (config.strategy.enabled) {
+  if (config->strategy->enabled) {
     kick_->mark_for_reset();
     turn_->mark_for_reset();
 

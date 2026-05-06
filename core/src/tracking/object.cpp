@@ -5,14 +5,15 @@
 #include <vector>
 
 #include "robot.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/tracking.h"
 
 using namespace std;
 
 Object::~Object() {};
 
 double Object::get_pixels_dist() {
-  int radius = config.tracking.radius;
+  int radius = config->tracking->radius;
   Vec mirror_center{radius, radius};
   return (center - mirror_center).len();
 }
@@ -26,8 +27,8 @@ Object::Object(const vector<int>& hsv_min, const vector<int>& hsv_max,
   h_max = hsv_max[0];
   s_max = hsv_max[1];
   v_max = hsv_max[2];
-  if (config.tracking.preview.enabled && setup_mode) {
-    string window_name = config.tracking.preview.window_name;
+  if (config->tracking->preview_enabled && setup_mode) {
+    string window_name = "Camera";
     cv::createTrackbar("H min", window_name, &h_min, 179);
     cv::createTrackbar("H max", window_name, &h_max, 179);
     cv::createTrackbar("S min", window_name, &s_min, 255);
@@ -74,7 +75,7 @@ void Object::find(const cv::Mat& frame) {
   center = point_center;
   radius = float_radius;
   camera_point =
-      (Vec)center - Vec{config.tracking.radius, config.tracking.radius};
+      (Vec)center - Vec{config->tracking->radius, config->tracking->radius};
 
   relative_angle = normalize_angle(-1 * camera_point.raw_angle() + M_PI);
 }
@@ -106,9 +107,9 @@ double Object::get_cm() {
   if (override_dist != -1) {
     return override_dist;
   }
-  return config.tracking.formula.a /
-             (config.tracking.formula.b - get_pixels_dist()) -
-         config.tracking.formula.c;
+  return config->tracking->formula->a /
+             (config->tracking->formula->b - get_pixels_dist()) -
+         config->tracking->formula->c;
 }
 
 void Object::compute_field_position(const Robot& robot) {

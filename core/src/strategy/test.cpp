@@ -2,11 +2,13 @@
 
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
+#include "utils/mapper.h"
 #include "utils/millis.h"
 
 void Strategy::run_test_circle(Robot& robot) {
-  robot.dribling = config.strategy.dribbling.value_r;
+  robot.dribling = config->strategy->dribbling->value_r;
   double dir = M_PI / 2;
   Vec vel{robot.field_angle};
   vel = vel.turn_right();
@@ -18,7 +20,7 @@ void Strategy::run_test_circle(Robot& robot) {
 }
 
 void Strategy::run_test_dribling(Robot& robot) {
-  robot.dribling = config.strategy.dribbling.value_r;
+  robot.dribling = config->strategy->dribbling->value_r;
 }
 
 static int state = 0;
@@ -44,7 +46,7 @@ void Strategy::run_test(Robot& robot, Object& goal) {
     };
 
     handle(robot, points[state]);
-    robot.dribling = config.strategy.dribbling.value_r;
+    robot.dribling = config->strategy->dribbling->value_r;
   } else {
   }
 }

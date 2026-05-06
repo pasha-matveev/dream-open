@@ -3,7 +3,8 @@
 #include <cassert>
 
 #include "robot.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
 
 void BallTracker::update(Robot& robot, Object& ball, double dt, long long now,
                          bool interactive_mode) {
@@ -20,7 +21,7 @@ void BallTracker::update(Robot& robot, Object& ball, double dt, long long now,
     return;
   }
 
-  if (config.strategy.ball_filter.enabled) {
+  if (config->strategy->ball_filter->enabled) {
     filter_.predict(dt);
   }
   if (robot.camera && robot.camera->new_data()) {
@@ -28,12 +29,12 @@ void BallTracker::update(Robot& robot, Object& ball, double dt, long long now,
     if (ball.visible) {
       assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
       last_visible_ = now;
-      if (config.strategy.ball_filter.enabled) {
+      if (config->strategy->ball_filter->enabled) {
         filter_.update(ball.field_position, now);
       }
     }
   }
-  if (config.strategy.ball_filter.enabled) {
+  if (config->strategy->ball_filter->enabled) {
     if (!ball.visible) {
       filter_.lost(now);
     }

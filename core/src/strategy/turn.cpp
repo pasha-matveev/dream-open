@@ -4,7 +4,8 @@
 
 #include "robot.h"
 #include "strategy/motion.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
 #include "utils/millis.h"
 
 // TODO: параметры поворота в настройках
@@ -42,7 +43,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
   desired_dribling(robot, params.accelerated_dribbling);
   bool low_precision = robot.position.y > 240 - 60 && 40 < robot.position.x &&
                        robot.position.x < 182 - 40;
-  double prec = low_precision ? 0.1 : config.strategy.turn_precision;
+  double prec = low_precision ? 0.1 : config->strategy->turn_precision;
   if (low_precision) {
     spdlog::info("LOW PRECISION");
   }

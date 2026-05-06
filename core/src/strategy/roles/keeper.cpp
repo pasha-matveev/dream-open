@@ -10,7 +10,8 @@
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "strategy/visualization.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
 #include "utils/millis.h"
 
 using namespace std;
@@ -42,9 +43,9 @@ static Vec compute_radial(const Vec& p, const Field& field) {
   // ищем пересечение луча и нижней границы поля
   auto [np, idx] = field.find_intersection(center, dir);
   if (idx == -1) {
-    double xl = config.strategy.keeper.line.padding;
-    double xr = 180 - config.strategy.keeper.line.padding;
-    double y = config.strategy.keeper.line.y;
+    double xl = config->strategy->keeper->line->padding;
+    double xr = 180 - config->strategy->keeper->line->padding;
+    double y = config->strategy->keeper->line->y;
 
     Vec fallback = {clamp(p.x, xl, xr), y};
     // что-то странное, вместо окружности просто стоим на прямой
@@ -59,9 +60,9 @@ static Vec compute_radial(const Vec& p, const Field& field) {
 static Vec compute_contr_point(const Vec& p, const Field& field) {
   if (p.y > 35) {
     // Точка сверху, стоим на проекции
-    double xl = config.strategy.keeper.line.padding;
-    double xr = 180 - config.strategy.keeper.line.padding;
-    double y = config.strategy.keeper.line.y;
+    double xl = config->strategy->keeper->line->padding;
+    double xr = 180 - config->strategy->keeper->line->padding;
+    double y = config->strategy->keeper->line->y;
 
     double x = clamp(p.x, xl, xr);
     return {x, y};
@@ -115,7 +116,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   //   sfml_window->draw(shape);
   // }
 
-  // robot.dribling = config.strategy.dribbling.value_l;
+  // robot.dribling = config->strategy->dribbling->value_l;
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
@@ -132,17 +133,17 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       if (ball_ok) {
         // Видим мяч
         Vec ball_pos = ball_->position();
-        if (ball_pos.y >= config.strategy.keeper.global_border) {
+        if (ball_pos.y >= config->strategy->keeper->global_border) {
           // Мяч за нашей зоной, защищаем ворота
           Vec target = compute_contr_point(ball_pos, field);
           // spdlog::info("LONG PROTECT {} {}", target.x, target.y);
           drive_target(robot, target, 20, 100);
           robot.rotation = ball_->relative_angle(robot);
-        } else if (ball_pos.y >= config.strategy.keeper.dubins_border &&
+        } else if (ball_pos.y >= config->strategy->keeper->dubins_border &&
                    dubins_->dubins_hit(robot, goal, field, 100, false)) {
           // Мяч в зоне удара, используем dubins_path
           // spdlog::info("DUBINS PROTECT");
-        } else if (config.strategy.keeper.ram_enabled &&
+        } else if (config->strategy->keeper->ram_enabled &&
                    ball_pos.y > robot.position.y) {
           // Просто бьем мяч корпусом
           // spdlog::info("RAM");
@@ -157,7 +158,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       } else {
         // Не видим мяч
         // spdlog::info("IDLE");
-        Vec target{91.0, config.strategy.keeper.line.y};
+        Vec target{91.0, config->strategy->keeper->line->y};
         drive_target(robot, target, 2);
         robot.rotation = -robot.field_angle;
       }

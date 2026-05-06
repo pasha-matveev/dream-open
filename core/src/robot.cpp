@@ -10,7 +10,12 @@
 #include "gpio/buttons.h"
 #include "gpio/setup.h"
 #include "media/img.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/gpio.h"
+#include "config/lidar.h"
+#include "config/serial.h"
+#include "config/strategy.h"
+#include "config/tracking.h"
 #include "utils/millis.h"
 
 void Robot::read_from_arduino() {
@@ -18,11 +23,11 @@ void Robot::read_from_arduino() {
   gyro_angle = normalize_angle2(-1 * uart->read_data<float>());
 
   raw_emitter = uart->read_data<int32_t>();
-  if (raw_emitter < config.serial.emitter.threshold) {
+  if (raw_emitter < config->serial->emitter->threshold) {
     last_seen = millis();
   }
   prev_emitter = emitter;
-  emitter = (millis() - last_seen) < config.serial.emitter.optimist;
+  emitter = (millis() - last_seen) < config->serial->emitter->optimist;
 
   kicker_charged = uart->read_data<bool>();
 }
@@ -50,7 +55,7 @@ void Robot::init_camera(Object& ball, Object& goal) {
   camera->start();
 }
 
-void Robot::init_buzzer() { buzzer = new Buzzer(config.gpio.buzzer.pin); }
+void Robot::init_buzzer() { buzzer = new Buzzer(config->gpio->buzzer->pin); }
 
 void Robot::init_buttons() { setup_buttons(this); }
 
@@ -61,12 +66,12 @@ void Robot::init_uart() {
 }
 
 void Robot::init_display() {
-  string str_address = config.gpio.display.address;
+  string str_address = config->gpio->display->address;
   uint8_t address = stoi(str_address, nullptr, 16);
-  display = new Display(config.gpio.display.device.c_str(), address);
+  display = new Display(config->gpio->display->device.c_str(), address);
   display->init();
-  if (config.gpio.display.mode == "img") {
-    display->draw_image(get_img(config.gpio.display.img));
+  if (config->gpio->display->mode == "img") {
+    display->draw_image(get_img(config->gpio->display->img));
   }
 }
 
@@ -79,27 +84,27 @@ void Robot::init_lidar() {
 }
 
 void Robot::init_hardware(Object& ball, Object& goal) {
-  if (config.tracking.enabled) {
+  if (config->tracking->enabled) {
     init_camera(ball, goal);
   }
   spdlog::info("Camera ready");
-  if (config.gpio.enabled) {
+  if (config->gpio->enabled) {
     setup_wiringpi();
-    if (config.gpio.buzzer.enabled) {
+    if (config->gpio->buzzer->enabled) {
       init_buzzer();
     }
     spdlog::info("Buzzer ready");
-    if (config.gpio.buttons.enabled) {
+    if (config->gpio->buttons->enabled) {
       init_buttons();
     }
     spdlog::info("Buttons ready");
-    if (config.gpio.display.enabled) {
+    if (config->gpio->display->enabled) {
       init_display();
     }
     spdlog::info("Camera ready");
   }
   spdlog::info("GPIO ready");
-  if (config.serial.enabled) {
+  if (config->serial->enabled) {
     init_uart();
     spdlog::info("Reading from arduino");
     read_from_arduino();
@@ -107,7 +112,7 @@ void Robot::init_hardware(Object& ball, Object& goal) {
     init_gyro();
   }
   spdlog::info("UART ready");
-  if (config.lidar.enabled) {
+  if (config->lidar->enabled) {
     init_lidar();
   }
   spdlog::info("Lidar ready");
@@ -150,7 +155,7 @@ std::optional<LidarPose> Robot::compute_lidar() {
   Vec center = {182.0 / 2, 243.0 / 2};
   LidarPose measured{center + res.v, normalize_angle(res.rotation)};
 
-  if (!config.lidar.calibration.enabled) return measured;
+  if (!config->lidar->calibration->enabled) return measured;
 
   lidar_history.push({millis(), measured.field_angle, measured.position});
 
@@ -158,24 +163,24 @@ std::optional<LidarPose> Robot::compute_lidar() {
   //   if (lidar_history.empty()) break;
   //   auto entry = lidar_history.front();
   //   long long elapsed = millis() - entry.time;
-  //   if (elapsed < config.lidar.calibration.delay) {
+  //   if (elapsed < config->lidar->calibration->delay) {
   //     // Еще не прошло достаточно времени
   //     break;
   //   }
   //   if (elapsed >
-  //       config.lidar.calibration.delay + config.lidar.calibration.threshold)
+  //       config->lidar->calibration->delay + config->lidar->calibration->threshold)
   //       {
   //     spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
-  //                  elapsed, config.lidar.calibration.delay,
-  //                  config.lidar.calibration.threshold);
+  //                  elapsed, config->lidar->calibration->delay,
+  //                  config->lidar->calibration->threshold);
   //     lidar_history.pop();
   //     continue;
   //   }
   //   double movement = (measured.position - entry.position).len();
   //   double angle =
   //       abs(normalize_angle(measured.field_angle - entry.field_angle));
-  //   if (movement > config.lidar.calibration.movement ||
-  //       angle > config.lidar.calibration.angle) {
+  //   if (movement > config->lidar->calibration->movement ||
+  //       angle > config->lidar->calibration->angle) {
   //     lidar_history.pop();
   //     continue;
   //   }
@@ -198,7 +203,7 @@ void Robot::predict_position(double dt) {
 
 void Robot::apply_motion_limits(double dt) {
   if (dt <= 0) return;
-  double max_linear_step = config.strategy.motion.max_linear_accel * dt;
+  double max_linear_step = config->strategy->motion->max_linear_accel * dt;
   Vec delta = vel - actual_vel;
   if (delta.len() > max_linear_step) {
     delta = delta.resize(max_linear_step);

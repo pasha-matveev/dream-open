@@ -9,7 +9,10 @@
 #include "strategy/field.h"
 #include "strategy/kick.h"
 #include "tracking/object.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
+#include "utils/mapper.h"
+#include "utils/switch.h"
 #include "utils/geo/circle.h"
 #include "utils/millis.h"
 
@@ -39,7 +42,7 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
   Vec goal_direction;
 
   if (goal.visible && (ball_pos - robot.position).len() <=
-                          config.strategy.dubins.camera_target_dist) {
+                          config->strategy->dubins->camera_target_dist) {
     // Подъехали близко к мячу, можно целиться по камере
     double dir_angle = goal.relative_angle + robot.field_angle;
     goal_direction = Vec{dir_angle};
@@ -50,16 +53,16 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
   }
 
   Vec destination =
-      ball_pos + goal_direction.resize(-config.strategy.dubins.bonus);
+      ball_pos + goal_direction.resize(-config->strategy->dubins->bonus);
   Vec left_center = destination + goal_direction.turn_left().resize(
-                                      config.strategy.dubins.radius +
-                                      config.strategy.dubins.separate);
+                                      config->strategy->dubins->radius +
+                                      config->strategy->dubins->separate);
   Vec right_center = destination + goal_direction.turn_right().resize(
-                                       config.strategy.dubins.radius +
-                                       config.strategy.dubins.separate);
+                                       config->strategy->dubins->radius +
+                                       config->strategy->dubins->separate);
 
-  Circle left_circle{left_center, config.strategy.dubins.radius};
-  Circle right_circle{right_center, config.strategy.dubins.radius};
+  Circle left_circle{left_center, config->strategy->dubins->radius};
+  Circle right_circle{right_center, config->strategy->dubins->radius};
   bool left_ok = circle_ok(left_circle, field);
   bool right_ok = circle_ok(right_circle, field);
 
@@ -96,11 +99,11 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
   Vec ball_to_robot = robot.position - ball_pos;
   double longitudinal = ball_to_robot * shot_dir;
   double lateral = abs(ball_to_robot % shot_dir);
-  bool on_shot_line = config.strategy.dubins.kick_precision.compute(lateral);
+  bool on_shot_line = config->strategy->dubins->kick_precision->compute(lateral);
 
   Vec movement_direction;
   double len;
-  robot.dribling = config.strategy.dribbling_slow;
+  robot.dribling = config->strategy->dribbling_slow;
   if (on_shot_line && longitudinal < 0 && drive_ms_ == -1) {
     drive_ms_ = millis() + 300;
     drive_ball_position_ = ball_pos;
@@ -108,21 +111,21 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
   if (millis() < drive_ms_) {
     // На линии удара и сзади мяча. Целимся в точку за мячом со стороны
     // ворот — движение автоматически стягивает остаточный поперечный промах.
-    // Vec aim = ball_pos + shot_dir * config.strategy.dubins.bonus;
+    // Vec aim = ball_pos + shot_dir * config->strategy->dubins->bonus;
     // movement_direction = aim - robot.position;
     movement_direction = drive_ball_position_ - robot.position;
     len = (drive_ball_position_ - robot.position).len();
     spdlog::info("FORWARD");
   } else if (circle.dist(robot.position) < 0 &&
              abs(circle.dist(robot.position)) >
-                 config.strategy.dubins.deep_inside) {
+                 config->strategy->dubins->deep_inside) {
     // Глубоко внутри круга // Выталкиваемся в точку напротив ворот
     Vec t = goal_direction.resize(-circle.r) + circle.center;
     movement_direction = t - robot.position;
     len = 0;
     len += movement_direction.len();
     len += circle.path_len(t, destination, left);
-    len += config.strategy.dubins.bonus;
+    len += config->strategy->dubins->bonus;
     spdlog::info("DEEP INSIDE");
   } else if (circle.inside(robot.position)) {
     // На круге
@@ -133,7 +136,7 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
       movement_direction = center_dir.turn_left();
     }
     len = circle.path_len(robot.position, destination, left) +
-          config.strategy.dubins.bonus;
+          config->strategy->dubins->bonus;
     spdlog::info("CIRCLE");
   } else {
     // Едем к кругу по касательной
@@ -145,10 +148,10 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
     }
     movement_direction = tangent - robot.position;
     len = circle.path_len(tangent, destination, left) +
-          config.strategy.dubins.bonus + movement_direction.len();
+          config->strategy->dubins->bonus + movement_direction.len();
     spdlog::info("TANGENT");
   }
-  double speed = config.strategy.dubins.speed.map(len);
+  double speed = config->strategy->dubins->speed->map(len);
   robot.vel = movement_direction.resize(speed);
 
   // robot.rotation = ball_->relative_angle(robot);

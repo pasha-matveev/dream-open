@@ -1,5 +1,5 @@
 #include "strategy/strategy.h"
-#include "utils/config.h"
+#include "config/config.h"
 #include "utils/millis.h"
 
 static long long start_tm = -1;

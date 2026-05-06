@@ -6,7 +6,8 @@
 #include "strategy/motion.h"
 #include "strategy/turn.h"
 #include "tracking/object.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
 #include "utils/millis.h"
 
 void KickController::execute(Robot& robot, const KickParams& params) {
@@ -47,7 +48,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
       if (params.kick_timeout) {
         status_ = Status::TIMEOUT;
         // TODO: плавное замедление
-        robot.dribling = config.strategy.dribbling_slow;
+        robot.dribling = config->strategy->dribbling_slow;
         timeout_stamp_ = millis() + params.kick_timeout;
       } else {
         status_ = Status::KICK;
@@ -58,7 +59,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     }
 
   } else if (status_ == Status::TIMEOUT) {
-    robot.dribling = config.strategy.dribbling_slow;
+    robot.dribling = config->strategy->dribbling_slow;
     robot.vel = {0, 0};
   } else if (status_ == Status::KICK) {
     robot.kicker_force = compute_power(robot.position.y);

@@ -11,7 +11,8 @@
 #include <unistd.h>
 
 #include "robot.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/lidar.h"
 #include "utils/geo/vec.h"
 
 double last_rotation = -4;
@@ -40,7 +41,7 @@ double LidarObject::get_radius() const {
 }
 
 void Lidar::start() {
-  string cmd = config.lidar.path;
+  string cmd = config->lidar->path;
 
   if (running) {
     spdlog::warn("Lidar process already running");

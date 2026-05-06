@@ -12,7 +12,8 @@
 #include <libudev.h>
 #endif
 
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/serial.h"
 
 using namespace std;
 
@@ -109,7 +110,7 @@ BaudRate int_to_baud(int baud) {
 }
 
 void UART::connect() {
-  string device = config.serial.device;
+  string device = config->serial->device;
 
   if (device.empty() || device == "auto") {
     auto autodetected = autodetect_usb_serial_port();
@@ -125,7 +126,7 @@ void UART::connect() {
 
   spdlog::info("Opening serial port {}", device);
   serial.Open(device);
-  serial.SetBaudRate(int_to_baud(config.serial.rate));
+  serial.SetBaudRate(int_to_baud(config->serial->rate));
   serial.SetDTR(true);
   serial.SetCharacterSize(CharacterSize::CHAR_SIZE_8);
   serial.SetParity(Parity::PARITY_NONE);
@@ -137,7 +138,7 @@ void UART::connect() {
 }
 
 void UART::wait_for_x() {
-  if (!config.serial.interference) {
+  if (!config->serial->interference) {
     spdlog::info("Skip init byte");
     return;
   }

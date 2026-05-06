@@ -6,7 +6,9 @@
 #include <optional>
 
 #include "strategy/strategy.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/serial.h"
+#include "config/visualization.h"
 
 Vec toSFML(Vec r) {
   Vec v = {cm_to_px(r.x), cm_to_px(r.y)};
@@ -23,8 +25,8 @@ std::unique_ptr<sf::RenderWindow> sfml_window;
 Visualization::Visualization() {
   sfml_window = std::make_unique<sf::RenderWindow>(
       sf::VideoMode({(uint)SFML_WIDTH, (uint)SFML_HEIGHT}),
-      config.visualization.window_name);
-  sfml_window->setFramerateLimit(config.visualization.frames);
+      config->visualization->window_name);
+  sfml_window->setFramerateLimit(config->visualization->frames);
 }
 
 Visualization::~Visualization() {
@@ -82,7 +84,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
   // draw_polygon(left_attacker_r, zone_color);
   // draw_polygon(right_attacker_r, zone_color);
 
-  if (config.visualization.interactive &&
+  if (config->visualization->interactive &&
       sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
     Vec mouse_position = sf::Mouse::getPosition(*sfml_window);
     override_ball = true;
@@ -94,7 +96,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
   Vec robot_dir = {-1 * sin(robot.field_angle), cos(robot.field_angle)};
 
   // compute robot
-  if (!config.serial.enabled) {
+  if (!config->serial->enabled) {
     if (robot.state == RobotState::PAUSE) {
       robot.state = RobotState::RUNNING;
     }
@@ -143,7 +145,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
       robot.emitter = false;
     }
 
-    if (!config.serial.enabled && robot.kicker_force > 0 && robot.emitter) {
+    if (!config->serial->enabled && robot.kicker_force > 0 && robot.emitter) {
       robot.emitter = false;
       ball_a = robot_dir.resize(robot.kicker_force * 0.4);
       ball.field_position += ball_a;

@@ -1,15 +1,17 @@
 #include "strategy/motion.h"
-#include "utils/config.h"
+#include "config/config.h"
+#include "config/strategy.h"
+#include "utils/mapper.h"
 #include "utils/millis.h"
 
 void accelerated_dribbling(Robot& robot) {
-  robot.dribling = config.strategy.dribbling.map(millis() - robot.first_time);
+  robot.dribling = config->strategy->dribbling->map(millis() - robot.first_time);
 }
 
 void desired_dribling(Robot& robot, bool ac_dribling) {
   if (ac_dribling) {
     accelerated_dribbling(robot);
   } else {
-    robot.dribling = config.strategy.dribbling.value_r;
+    robot.dribling = config->strategy->dribbling->value_r;
   }
 }

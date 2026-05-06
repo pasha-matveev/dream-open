@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "utils/config.h"
@@ -45,4 +47,8 @@ void Strategy::run_test(Robot& robot, Object& goal) {
     robot.dribling = config.strategy.dribbling.value_r;
   } else {
   }
+}
+
+void Strategy::run_test_emitter(Robot& robot) {
+  spdlog::info("{}", robot.raw_emitter);
 }

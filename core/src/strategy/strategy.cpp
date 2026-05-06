@@ -116,6 +116,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
         run_test_mirror(robot, ball);
       } else if (role == "test") {
         run_test(robot, goal);
+      } else if (role == "test_emitter") {
+        run_test_emitter(robot);
       } else {
         spdlog::error("Unknown role: {}", role);
       }

@@ -184,6 +184,12 @@
         "param_r": 80,
         "value_l": 8,
         "value_r": 120
+      },
+      "kick_power": {
+        "param_l": 50,
+        "param_r": 200,
+        "value_l": 10,
+        "value_r": 20
       }
     },
     "target_left": {

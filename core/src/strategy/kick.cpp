@@ -7,6 +7,7 @@
 #include "config/config.h"
 #include "config/strategy.h"
 #include "robot.h"
+#include "strategy/field.h"
 #include "strategy/motion.h"
 #include "strategy/turn.h"
 #include "tracking/object.h"
@@ -67,7 +68,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     robot.dribbling = config->strategy->dribbling_slow;
     robot.vel = {0, 0};
   } else if (status_ == Status::KICK) {
-    robot.kicker_force = compute_power(robot.position.y);
+    robot.kicker_force = compute_power(robot.position);
     if (params.kick_timeout) {
       robot.dribbling = 0;
     } else {
@@ -84,8 +85,7 @@ void KickController::execute_to_goal(Robot& robot, Object& goal,
   if (goal.camera_visible) {
     target_angle = normalize_angle(goal.relative_angle);
   } else {
-    Vec center{91, 237};
-    Vec simple_route = center - robot.position;
+    Vec simple_route = ENEMY_GOAL_CENTER - robot.position;
     target_angle =
         normalize_angle(simple_route.field_angle() - robot.field_angle);
   }
@@ -93,10 +93,7 @@ void KickController::execute_to_goal(Robot& robot, Object& goal,
   execute(robot, params);
 }
 
-double KickController::compute_power(double y) {
-  if (y >= 243 - 12 - 45) {
-    return 10;
-  } else {
-    return 20;
-  }
+double KickController::compute_power(const Vec& position) {
+  double distance = (ENEMY_GOAL_CENTER - position).len();
+  return config->strategy->control->kick_power->map(distance);
 }

@@ -3,6 +3,7 @@
 class Object;
 class Robot;
 class TurnController;
+class Vec;
 
 struct KickParams {
   double relative_dir;
@@ -34,7 +35,7 @@ class KickController {
     }
   }
 
-  static double compute_power(double y);
+  static double compute_power(const Vec& position);
 
  private:
   TurnController* turn_ = nullptr;

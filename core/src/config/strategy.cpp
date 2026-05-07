@@ -72,6 +72,7 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   control = make_unique<Control>();
   const rapidjson::Value& dcontrol = doc["control"];
   control->speed = make_unique<Mapper>(dcontrol["speed"]);
+  control->kick_power = make_unique<Mapper>(dcontrol["kick_power"]);
 
   target_left = make_unique<Target>();
   const rapidjson::Value& dtl = doc["target_left"];

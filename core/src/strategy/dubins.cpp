@@ -33,7 +33,7 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
     if (control) {
       kick_->execute_to_goal(robot, goal, {});
     } else {
-      robot.kicker_force = KickController::compute_power(robot.position.y);
+      robot.kicker_force = KickController::compute_power(robot.position);
     }
     return true;
   }

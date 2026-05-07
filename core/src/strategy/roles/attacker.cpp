@@ -25,7 +25,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       spdlog::info("KICK DUBINS");
       // Подъехали по окружности, используем удар оттуда
       dubins_->dubins_hit(robot, goal, field,
-                          KickController::compute_power(robot.position.y),
+                          KickController::compute_power(robot.position),
                           false);
     } else {
       spdlog::info("KICK GOAL");
@@ -147,7 +147,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       bool res = false;
       if (config->strategy->attacker->dubins_enabled) {
         res = dubins_->dubins_hit(
-            robot, goal, field, KickController::compute_power(robot.position.y),
+            robot, goal, field, KickController::compute_power(robot.position),
             false);
       }
       if (!res) {

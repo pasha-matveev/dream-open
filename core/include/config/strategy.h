@@ -87,6 +87,7 @@ struct Strategy {
 
   struct Control {
     std::unique_ptr<Mapper> speed;
+    std::unique_ptr<Mapper> kick_power;
   };
   std::unique_ptr<Control> control;
 

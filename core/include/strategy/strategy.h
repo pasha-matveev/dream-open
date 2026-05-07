@@ -10,6 +10,7 @@ class BallTracker;
 class TurnController;
 class KickController;
 class DubinsController;
+class TestController;
 
 class Strategy {
  private:
@@ -19,6 +20,9 @@ class Strategy {
   std::unique_ptr<TurnController> turn_;
   std::unique_ptr<KickController> kick_;
   std::unique_ptr<DubinsController> dubins_;
+  // Тестовые/калибровочные роли вынесены в TestController, чтобы добавление
+  // новой тест-роли не требовало пересборки всех TU, включающих strategy.h.
+  std::unique_ptr<TestController> test_;
 
   string role;
 
@@ -39,13 +43,6 @@ class Strategy {
   void run_keeper(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_attacker(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_challenge(Robot& robot, Object& ball, Object& goal);
-
-  void run_test_mirror(Robot& robot, Object& ball);
-  void run_test_circle(Robot& robot);
-  void run_test_dribling(Robot& robot);
-  void run_test_emitter(Robot& robot);
-  void run_test_ball_dist(Robot& robot);
-  void run_test(Robot& robot, Object& goal);
 
  public:
   Strategy();

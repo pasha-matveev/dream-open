@@ -14,6 +14,7 @@
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/kick.h"
+#include "strategy/test.h"
 #include "strategy/turn.h"
 #include "utils/geo/vec.h"
 #include "utils/millis.h"
@@ -25,6 +26,7 @@ Strategy::Strategy() {
   turn_ = std::make_unique<TurnController>();
   kick_ = std::make_unique<KickController>();
   dubins_ = std::make_unique<DubinsController>();
+  test_ = std::make_unique<TestController>();
 
   // Фаза 2: связываем зависимости явно. Циклы между контроллерами теперь
   // тоже возможны (если вдруг понадобятся в будущем).
@@ -111,20 +113,11 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
         run_keeper(robot, ball, goal, field);
       } else if (role == "challenge") {
         run_challenge(robot, ball, goal);
-      } else if (role == "test_circle") {
-        run_test_circle(robot);
-      } else if (role == "test_dribbling") {
-        run_test_dribling(robot);
-      } else if (role == "test_mirror") {
-        run_test_mirror(robot, ball);
-      } else if (role == "test") {
-        run_test(robot, goal);
-      } else if (role == "test_emitter") {
-        run_test_emitter(robot);
-      } else if (role == "test_ball_dist") {
-        run_test_ball_dist(robot);
       } else {
-        spdlog::error("Unknown role: {}", role);
+        TestContext ctx{robot, ball, goal, *ball_};
+        if (!test_->run(role, ctx)) {
+          spdlog::error("Unknown role: {}", role);
+        }
       }
     }
 

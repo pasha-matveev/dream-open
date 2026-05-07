@@ -10,9 +10,16 @@
 #include "config/config.h"
 #include "config/gpio.h"
 #include "media/music.h"
-#include "utils/millis.h"
 
 using namespace std;
+
+// wiringPi.h declares its own `millis()` returning `unsigned int`, so we can't
+// use the project-wide `long long millis()` here. Local helper avoids the clash.
+static long long now_ms() {
+    return chrono::duration_cast<chrono::milliseconds>(
+               chrono::steady_clock::now().time_since_epoch())
+        .count();
+}
 
 double note_to_octave(double note, int octave) { return note * (1 << octave); }
 
@@ -53,11 +60,11 @@ void Buzzer::beep() {
         softToneWrite(pin, 500);
         beeping = true;
     }
-    beep_until = millis() + config->gpio->buzzer->duration;
+    beep_until = now_ms() + config->gpio->buzzer->duration;
 }
 
 void Buzzer::update() {
-    if (beeping && millis() >= beep_until) {
+    if (beeping && now_ms() >= beep_until) {
         softToneWrite(pin, 0);
         beeping = false;
     }

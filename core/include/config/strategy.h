@@ -55,6 +55,7 @@ struct Strategy {
       bool enabled;
       double v_min;
       long long stale_ms;
+      double gain;
     };
     std::unique_ptr<Ff> ff;
   };

@@ -160,7 +160,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         if (ff.enabled &&
             ball_->recently_visible(millis(), ff.stale_ms) &&
             ball_->velocity().len() >= ff.v_min) {
-          robot.vel += ball_->velocity();
+          robot.vel += ball_->velocity() * ff.gain;
         }
       }
     }

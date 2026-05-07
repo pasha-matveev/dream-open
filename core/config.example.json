@@ -147,7 +147,8 @@
       "ff": {
         "enabled": true,
         "v_min": 10,
-        "stale_ms": 200
+        "stale_ms": 200,
+        "gain": 1.0
       }
     },
     "keeper": {

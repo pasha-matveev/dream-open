@@ -46,6 +46,7 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   attacker->ff->enabled = dff["enabled"].GetBool();
   attacker->ff->v_min = dff["v_min"].GetDouble();
   attacker->ff->stale_ms = dff["stale_ms"].GetInt64();
+  attacker->ff->gain = dff["gain"].GetDouble();
 
   keeper = make_unique<Keeper>();
   const rapidjson::Value& dkeeper = doc["keeper"];

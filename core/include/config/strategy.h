@@ -53,6 +53,11 @@ struct Strategy {
   struct Attacker {
     double border;
     bool dubins_enabled;
+    double special_height;
+    struct SpecialPos {
+      double x, y;
+    };
+    std::unique_ptr<SpecialPos> special_pos;
     struct Ff {
       bool enabled;
       double v_min;

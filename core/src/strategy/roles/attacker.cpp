@@ -4,11 +4,14 @@
 #include "config/strategy.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
+#include "strategy/field.h"
 #include "strategy/kick.h"
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "utils/geo/polygon.h"
+#include "utils/mapper.h"
 #include "utils/millis.h"
+#include "utils/switch.h"
 
 // enum class AttackerRSide { NONE, LEFT, RIGHT };
 // enum class AttackerRStatus { NONE, TAKE_BALL, ROTATE_1, MOVE, ROTATE_2, KICK
@@ -17,12 +20,54 @@
 // static AttackerRSide r_side = AttackerRSide::NONE;
 // static AttackerRStatus r_status = AttackerRStatus::NONE;
 
-static bool prev_special_zone = false;
-static bool cur_special_zone = false;
+#define SPECIAL_HEIGHT config->strategy->attacker->special_height
+
+static Polygon create_left_polygon() {
+  return {{{0.0, 240.0 - SPECIAL_HEIGHT}, {0.0, 240.0}, ENEMY_GOAL_CENTER}};
+}
+
+static Polygon create_right_polygon() {
+  return {{{182.0, 240.0 - SPECIAL_HEIGHT}, ENEMY_GOAL_CENTER, {182.0, 240.0}}};
+}
+
+static double weighted_dist(const Polygon& pol, const Vec& pos) {
+  double ans = pol.dist(pos);
+  if (!pol.inside(pos)) {
+    ans *= -1;
+  }
+  return ans;
+}
+
+static Switch polygon_oscil{0, 2};
 
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
                             Field& field) {
-  cur_special_zone = false;
+  Polygon left_polygon = create_left_polygon();
+  Polygon right_polygon = create_right_polygon();
+
+  double left_polygon_dist = weighted_dist(left_polygon, robot.position);
+  double right_polygon_dist = weighted_dist(right_polygon, robot.position);
+  double polygon_dist = max(left_polygon_dist, right_polygon_dist);
+  bool use_left_special = left_polygon_dist > right_polygon_dist;
+
+  bool outside_special = polygon_oscil.compute(polygon_dist);
+  bool inside_special = !outside_special;
+
+  // ASSERTION
+  if (!left_polygon.inside(robot.position) &&
+      !right_polygon.inside(robot.position)) {
+    assert(polygon_dist <= 0);
+  }
+  if (left_polygon.inside(robot.position) ||
+      right_polygon.inside(robot.position)) {
+    assert(polygon_dist >= 0);
+  }
+
+  Vec special_pos_left = {config->strategy->attacker->special_pos->x,
+                          240.0 - config->strategy->attacker->special_pos->y};
+  Vec special_pos_right = {182.0 - config->strategy->attacker->special_pos->x,
+                           240.0 - config->strategy->attacker->special_pos->y};
+
   if (robot.emitter) {
     // Взяли мяч
     if (dubins_->was_active_last_tick()) {
@@ -31,8 +76,17 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       dubins_->dubins_hit(robot, goal, field,
                           KickController::compute_power(robot.position), false);
     } else {
-      spdlog::info("KICK GOAL");
-      kick_->execute_to_goal(robot, goal, {});
+      if (inside_special) {
+        spdlog::info("SPECIAL");
+        Vec target = use_left_special ? special_pos_left : special_pos_right;
+        robot.dribbling = config->strategy->dribbling->value_r;
+        drive_target(robot, target, 30);
+        robot.rotation = 0;
+      } else {
+        spdlog::info("KICK GOAL");
+        kick_->execute_to_goal(robot, goal, {});
+      }
+
       // Vec hole_position = robot.ball_hole_position();
       // if (!robot.prev_emitter) {
       //   // Только что взяли мяч
@@ -169,5 +223,4 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   }
 
   robot.vel = robot.vel.resize(min(robot.vel.len(), 120.0));
-  prev_special_zone = cur_special_zone;
 }

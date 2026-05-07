@@ -43,6 +43,10 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   attacker->border = datt["border"].GetDouble();
   attacker->dubins_enabled = datt["dubins_enabled"].GetBool();
   attacker->ff = make_unique<Attacker::Ff>();
+  attacker->special_height = datt["special_height"].GetDouble();
+  attacker->special_pos = make_unique<Attacker::SpecialPos>();
+  attacker->special_pos->x = datt["special_pos"]["x"].GetDouble();
+  attacker->special_pos->y = datt["special_pos"]["y"].GetDouble();
   const rapidjson::Value& dff = datt["ff"];
   attacker->ff->enabled = dff["enabled"].GetBool();
   attacker->ff->v_min = dff["v_min"].GetDouble();

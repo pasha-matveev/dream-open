@@ -145,6 +145,11 @@
     "attacker": {
       "border": 100,
       "dubins_enabled": false,
+      "special_height": 40,
+      "special_pos": {
+        "x": 38,
+        "y": 45
+      },
       "ff": {
         "enabled": true,
         "v_min": 10,

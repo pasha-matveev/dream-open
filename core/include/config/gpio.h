@@ -20,6 +20,7 @@ struct Gpio {
     bool enabled;
     int pin;
     int notes;
+    int duration;
   };
   std::unique_ptr<Buzzer> buzzer;
 

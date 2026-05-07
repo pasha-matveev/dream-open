@@ -13,3 +13,5 @@ void Buzzer::play_song(const vector<Note> &notes) {}
 Buzzer::Buzzer(int pin) : pin(pin) {}
 
 void Buzzer::beep() {}
+
+void Buzzer::update() {}

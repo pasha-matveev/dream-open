@@ -7,7 +7,10 @@
 #include <iostream>
 #include <thread>
 
+#include "config/config.h"
+#include "config/gpio.h"
 #include "media/music.h"
+#include "utils/millis.h"
 
 using namespace std;
 
@@ -46,7 +49,16 @@ Buzzer::Buzzer(int pin) : pin(pin) {
 }
 
 void Buzzer::beep() {
-    softToneWrite(pin, 500);
-    delay(200);
-    softToneWrite(pin, 0);
+    if (!beeping) {
+        softToneWrite(pin, 500);
+        beeping = true;
+    }
+    beep_until = millis() + config->gpio->buzzer->duration;
+}
+
+void Buzzer::update() {
+    if (beeping && millis() >= beep_until) {
+        softToneWrite(pin, 0);
+        beeping = false;
+    }
 }

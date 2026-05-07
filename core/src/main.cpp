@@ -144,6 +144,7 @@ int main() {
       robot.read_from_arduino();
     }
     strategy.run(robot, ball, goal, field);
+    robot.update_buzzer();
     if (config->serial->enabled) {
       robot.write_to_arduino();
     }

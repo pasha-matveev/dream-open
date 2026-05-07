@@ -106,6 +106,9 @@ class Robot {
   void read_from_arduino();
   void write_to_arduino();
 
+  void beep();
+  void update_buzzer();
+
   void predict_position(double dt);
   // Сглаживает vel/rotation в actual_vel/actual_rotation с ограничением
   // по линейному и угловому ускорению из config.strategy.motion.

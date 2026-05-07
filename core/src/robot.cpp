@@ -57,6 +57,14 @@ void Robot::init_camera(Object& ball, Object& goal) {
 
 void Robot::init_buzzer() { buzzer = new Buzzer(config->gpio->buzzer->pin); }
 
+void Robot::beep() {
+  if (buzzer) buzzer->beep();
+}
+
+void Robot::update_buzzer() {
+  if (buzzer) buzzer->update();
+}
+
 void Robot::init_buttons() { setup_buttons(this); }
 
 void Robot::init_uart() {

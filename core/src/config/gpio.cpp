@@ -14,6 +14,7 @@ Gpio::Gpio(const rapidjson::Value& doc) {
   buzzer->enabled = dbuzzer["enabled"].GetBool();
   buzzer->pin = dbuzzer["pin"].GetInt();
   buzzer->notes = dbuzzer["notes"].GetInt();
+  buzzer->duration = dbuzzer["duration"].GetInt();
 
   buttons = make_unique<Buttons>();
   const rapidjson::Value& dbuttons = doc["buttons"];

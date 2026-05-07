@@ -2,21 +2,30 @@
 
 #include <spdlog/spdlog.h>
 
-#include "robot.h"
-#include "strategy/motion.h"
 #include "config/config.h"
 #include "config/strategy.h"
+#include "robot.h"
+#include "strategy/motion.h"
 #include "utils/millis.h"
 
 // TODO: параметры поворота в настройках
 constexpr int TURN_ACCEL_TIME = 300;
+
+bool in_enemy_goal_zone(const Vec& pos) {
+  return pos.y > 240 - 60 && 40 < pos.x && pos.x < 182 - 40;
+}
 
 bool TurnController::execute(Robot& robot, const TurnParams& params) {
   reset_pending_ = false;
   double delta = params.target_field_angle - robot.field_angle;
   long long passed = millis() - start_time_;
   double k = min(1.0, (double)passed / TURN_ACCEL_TIME);
-  if (params.curved_rotation) {
+  bool near_enemy_goal = in_enemy_goal_zone(robot.position);
+  bool curved = params.curved_rotation && !near_enemy_goal;
+  if (near_enemy_goal) {
+    spdlog::info("IN-PLACE TURN");
+  }
+  if (curved) {
     if (abs(delta) <= 0.035) {
       robot.vel = {0, 0};
       robot.rotation_limit = 15.0;
@@ -41,8 +50,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
   }
   robot.rotation = delta;
   desired_dribbling(robot, params.accelerated_dribbling);
-  bool low_precision = robot.position.y > 240 - 60 && 40 < robot.position.x &&
-                       robot.position.x < 182 - 40;
+  bool low_precision = near_enemy_goal;
   double prec = low_precision ? 0.1 : config->strategy->turn_precision;
   if (low_precision) {
     spdlog::info("LOW PRECISION");

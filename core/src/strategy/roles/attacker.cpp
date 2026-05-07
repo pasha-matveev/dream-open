@@ -17,16 +17,19 @@
 // static AttackerRSide r_side = AttackerRSide::NONE;
 // static AttackerRStatus r_status = AttackerRStatus::NONE;
 
+static bool prev_special_zone = false;
+static bool cur_special_zone = false;
+
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
                             Field& field) {
+  cur_special_zone = false;
   if (robot.emitter) {
     // Взяли мяч
     if (dubins_->was_active_last_tick()) {
       spdlog::info("KICK DUBINS");
       // Подъехали по окружности, используем удар оттуда
       dubins_->dubins_hit(robot, goal, field,
-                          KickController::compute_power(robot.position),
-                          false);
+                          KickController::compute_power(robot.position), false);
     } else {
       spdlog::info("KICK GOAL");
       kick_->execute_to_goal(robot, goal, {});
@@ -146,9 +149,9 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
 
       bool res = false;
       if (config->strategy->attacker->dubins_enabled) {
-        res = dubins_->dubins_hit(
-            robot, goal, field, KickController::compute_power(robot.position),
-            false);
+        res = dubins_->dubins_hit(robot, goal, field,
+                                  KickController::compute_power(robot.position),
+                                  false);
       }
       if (!res) {
         // Мяч близко к бортам, играем как обычно
@@ -157,8 +160,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         // скорость к команде, чтобы относительная скорость сближения
         // соответствовала тому, что drive_target насчитал для статичной цели.
         const auto& ff = *config->strategy->attacker->ff;
-        if (ff.enabled &&
-            ball_->recently_visible(millis(), ff.stale_ms) &&
+        if (ff.enabled && ball_->recently_visible(millis(), ff.stale_ms) &&
             ball_->velocity().len() >= ff.v_min) {
           robot.vel += ball_->velocity() * ff.gain;
         }
@@ -167,4 +169,5 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   }
 
   robot.vel = robot.vel.resize(min(robot.vel.len(), 120.0));
+  prev_special_zone = cur_special_zone;
 }

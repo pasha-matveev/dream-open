@@ -202,14 +202,6 @@
         "accel_time": 400,
         "rotation_limit": 20
       }
-    },
-    "target_left": {
-      "x": 91,
-      "y": 230
-    },
-    "target_right": {
-      "x": 91,
-      "y": 230
     }
   }
 }

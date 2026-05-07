@@ -71,14 +71,4 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   dubins->speed = make_unique<Mapper>(ddubins["speed"]);
 
   control = make_unique<Control>(doc["control"]);
-
-  target_left = make_unique<Target>();
-  const rapidjson::Value& dtl = doc["target_left"];
-  target_left->x = dtl["x"].GetDouble();
-  target_left->y = dtl["y"].GetDouble();
-
-  target_right = make_unique<Target>();
-  const rapidjson::Value& dtr = doc["target_right"];
-  target_right->x = dtr["x"].GetDouble();
-  target_right->y = dtr["y"].GetDouble();
 }

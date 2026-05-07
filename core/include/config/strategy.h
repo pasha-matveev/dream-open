@@ -93,12 +93,6 @@ struct Strategy {
     bool enabled;
   };
   std::unique_ptr<AttackerRicochet> attacker_ricochet;
-
-  struct Target {
-    double x, y;
-  };
-  std::unique_ptr<Target> target_left;
-  std::unique_ptr<Target> target_right;
 };
 
 }  // namespace cfg

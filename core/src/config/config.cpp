@@ -10,6 +10,7 @@
 #include "config/lidar.h"
 #include "config/serial.h"
 #include "config/strategy.h"
+#include "config/strategy/control.h"
 #include "config/tracking.h"
 #include "config/visualization.h"
 

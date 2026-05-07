@@ -1,5 +1,6 @@
 #include "config/strategy.h"
 
+#include "config/strategy/control.h"
 #include "utils/mapper.h"
 #include "utils/switch.h"
 
@@ -69,10 +70,7 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   dubins->aim_bonus = ddubins["aim_bonus"].GetDouble();
   dubins->speed = make_unique<Mapper>(ddubins["speed"]);
 
-  control = make_unique<Control>();
-  const rapidjson::Value& dcontrol = doc["control"];
-  control->speed = make_unique<Mapper>(dcontrol["speed"]);
-  control->kick_power = make_unique<Mapper>(dcontrol["kick_power"]);
+  control = make_unique<Control>(doc["control"]);
 
   target_left = make_unique<Target>();
   const rapidjson::Value& dtl = doc["target_left"];

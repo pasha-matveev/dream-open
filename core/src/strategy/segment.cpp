@@ -5,9 +5,9 @@
 #include <cassert>
 #include <cmath>
 
-#include "robot.h"
 #include "config/config.h"
 #include "config/strategy.h"
+#include "robot.h"
 #include "utils/geo/precision.h"
 
 using namespace std;
@@ -60,8 +60,7 @@ double Segment::dist(const Vec& p) const {
 void Segment::apply(Robot& robot) const {
   // Разметка поля смещена на 12 см от бортика; радиус робота 9 см; 2 см
   // запас на торможение — остаётся свободного расстояния (d + 2) до контакта.
-  double d = normal_dist(robot.position) +
-             (12 - 9 - config->strategy->motion->wall_limit);
+  double d = normal_dist(robot.position) - config->strategy->motion->wall_limit;
   Vec ox = b - a;
   Vec oy = ox.turn_left();
 

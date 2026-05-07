@@ -4,16 +4,16 @@
 #include <csignal>
 #include <thread>
 
-#include "robot.h"
-#include "strategy/field.h"
-#include "strategy/strategy.h"
-#include "strategy/visualization.h"
-#include "tracking/object.h"
 #include "config/config.h"
 #include "config/serial.h"
 #include "config/strategy.h"
 #include "config/tracking.h"
 #include "config/visualization.h"
+#include "robot.h"
+#include "strategy/field.h"
+#include "strategy/strategy.h"
+#include "strategy/visualization.h"
+#include "tracking/object.h"
 #include "utils/geo/circle.h"
 #include "utils/millis.h"
 
@@ -23,7 +23,7 @@ volatile std::sig_atomic_t stop_requested = 0;
 
 void handle_signal(int) { stop_requested = 1; }
 
-constexpr int BDR = 20;
+constexpr int BDR = 12;
 
 int main() {
   cout << "Program started" << endl;
@@ -37,7 +37,8 @@ int main() {
   vector<Vec> field_points;
 
   // 11 7
-  if (config->strategy->role == "keeper" || config->strategy->role == "challenge") {
+  if (config->strategy->role == "keeper" ||
+      config->strategy->role == "challenge") {
     spdlog::info("Running as keeper");
     // const int AX = 38;
     // const int BX = 45;

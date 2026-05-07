@@ -6,6 +6,7 @@
 
 #include "config/config.h"
 #include "config/strategy.h"
+#include "config/strategy/control.h"
 #include "robot.h"
 #include "strategy/field.h"
 #include "strategy/motion.h"

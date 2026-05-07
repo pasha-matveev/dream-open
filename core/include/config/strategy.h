@@ -10,6 +10,8 @@ class Switch;
 
 namespace cfg {
 
+struct Control;
+
 struct Strategy {
   Strategy(const rapidjson::Value&);
   ~Strategy();
@@ -85,10 +87,6 @@ struct Strategy {
   };
   std::unique_ptr<Dubins> dubins;
 
-  struct Control {
-    std::unique_ptr<Mapper> speed;
-    std::unique_ptr<Mapper> kick_power;
-  };
   std::unique_ptr<Control> control;
 
   struct AttackerRicochet {

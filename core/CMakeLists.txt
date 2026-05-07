@@ -25,6 +25,7 @@ aux_source_directory(src/strategy STRATEGY_FILES)
 aux_source_directory(src/strategy/common STRATEGY_COMMON_FILES)
 aux_source_directory(src/strategy/roles STRATEGY_ROLES_FILES)
 aux_source_directory(src/config CONFIG_FILES)
+aux_source_directory(src/config/strategy CONFIG_STRATEGY_FILES)
 
 if(APPLE)
 
@@ -38,7 +39,7 @@ aux_source_directory(src/gpio GPIO_FILES)
 
 endif()
 
-add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES} ${GEO_FILES} ${GPIO_FILES} ${MEDIA_FILES} ${STRATEGY_FILES} ${STRATEGY_COMMON_FILES} ${STRATEGY_ROLES_FILES} ${CONFIG_FILES})
+add_executable(core ${SRC_FILES} ${TRACKING_FILES} ${UTILS_FILES} ${GEO_FILES} ${GPIO_FILES} ${MEDIA_FILES} ${STRATEGY_FILES} ${STRATEGY_COMMON_FILES} ${STRATEGY_ROLES_FILES} ${CONFIG_FILES} ${CONFIG_STRATEGY_FILES})
 
 target_include_directories(core PRIVATE include)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

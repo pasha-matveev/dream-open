@@ -120,7 +120,7 @@
     "turn_precision": 0.02,
     "predict": {
       "enabled": true,
-      "alpha_xy": 0.3
+      "alpha_xy": 0.25
     },
     "ball_filter": {
       "alpha_xy": 0.35,
@@ -191,6 +191,16 @@
         "param_r": 200,
         "value_l": 10,
         "value_r": 20
+      },
+      "curved_turn": {
+        "accel_time": 400,
+        "rotation_limit": 15,
+        "vel": 19,
+        "dist": 17
+      },
+      "simple_turn": {
+        "accel_time": 400,
+        "rotation_limit": 20
       }
     },
     "target_left": {

@@ -40,7 +40,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
     robot.rotation_limit = 15.0 * k;
   }
   robot.rotation = delta;
-  desired_dribling(robot, params.accelerated_dribbling);
+  desired_dribbling(robot, params.accelerated_dribbling);
   bool low_precision = robot.position.y > 240 - 60 && 40 < robot.position.x &&
                        robot.position.x < 182 - 40;
   double prec = low_precision ? 0.1 : config->strategy->turn_precision;

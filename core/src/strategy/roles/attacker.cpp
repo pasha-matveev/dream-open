@@ -59,7 +59,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       // if (r_status == AttackerRStatus::ROTATE_1) {
       //   // Особая стратегия: поворот
       //   spdlog::info("ROTATE_1");
-      //   robot.dribling = config.strategy.max_dribling;
+      //   robot.dribbling = config.strategy.max_dribbling;
       //   double target_angle;
       //   if (r_left) {
       //     target_angle = M_PI / 2;
@@ -84,7 +84,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       //   }
       //   bool finished = drive_target(robot, target, 2, 20, 5);
       //   robot.rotation = normalize_angle(target_angle - robot.field_angle);
-      //   robot.dribling = config.strategy.max_dribling;
+      //   robot.dribbling = config.strategy.max_dribbling;
       //   if (finished) {
       //     r_status = AttackerRStatus::ROTATE_2;
       //   }

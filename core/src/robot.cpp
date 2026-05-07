@@ -44,7 +44,7 @@ void Robot::write_to_arduino() {
   uart->write_data<float>(
       normalize_angle2(-gyro_angle - normalize_angle2(rotation)));
   uart->write_data<float>(rotation_limit);
-  uart->write_data<int32_t>(dribling);
+  uart->write_data<int32_t>(dribbling);
   uart->write_data<int32_t>(kicker_force);
   uart->write_data<bool>(rgb_led);
   uart->write_data<bool>(state == RobotState::PAUSE);

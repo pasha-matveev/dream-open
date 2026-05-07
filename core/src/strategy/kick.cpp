@@ -39,7 +39,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     long long left_time = control_time - passed_time;
     double speed = 10.0 * left_time / control_time;
     robot.vel = Vec{robot.field_angle}.resize(speed);
-    desired_dribling(robot, params.accelerate_dribbling);
+    desired_dribbling(robot, params.accelerate_dribbling);
     robot.rotation = 0;
     robot.rotation_limit = 0;
   } else if (status_ == Status::ROTATE) {
@@ -53,25 +53,25 @@ void KickController::execute(Robot& robot, const KickParams& params) {
       if (params.kick_timeout) {
         status_ = Status::TIMEOUT;
         // TODO: плавное замедление
-        robot.dribling = config->strategy->dribbling_slow;
+        robot.dribbling = config->strategy->dribbling_slow;
         timeout_stamp_ = millis() + params.kick_timeout;
       } else {
         status_ = Status::KICK;
-        robot.dribling = 0;
+        robot.dribbling = 0;
       }
       robot.rotation = 0;
       robot.vel = {0, 0};
     }
 
   } else if (status_ == Status::TIMEOUT) {
-    robot.dribling = config->strategy->dribbling_slow;
+    robot.dribbling = config->strategy->dribbling_slow;
     robot.vel = {0, 0};
   } else if (status_ == Status::KICK) {
     robot.kicker_force = compute_power(robot.position.y);
     if (params.kick_timeout) {
-      robot.dribling = 0;
+      robot.dribbling = 0;
     } else {
-      robot.dribling = config->strategy->dribbling->value_r;
+      robot.dribbling = config->strategy->dribbling->value_r;
     }
     robot.rotation = 0;
     robot.vel = {0, 0};

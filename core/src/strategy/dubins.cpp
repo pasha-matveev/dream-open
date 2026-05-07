@@ -105,7 +105,7 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
 
   Vec movement_direction;
   double len;
-  robot.dribling = config->strategy->dribbling_slow;
+  robot.dribbling = config->strategy->dribbling_slow;
   if (on_shot_line && longitudinal < 0 && drive_ms_ == -1) {
     drive_ms_ = millis() + 300;
     drive_ball_position_ = ball_pos;

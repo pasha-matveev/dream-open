@@ -84,7 +84,7 @@ class Robot {
   // Именно она отправляется на моторы и используется для предсказания позиции.
   Vec actual_vel{0, 0};
   double rotation_limit = 100;
-  int dribling = 0;
+  int dribbling = 0;
   int kicker_force = 0;
   bool rgb_led = false;
 

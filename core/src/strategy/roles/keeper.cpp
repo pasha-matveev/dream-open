@@ -116,7 +116,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   //   sfml_window->draw(shape);
   // }
 
-  // robot.dribling = config->strategy->dribbling->value_l;
+  // robot.dribbling = config->strategy->dribbling->value_l;
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке

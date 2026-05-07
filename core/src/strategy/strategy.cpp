@@ -97,7 +97,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   }
 
   robot.kicker_force = 0;
-  robot.dribling = 0;
+  robot.dribbling = 0;
   robot.rotation = 0;
   robot.vel = {0, 0};
   robot.rotation_limit = 50;

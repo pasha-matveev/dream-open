@@ -18,7 +18,7 @@ namespace {
 
 void run_circle(TestContext& ctx) {
   Robot& robot = ctx.robot;
-  robot.dribling = config->strategy->dribbling->value_r;
+  robot.dribbling = config->strategy->dribbling->value_r;
   double dir = M_PI / 2;
   Vec vel{robot.field_angle};
   vel = vel.turn_right();
@@ -30,7 +30,7 @@ void run_circle(TestContext& ctx) {
 }
 
 void run_dribbling(TestContext& ctx) {
-  ctx.robot.dribling = config->strategy->dribbling->value_r;
+  ctx.robot.dribbling = config->strategy->dribbling->value_r;
 }
 
 void run_ball_dist(TestContext& ctx) {
@@ -67,7 +67,7 @@ void run_square(TestContext& ctx) {
     };
 
     handle(robot, points[square_state]);
-    robot.dribling = config->strategy->dribbling->value_r;
+    robot.dribbling = config->strategy->dribbling->value_r;
   }
 }
 

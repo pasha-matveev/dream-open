@@ -6,11 +6,14 @@
 #include <string>
 
 struct Mapper;
-class Switch;
 
 namespace cfg {
 
 struct Control;
+struct BallFilter;
+struct Attacker;
+struct Keeper;
+struct Dubins;
 
 struct Strategy {
   Strategy(const rapidjson::Value&);
@@ -28,15 +31,6 @@ struct Strategy {
   };
   std::unique_ptr<Predict> predict;
 
-  struct BallFilter {
-    bool enabled;
-    double alpha_xy;
-    double beta_xy;
-    double friction_tau;
-    double latency_ms;
-    double max_jump;
-    double lost_timeout_ms;
-  };
   std::unique_ptr<BallFilter> ball_filter;
 
   struct Motion {
@@ -50,54 +44,10 @@ struct Strategy {
   std::unique_ptr<Mapper> dribbling;
   double dribbling_slow;
 
-  struct Attacker {
-    double border;
-    bool dubins_enabled;
-    double special_height;
-    struct SpecialPos {
-      double x, y;
-    };
-    std::unique_ptr<SpecialPos> special_pos;
-    struct Ff {
-      bool enabled;
-      double v_min;
-      long long stale_ms;
-      double gain;
-    };
-    std::unique_ptr<Ff> ff;
-  };
   std::unique_ptr<Attacker> attacker;
-
-  struct Keeper {
-    double global_border;
-    double dubins_border;
-    bool ram_enabled;
-    struct Line {
-      double padding;
-      double y;
-    };
-    std::unique_ptr<Line> line;
-  };
   std::unique_ptr<Keeper> keeper;
-
-  struct Dubins {
-    double bonus;
-    double separate;
-    double radius;
-    double deep_inside;
-    double camera_target_dist;
-    std::unique_ptr<Switch> kick_precision;
-    double aim_bonus;
-    std::unique_ptr<Mapper> speed;
-  };
   std::unique_ptr<Dubins> dubins;
-
   std::unique_ptr<Control> control;
-
-  struct AttackerRicochet {
-    bool enabled;
-  };
-  std::unique_ptr<AttackerRicochet> attacker_ricochet;
 };
 
 }  // namespace cfg

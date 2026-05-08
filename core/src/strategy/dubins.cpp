@@ -6,6 +6,7 @@
 
 #include "config/config.h"
 #include "config/strategy.h"
+#include "config/strategy/dubins.h"
 #include "robot.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/field.h"

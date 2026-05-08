@@ -6,6 +6,7 @@
 
 #include "config/config.h"
 #include "config/strategy.h"
+#include "config/strategy/ball_filter.h"
 
 void BallFilter::predict(double dt) {
   if (!initialized) return;

@@ -12,6 +12,7 @@
 #include "strategy/visualization.h"
 #include "config/config.h"
 #include "config/strategy.h"
+#include "config/strategy/keeper.h"
 #include "utils/millis.h"
 
 using namespace std;

@@ -4,6 +4,7 @@
 
 #include "config/config.h"
 #include "config/strategy.h"
+#include "config/strategy/ball_filter.h"
 #include "robot.h"
 
 void BallTracker::update(Robot& robot, Object& ball, double dt, long long now,

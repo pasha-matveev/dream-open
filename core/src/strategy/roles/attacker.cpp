@@ -2,6 +2,8 @@
 
 #include "config/config.h"
 #include "config/strategy.h"
+#include "config/strategy/attacker.h"
+#include "config/strategy/dubins.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/field.h"
@@ -144,16 +146,6 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       //   robot.dribbling = config.strategy.max_dribbling;
       //   if (finished) {
       //     r_status = AttackerRStatus::ROTATE_2;
-      //   }
-      // } else if (r_status == AttackerRStatus::ROTATE_2) {
-      //   // Особая стратегия: поворот и удар
-      //   spdlog::info("ROTATE 2");
-      //   if (config->strategy->attacker_ricochet->enabled) {
-      //     double alpha;
-      //     alpha = compute_ricochet(robot, r_left);
-      //     kick_dir(robot, alpha, 100, 0, true, 0, 0.01);
-      //   } else {
-      //     attacker_simple(robot, goal);
       //   }
       // }
     }

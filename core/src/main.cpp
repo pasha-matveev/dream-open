@@ -44,37 +44,38 @@ int main() {
   vector<Vec> field_points;
 
   // 11 7
-  if (config->strategy->role == "keeper" ||
-      config->strategy->role == "challenge") {
+  if (config->strategy->role == "keeper") {
     spdlog::info("Running as keeper");
-    const int AX = 38;
-    const int BX = 45;
-    const int CX = 53;
-    const int CY = 36;
-    const int MY = 70;
-    field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
-                    {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},
-                    {CX, CY},       {BX, 20}};
+    // const int AX = 38;
+    // const int BX = 45;
+    // const int CX = 53;
+    // const int CY = 36;
+    // const int MY = 70;
+    // field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
+    //                 {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},
+    //                 {CX, CY},       {BX, 20}};
 
-    // field_points = {{BDR, BDR},
-    //                 {BDR, 243 - BDR},
-    //                 {51, 243 - BDR},
-    //                 {51, 221},
-    //                 {55, 213},
-    //                 {66, 206},
-    //                 {116, 206},
-    //                 {127, 213},
-    //                 {131, 221},
-    //                 {131, 243 - BDR},
-    //                 {182 - BDR, 243 - BDR},
+    // TODO: в настройках
+    constexpr double TOTAL_HEIGHT = 63;
+    constexpr double SIDE_DIST = 12 + 24;
 
-    //                 {182 - BDR, BDR},
-    //                 {182 - 12 - 35, BDR},
-    //                 {182 - 12 - 35, 30},
-    //                 {182 - 12 - 55, 40},
-    //                 {12 + 55, 40},
-    //                 {12 + 35, 30},
-    //                 {12 + 35, BDR}};
+    field_points = {{SIDE_DIST, 12.0},
+                    {SIDE_DIST, TOTAL_HEIGHT},
+                    {FIELD_WIDTH - SIDE_DIST, TOTAL_HEIGHT},
+                    {FIELD_WIDTH - SIDE_DIST, 12.0},
+                    // bottom cutout, 80x25 with R15 inner corners
+                    {131.0, 12.0},
+                    {131.0, 22.0},
+                    {129.9, 27.7},
+                    {126.6, 32.6},
+                    {121.7, 35.9},
+                    {116.0, 37.0},
+                    {66.0, 37.0},
+                    {60.3, 35.9},
+                    {55.4, 32.6},
+                    {52.1, 27.7},
+                    {51.0, 22.0},
+                    {51.0, 12.0}};
   } else {
     spdlog::info("Running as attacker");
     field_points = {{12.0, 12.0},

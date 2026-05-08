@@ -38,11 +38,15 @@ std::vector<Vec> keeper_zone_points() {
 }
 
 std::vector<Vec> attacker_zone_points() {
-  // Нижняя грань поднята до верха keeper-зоны + safety. Нотча снизу нет —
-  // он целиком внутри keeper-зоны и для нападающего не нужен.
-  const double bottom = KEEPER_ZONE_TOTAL_HEIGHT + ATTACKER_BOTTOM_SAFETY;
+  // U-образный вырез снизу: центральная часть поднята до верха keeper-зоны,
+  // а боковые полоски (x∈[12, 34] и x∈[148, 170]) остаются до y=12 — это
+  // не пересекается с keeper-зоной (она занимает x∈[36, 146]) и сохраняет
+  // нападающему доступ к нижним углам поля.
+  const double k_top = KEEPER_ZONE_TOTAL_HEIGHT + ATTACKER_BOTTOM_SAFETY;
+  const double k_left = KEEPER_ZONE_SIDE_DIST - ATTACKER_BOTTOM_SAFETY;            // 34
+  const double k_right = FIELD_WIDTH - KEEPER_ZONE_SIDE_DIST + ATTACKER_BOTTOM_SAFETY;  // 148
   return {
-      {12.0, bottom},
+      {12.0, 12.0},
       {12.0, 231.0},
       // Top cutout 80x25 with R15 inner corners (вокруг вражеских ворот).
       {51.0, 231.0},
@@ -58,7 +62,14 @@ std::vector<Vec> attacker_zone_points() {
       {131.0, 221.0},
       {131.0, 231.0},
       {170.0, 231.0},
-      {170.0, bottom},
+      {170.0, 12.0},
+      // Bottom keeper-exclusion: bounding rectangle of keeper-зоны + safety.
+      // Дополнительно покрывает все крылья и goal cutout вратаря — нападающий
+      // в эту зону не заезжает, столкновений быть не должно.
+      {k_right, 12.0},
+      {k_right, k_top},
+      {k_left, k_top},
+      {k_left, 12.0},
   };
 }
 

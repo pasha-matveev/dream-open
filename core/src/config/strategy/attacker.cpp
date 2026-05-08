@@ -6,7 +6,6 @@ using std::make_unique;
 Attacker::~Attacker() = default;
 
 Attacker::Attacker(const rapidjson::Value& doc) {
-  border = doc["border"].GetDouble();
   dubins_enabled = doc["dubins_enabled"].GetBool();
   special_height = doc["special_height"].GetDouble();
 

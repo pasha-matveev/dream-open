@@ -20,6 +20,12 @@ bool Polygon::inside(const Vec& p) const {
   return false;
 }
 
+bool Polygon::hyst_inside(const Vec& p) {
+  double d = dist(p);
+  double signed_d = inside(p) ? d : -d;
+  return hyst.compute(-signed_d);
+}
+
 double Polygon::dist(const Vec& p) const {
   double ans = -1;
   bool has_ans = false;

@@ -13,6 +13,7 @@
 #include "strategy/field.h"
 #include "strategy/strategy.h"
 #include "strategy/visualization.h"
+#include "strategy/zones.h"
 #include "tracking/object.h"
 #include "utils/geo/circle.h"
 #include "utils/millis.h"
@@ -42,72 +43,12 @@ int main() {
   }
 
   vector<Vec> field_points;
-
-  // 11 7
   if (config->strategy->role == "keeper") {
     spdlog::info("Running as keeper");
-    // const int AX = 38;
-    // const int BX = 45;
-    // const int CX = 53;
-    // const int CY = 36;
-    // const int MY = 70;
-    // field_points = {{AX, 20},       {AX, MY},       {182 - AX, MY},
-    //                 {182 - AX, 20}, {182 - BX, 20}, {182 - CX, CY},
-    //                 {CX, CY},       {BX, 20}};
-
-    // TODO: в настройках
-    constexpr double TOTAL_HEIGHT = 63;
-    constexpr double SIDE_DIST = 12 + 24;
-
-    field_points = {{SIDE_DIST, 12.0},
-                    {SIDE_DIST, TOTAL_HEIGHT},
-                    {FIELD_WIDTH - SIDE_DIST, TOTAL_HEIGHT},
-                    {FIELD_WIDTH - SIDE_DIST, 12.0},
-                    // bottom cutout, 80x25 with R15 inner corners
-                    {131.0, 12.0},
-                    {131.0, 22.0},
-                    {129.9, 27.7},
-                    {126.6, 32.6},
-                    {121.7, 35.9},
-                    {116.0, 37.0},
-                    {66.0, 37.0},
-                    {60.3, 35.9},
-                    {55.4, 32.6},
-                    {52.1, 27.7},
-                    {51.0, 22.0},
-                    {51.0, 12.0}};
+    field_points = keeper_zone_points();
   } else {
     spdlog::info("Running as attacker");
-    field_points = {{12.0, 12.0},
-                    {12.0, 231.0},
-                    // top cutout, 80x25 with R15 inner corners
-                    {51.0, 231.0},
-                    {51.0, 221.0},
-                    {52.1, 215.3},
-                    {55.4, 210.4},
-                    {60.3, 207.1},
-                    {66.0, 206.0},
-                    {116.0, 206.0},
-                    {121.7, 207.1},
-                    {126.6, 210.4},
-                    {129.9, 215.3},
-                    {131.0, 221.0},
-                    {131.0, 231.0},
-                    {170.0, 231.0},
-                    {170.0, 12.0},
-                    // bottom cutout, 80x25 with R15 inner corners
-                    {131.0, 12.0},
-                    {131.0, 22.0},
-                    {129.9, 27.7},
-                    {126.6, 32.6},
-                    {121.7, 35.9},
-                    {116.0, 37.0},
-                    {66.0, 37.0},
-                    {60.3, 35.9},
-                    {55.4, 32.6},
-                    {52.1, 27.7},
-                    {51.0, 22.0},
-                    {51.0, 12.0}};
+    field_points = attacker_zone_points();
   }
   Field field(field_points);
 

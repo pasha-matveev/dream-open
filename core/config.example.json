@@ -145,7 +145,6 @@
     },
     "dribbling_slow": 3000,
     "attacker": {
-      "border": 100,
       "dubins_enabled": false,
       "special_height": 40,
       "special_pos": {
@@ -160,12 +159,11 @@
       }
     },
     "keeper": {
-      "global_border": 70,
-      "dubins_border": 55,
-      "ram_enabled": false,
+      "projection_border": 100,
       "line": {
         "padding": 60,
-        "y": 36
+        "y": 36,
+        "ray_min_y": 18
       }
     },
     "dubins": {

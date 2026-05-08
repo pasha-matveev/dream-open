@@ -6,12 +6,11 @@ using std::make_unique;
 Keeper::~Keeper() = default;
 
 Keeper::Keeper(const rapidjson::Value& doc) {
-  global_border = doc["global_border"].GetDouble();
-  dubins_border = doc["dubins_border"].GetDouble();
-  ram_enabled = doc["ram_enabled"].GetBool();
+  projection_border = doc["projection_border"].GetDouble();
 
   line = make_unique<Line>();
   const rapidjson::Value& dline = doc["line"];
   line->padding = dline["padding"].GetDouble();
   line->y = dline["y"].GetDouble();
+  line->ray_min_y = dline["ray_min_y"].GetDouble();
 }

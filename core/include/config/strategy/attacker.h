@@ -12,7 +12,6 @@ struct Attacker {
   Attacker(const Attacker&) = delete;
   Attacker& operator=(const Attacker&) = delete;
 
-  double border;
   bool dubins_enabled;
   double special_height;
 

@@ -11,17 +11,10 @@
 #include "strategy/kick.h"
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
+#include "strategy/zones.h"
 #include "utils/geo/polygon.h"
 #include "utils/mapper.h"
 #include "utils/millis.h"
-#include "utils/switch.h"
-
-// enum class AttackerRSide { NONE, LEFT, RIGHT };
-// enum class AttackerRStatus { NONE, TAKE_BALL, ROTATE_1, MOVE, ROTATE_2, KICK
-// };
-
-// static AttackerRSide r_side = AttackerRSide::NONE;
-// static AttackerRStatus r_status = AttackerRStatus::NONE;
 
 #define SPECIAL_HEIGHT config->strategy->attacker->special_height
 
@@ -33,37 +26,25 @@ static Polygon create_right_polygon() {
   return {{{182.0, 243.0 - SPECIAL_HEIGHT}, ENEMY_GOAL_CENTER, {182.0, 243.0}}};
 }
 
-static double weighted_dist(const Polygon& pol, const Vec& pos) {
-  double ans = pol.dist(pos);
-  if (!pol.inside(pos)) {
-    ans *= -1;
-  }
-  return ans;
-}
-
-static Switch polygon_oscil{0, 2};
-
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
                             Field& field) {
-  Polygon left_polygon = create_left_polygon();
-  Polygon right_polygon = create_right_polygon();
+  // Полигоны создаются один раз и переиспользуются между тиками — это нужно,
+  // потому что они хранят встроенный Switch для hyst_inside.
+  static Polygon left_polygon = create_left_polygon();
+  static Polygon right_polygon = create_right_polygon();
+  static Polygon keeper_zone = make_keeper_zone();
 
-  double left_polygon_dist = weighted_dist(left_polygon, robot.position);
-  double right_polygon_dist = weighted_dist(right_polygon, robot.position);
-  double polygon_dist = max(left_polygon_dist, right_polygon_dist);
-  bool use_left_special = left_polygon_dist > right_polygon_dist;
-
-  bool outside_special = polygon_oscil.compute(polygon_dist);
-  bool inside_special = !outside_special;
-
-  // ASSERTION
-  if (!left_polygon.inside(robot.position) &&
-      !right_polygon.inside(robot.position)) {
-    assert(polygon_dist <= 0);
-  }
-  if (left_polygon.inside(robot.position) ||
-      right_polygon.inside(robot.position)) {
-    assert(polygon_dist >= 0);
+  bool inside_left = left_polygon.hyst_inside(robot.position);
+  bool inside_right = right_polygon.hyst_inside(robot.position);
+  bool inside_special = inside_left || inside_right;
+  // Выбор стороны: внутри одного из special — он и есть; иначе по x.
+  bool use_left_special;
+  if (inside_left) {
+    use_left_special = true;
+  } else if (inside_right) {
+    use_left_special = false;
+  } else {
+    use_left_special = robot.position.x < 91.0;
   }
 
   Vec special_pos_left = {config->strategy->attacker->special_pos->x,
@@ -102,12 +83,13 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     }
   } else {
     // Не взяли мяч
-    // r_status = AttackerRStatus::NONE;
-    // r_side = AttackerRSide::NONE;
     bool recently_visible = ball_->recently_visible(millis(), 3000);
     Vec ball_pos = ball_->position();
-    if (!recently_visible || ball_pos.y < config->strategy->attacker->border) {
-      // Мяч у вратаря или мы его не видим
+    bool ball_in_keeper_zone =
+        recently_visible && keeper_zone.hyst_inside(ball_pos);
+
+    if (!recently_visible || ball_in_keeper_zone) {
+      // Мяч у вратаря или мы его не видим — отъезжаем на пассивную позицию.
       Vec target;
       if (recently_visible && ball_pos.x < 91) {
         // Едем к левому краю
@@ -142,5 +124,5 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     }
   }
 
-  robot.vel = robot.vel.resize(min(robot.vel.len(), 120.0));
+  robot.vel = robot.vel.resize(std::min(robot.vel.len(), 120.0));
 }

@@ -3,17 +3,17 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
-#include <cmath>
 #include <optional>
 
 #include "config/config.h"
 #include "config/strategy.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
+#include "strategy/field.h"
 #include "strategy/kick.h"
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
-#include "strategy/visualization.h"
+#include "strategy/zones.h"
 #include "utils/millis.h"
 
 using namespace std;
@@ -25,7 +25,7 @@ static optional<Vec> nearest_obstacle(Robot& robot) {
       if (obstacle.y < 13 || obstacle.y > 80) {
         continue;
       }
-      if (obstacle.x < 3 || obstacle.x > 182 - 3) {
+      if (obstacle.x < 3 || obstacle.x > FIELD_WIDTH - 3) {
         continue;
       }
       if (!nearest_obstacle.has_value() || obstacle.y < nearest_obstacle->y) {
@@ -36,42 +36,34 @@ static optional<Vec> nearest_obstacle(Robot& robot) {
   return nearest_obstacle;
 }
 
-// Как защищать ворота от Питера
-static Vec compute_radial(const Vec& p, const Field& field) {
-  // Хотим стоять на границе поля
-  Vec center{91.0, 0.0};  // центр псевдоокружности (за границами поля)
-  Vec dir = p - center;
-  dir = dir.resize(1000000);
-  // ищем пересечение луча и нижней границы поля
-  auto [np, idx] = field.find_intersection(center, dir);
+// Точка на луче из {91,0} через target, ВНУТРИ keeper field (на 2 см глубже
+// границы пересечения), с клампом по минимальному Y.
+//
+// Используется и для защиты от мяча (ray_min_y из конфига), и для защиты от
+// вражеского робота — is_piter (ray_min_y = line.y, поведение как раньше).
+//
+// При hit.y < ray_min_y встаём в крыло возле стойки (x=51 или x=131) на
+// высоте ray_min_y, чтобы не пытаться стоять на нижнем горизонтальном
+// отрезке зоны (тот закрывает не ворота, а боковую полку).
+static Vec compute_ray_target(const Vec& target, const Field& field,
+                              double ray_min_y) {
+  Vec center{91.0, 0.0};
+  Vec dir = (target - center).resize(1'000'000);
+
+  auto [hit, idx] = field.find_intersection(center, dir);
+
   if (idx == -1) {
-    double xl = config->strategy->keeper->line->padding;
-    double xr = 180 - config->strategy->keeper->line->padding;
-    double y = config->strategy->keeper->line->y;
-
-    Vec fallback = {clamp(p.x, xl, xr), y};
-    // что-то странное, вместо окружности просто стоим на прямой
-    return fallback;
+    // Дегенеративный случай: луч не пересёк границу. Wing-fallback.
+    return {(target.x < 91.0) ? 51.0 : FIELD_WIDTH - 51.0, ray_min_y};
   }
-  double desired_len = (np - center).len() + 2;
-  Vec res = center + dir.resize(desired_len);
-  return res;
-}
 
-// Как защищать ворота от мяча
-static Vec compute_contr_point(const Vec& p, const Field& field) {
-  if (p.y > 35) {
-    // Точка сверху, стоим на проекции
-    double xl = config->strategy->keeper->line->padding;
-    double xr = 180 - config->strategy->keeper->line->padding;
-    double y = config->strategy->keeper->line->y;
-
-    double x = clamp(p.x, xl, xr);
-    return {x, y};
-  } else {
-    // Точка внизу, стоим на окружности
-    return compute_radial(p, field);
+  if (hit.y < ray_min_y) {
+    // Точка пересечения слишком низко — стоим в крыле возле стойки.
+    return {(target.x < 91.0) ? 51.0 : FIELD_WIDTH - 51.0, ray_min_y};
   }
+
+  double desired_len = (hit - center).len() + 2.0;
+  return center + dir.resize(desired_len);
 }
 
 static long long last_piter_visible = -10000;
@@ -86,7 +78,6 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       (field.inside(*obstacle) || field.dist(*obstacle) <= 6)) {
     last_piter_visible = millis();
     last_piter = *obstacle;
-    Vec dir = last_piter - robot.position;
   }
 
   long long ball_visible_tm = millis() - ball_->last_visible_ms();
@@ -103,77 +94,55 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     is_piter = piter_ok;
   }
 
-  // if (piter_ok) {
-  //   if (!sfml_window || !sfml_window->isOpen()) {
-  //     return;
-  //   }
+  const auto& keeper_cfg = *config->strategy->keeper;
 
-  //   auto sfml_r = cm_to_px(9);
-  //   auto shape = sf::CircleShape(sfml_r);
-  //   shape.setPosition(toSFML(last_piter) - Vec{sfml_r, sfml_r});
-  //   sf::Color color = sf::Color(255, 255, 255);
-  //   shape.setOutlineColor(color);
-  //   shape.setOutlineThickness(2);
-  //   shape.setFillColor(sf::Color::Transparent);
-  //   sfml_window->draw(shape);
-  // }
-
-  // robot.dribbling = config->strategy->dribbling->value_l;
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
-      if (dubins_->was_active_last_tick() &&
-          dubins_->is_aligned_for_kick(robot, goal)) {
-        // Подъехали по dubins, продолжаем использовать эту стратегию.
-        // Гейт по углу защищает от удара в свои ворота при раннем захвате.
-        // spdlog::info("DUBINS KICK");
-        dubins_->dubins_hit(robot, goal, field, 100, false);
-      } else if (stabilize_capture(robot)) {
+      if (stabilize_capture(robot)) {
         // Стабилизация только что захваченного мяча.
       } else {
         // Просто целимся и стреляем
-        // spdlog::info("SIMPLE KICK");
         kick_->execute_to_goal(robot, goal, {});
       }
-    } else {
-      if (ball_ok) {
-        // Видим мяч
-        Vec ball_pos = ball_->position();
-        if (ball_pos.y >= config->strategy->keeper->global_border) {
-          // Мяч за нашей зоной, защищаем ворота
-          Vec target = compute_contr_point(ball_pos, field);
-          // spdlog::info("LONG PROTECT {} {}", target.x, target.y);
-          drive_target(robot, target);
-          robot.rotation = ball_->relative_angle(robot);
-        } else if (ball_pos.y >= config->strategy->keeper->dubins_border &&
-                   dubins_->dubins_hit(robot, goal, field, 100, false)) {
-          // Мяч в зоне удара, используем dubins_path
-          // spdlog::info("DUBINS PROTECT");
-        } else if (config->strategy->keeper->ram_enabled &&
-                   ball_pos.y > robot.position.y) {
-          // Просто бьем мяч корпусом
-          // spdlog::info("RAM");
-          drive_target(robot, ball_pos, 3, 120, 50);
-          robot.rotation = -robot.field_angle;
-        } else {
-          // Мяч близко, _аккуратно_ его берем
-          // spdlog::info("NEAR PROTECT {} {} {}", ball_visible_tm, ball_pos.x,
-          // ball_pos.y);
-          drive_ball(robot, ball_pos);
-        }
-      } else {
-        // Не видим мяч
-        // spdlog::info("IDLE");
-        Vec target{91.0, config->strategy->keeper->line->y};
+    } else if (ball_ok) {
+      Vec ball_pos = ball_->position();
+
+      // Мяч в вырезе под ворота: робот туда не заедет, но field.apply()
+      // прижмёт его к границе выреза — у нас всё равно есть шанс достать.
+      bool ball_in_goal_cutout =
+          ball_pos.x >= KEEPER_GOAL_CUTOUT_X_MIN &&
+          ball_pos.x <= KEEPER_GOAL_CUTOUT_X_MAX &&
+          ball_pos.y < KEEPER_GOAL_CUTOUT_Y_MAX;
+
+      if (field.inside(ball_pos) || ball_in_goal_cutout) {
+        // Мяч внутри зоны вратаря (или в вырезе под ворота) — забираем.
+        drive_ball(robot, ball_pos);
+      } else if (ball_pos.y >= keeper_cfg.projection_border) {
+        // Мяч далеко — стоим на проекции на горизонтальную линию.
+        double xl = keeper_cfg.line->padding;
+        double xr = FIELD_WIDTH - keeper_cfg.line->padding;
+        Vec target{clamp(ball_pos.x, xl, xr), keeper_cfg.line->y};
         drive_target(robot, target);
-        robot.rotation = -robot.field_angle;
+        robot.rotation = ball_->relative_angle(robot);
+      } else {
+        // Мяч между линией вратаря и projection_border — лучевая защита.
+        Vec target =
+            compute_ray_target(ball_pos, field, keeper_cfg.line->ray_min_y);
+        drive_target(robot, target);
+        robot.rotation = ball_->relative_angle(robot);
       }
+    } else {
+      // Не видим мяч — IDLE.
+      Vec target{91.0, keeper_cfg.line->y};
+      drive_target(robot, target);
+      robot.rotation = -robot.field_angle;
     }
   } else {
-    // Контрим питер
+    // Контрим Питер. ray_min_y = line.y воспроизводит прежнее поведение
+    // (без жёсткого клампа по минимальному Y на крыле).
     spdlog::info("CONTR");
-    Vec target;
-    target = compute_radial(last_piter, field);
+    Vec target = compute_ray_target(last_piter, field, keeper_cfg.line->y);
     drive_target(robot, target, 4);
     robot.rotation = normalize_angle(
         (last_piter - robot.position).field_angle() - robot.field_angle);

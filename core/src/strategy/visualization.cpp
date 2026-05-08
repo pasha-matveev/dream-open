@@ -5,10 +5,10 @@
 #include <cmath>
 #include <optional>
 
-#include "strategy/strategy.h"
 #include "config/config.h"
 #include "config/serial.h"
 #include "config/visualization.h"
+#include "strategy/strategy.h"
 
 Vec toSFML(Vec r) {
   Vec v = {cm_to_px(r.x), cm_to_px(r.y)};
@@ -152,6 +152,33 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     }
   }
 
+  // draw points
+  {
+    Vec p1 = toSFML({52, 57});
+    Vec p2 = toSFML({52, 240 - 57});
+    Vec p3 = toSFML({182 - 52, 240 - 57});
+    Vec p4 = toSFML({182 - 52, 57});
+    auto s1 = sf::CircleShape(5);
+    s1.setFillColor(sf::Color::Black);
+    s1.setPosition(p1);
+    sfml_window->draw(s1);
+
+    auto s2 = sf::CircleShape(5);
+    s2.setFillColor(sf::Color::Black);
+    s2.setPosition(p2);
+    sfml_window->draw(s2);
+
+    auto s3 = sf::CircleShape(5);
+    s3.setFillColor(sf::Color::Black);
+    s3.setPosition(p3);
+    sfml_window->draw(s3);
+
+    auto s4 = sf::CircleShape(5);
+    s4.setFillColor(sf::Color::Black);
+    s4.setPosition(p4);
+    sfml_window->draw(s4);
+  }
+
   // draw robot
   {
     auto robot_shape = sf::CircleShape(ROBOT_R);
@@ -169,6 +196,7 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     sfml_window->draw(hole_shape);
   }
 
+  // draw ball
   if (ball.visible) {
     auto ball_shape = sf::CircleShape(BALL_R);
     ball_shape.setFillColor(sf::Color(0, 0, 255));

@@ -87,6 +87,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
   if (robot.emitter && !robot.prev_emitter) {
     robot.first_time = millis();
   }
+  robot.prev_emitter = robot.emitter;
 
   if (millis() < stop_until) {
     robot.vel = {0, 0};

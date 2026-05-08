@@ -7,15 +7,15 @@
 #include <iostream>
 #include <thread>
 
-#include "gpio/buttons.h"
-#include "gpio/setup.h"
-#include "media/img.h"
 #include "config/config.h"
 #include "config/gpio.h"
 #include "config/lidar.h"
 #include "config/serial.h"
 #include "config/strategy.h"
 #include "config/tracking.h"
+#include "gpio/buttons.h"
+#include "gpio/setup.h"
+#include "media/img.h"
 #include "utils/millis.h"
 
 void Robot::read_from_arduino() {
@@ -26,7 +26,6 @@ void Robot::read_from_arduino() {
   if (raw_emitter < config->serial->emitter->threshold) {
     last_seen = millis();
   }
-  prev_emitter = emitter;
   emitter = (millis() - last_seen) < config->serial->emitter->optimist;
 
   kicker_charged = uart->read_data<bool>();
@@ -176,7 +175,8 @@ std::optional<LidarPose> Robot::compute_lidar() {
   //     break;
   //   }
   //   if (elapsed >
-  //       config->lidar->calibration->delay + config->lidar->calibration->threshold)
+  //       config->lidar->calibration->delay +
+  //       config->lidar->calibration->threshold)
   //       {
   //     spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
   //                  elapsed, config->lidar->calibration->delay,

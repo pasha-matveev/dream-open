@@ -13,8 +13,8 @@ class Dribling {
 
   float left_k = ROBOT ? 0.00624654 : 0.0240184;
   float left_b = ROBOT ? 1450.01331 : 1443.63237;
-  float right_k = ROBOT ? 0.0246352 : 0;
-  float right_b = ROBOT ? 1441.63139 : 0;
+  float right_k = ROBOT ? 0.0246352 : 0.0246352;
+  float right_b = ROBOT ? 1441.63139 : 1441.63139;
 
   int desired_rpm = 0;
 

@@ -78,6 +78,9 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       (field.inside(*obstacle) || field.dist(*obstacle) <= 6)) {
     last_piter_visible = millis();
     last_piter = *obstacle;
+    spdlog::warn("Piter: {} {}", last_piter.x, last_piter.y);
+    Vec dir = last_piter - robot.position;
+    spdlog::warn("Dir: {} {}", dir.x, dir.y);
   }
 
   long long piter_visible_tm = millis() - last_piter_visible;
@@ -140,8 +143,9 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     // Контрим Питер. ray_min_y = line.y воспроизводит прежнее поведение
     // (без жёсткого клампа по минимальному Y на крыле).
     spdlog::info("CONTR");
-    Vec target = compute_ray_target(last_piter, field, keeper_cfg.line->y);
-    drive_target(robot, target, 4);
+    Vec target =
+        compute_ray_target(last_piter, field, keeper_cfg.line->ray_min_y);
+    drive_target(robot, target);
     robot.rotation = normalize_angle(
         (last_piter - robot.position).field_angle() - robot.field_angle);
   }

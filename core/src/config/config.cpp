@@ -2,9 +2,14 @@
 
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/stringbuffer.h>
+#include <spdlog/spdlog.h>
 
+#include <cstdio>
 #include <fstream>
 #include <stdexcept>
+#include <vector>
 
 #include "config/gpio.h"
 #include "config/lidar.h"
@@ -45,4 +50,67 @@ void load_config() {
   }
 
   config = make_unique<Config>(doc);
+}
+
+namespace {
+
+void set_hsv(rapidjson::Value& obj, const std::vector<int>& mn,
+             const std::vector<int>& mx,
+             rapidjson::Document::AllocatorType& a) {
+  rapidjson::Value mn_arr(rapidjson::kArrayType);
+  rapidjson::Value mx_arr(rapidjson::kArrayType);
+  for (int v : mn) mn_arr.PushBack(v, a);
+  for (int v : mx) mx_arr.PushBack(v, a);
+  obj["hsv_min"] = mn_arr;
+  obj["hsv_max"] = mx_arr;
+}
+
+}  // namespace
+
+void save_config() {
+  std::ifstream file("config.json");
+  if (!file.is_open()) {
+    spdlog::error("save_config: unable to open config.json for read");
+    return;
+  }
+
+  rapidjson::IStreamWrapper isw(file);
+  rapidjson::Document doc;
+  doc.ParseStream(isw);
+  file.close();
+
+  if (doc.HasParseError()) {
+    spdlog::error("save_config: failed to parse config.json");
+    return;
+  }
+
+  auto& alloc = doc.GetAllocator();
+  auto& tracking = doc["tracking"];
+
+  set_hsv(tracking["ball"], config->tracking->ball->hsv_min,
+          config->tracking->ball->hsv_max, alloc);
+  set_hsv(tracking["goal"]["yellow"], config->tracking->goal->yellow->hsv_min,
+          config->tracking->goal->yellow->hsv_max, alloc);
+  set_hsv(tracking["goal"]["blue"], config->tracking->goal->blue->hsv_min,
+          config->tracking->goal->blue->hsv_max, alloc);
+
+  rapidjson::StringBuffer buf;
+  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
+  writer.SetIndent(' ', 2);
+  doc.Accept(writer);
+
+  std::ofstream out("config.json.tmp");
+  if (!out.is_open()) {
+    spdlog::error("save_config: unable to open config.json.tmp for write");
+    return;
+  }
+  out << buf.GetString();
+  out.close();
+
+  if (std::rename("config.json.tmp", "config.json") != 0) {
+    spdlog::error("save_config: rename config.json.tmp -> config.json failed");
+    return;
+  }
+
+  spdlog::info("Saved HSV calibration to config.json");
 }

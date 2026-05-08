@@ -33,3 +33,4 @@ struct Config {
 extern std::unique_ptr<cfg::Config> config;
 
 void load_config();
+void save_config();

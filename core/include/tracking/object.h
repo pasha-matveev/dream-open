@@ -33,6 +33,7 @@ class Object {
   void find(const cv::Mat& frame);
   void draw(cv::Mat& frame);
   void compute_field_position(const Robot& robot);
+  void sync_to(std::vector<int>& hsv_min, std::vector<int>& hsv_max) const;
 
   double get_pixels_dist();
   double get_cm();

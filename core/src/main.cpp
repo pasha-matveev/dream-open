@@ -34,6 +34,13 @@ int main() {
   load_config();
   spdlog::info("Config loaded");
 
+  if (config->tracking->ball->setup && config->tracking->goal->setup) {
+    spdlog::error(
+        "Both ball.setup and goal.setup are true; trackbars share window "
+        "'Camera' and would conflict. Calibrate one at a time.");
+    return 1;
+  }
+
   vector<Vec> field_points;
 
   // 11 7
@@ -165,8 +172,23 @@ int main() {
         robot.camera->show_preview();
       } catch (...) {
       }
-      if (cv::waitKey(compute_delay(cycle_start)) == 27) {
+      int key = cv::waitKey(compute_delay(cycle_start));
+      if (key == 27) {
         break;
+      }
+      if (key == 's' && (config->tracking->ball->setup ||
+                         config->tracking->goal->setup)) {
+        if (config->tracking->ball->setup) {
+          ball.sync_to(config->tracking->ball->hsv_min,
+                       config->tracking->ball->hsv_max);
+        }
+        if (config->tracking->goal->setup) {
+          auto& g = config->tracking->goal->type == "yellow"
+                        ? *config->tracking->goal->yellow
+                        : *config->tracking->goal->blue;
+          goal.sync_to(g.hsv_min, g.hsv_max);
+        }
+        save_config();
       }
     } else if (config->visualization->enabled) {
       auto sleep_ms = compute_delay(cycle_start);

@@ -12,6 +12,12 @@ using namespace std;
 
 Object::~Object() {};
 
+void Object::sync_to(std::vector<int>& hsv_min,
+                     std::vector<int>& hsv_max) const {
+  hsv_min = {h_min, s_min, v_min};
+  hsv_max = {h_max, s_max, v_max};
+}
+
 double Object::get_pixels_dist() {
   int radius = config->tracking->radius;
   Vec mirror_center{radius, radius};

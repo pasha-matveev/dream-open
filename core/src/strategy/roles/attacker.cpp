@@ -174,7 +174,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         target = {160, 120};
       }
       spdlog::info("DRIVE PASSIVE");
-      drive_target(robot, target, 4);
+      drive_target(robot, target);
       robot.rotation = ball_->relative_angle(robot);
     } else {
       // Мяч на нашей половине

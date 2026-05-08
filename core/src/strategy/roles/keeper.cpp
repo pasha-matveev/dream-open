@@ -1,18 +1,19 @@
+#include "config/strategy/keeper.h"
+
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cmath>
 #include <optional>
 
+#include "config/config.h"
+#include "config/strategy.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/kick.h"
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "strategy/visualization.h"
-#include "config/config.h"
-#include "config/strategy.h"
-#include "config/strategy/keeper.h"
 #include "utils/millis.h"
 
 using namespace std;
@@ -142,7 +143,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           // Мяч за нашей зоной, защищаем ворота
           Vec target = compute_contr_point(ball_pos, field);
           // spdlog::info("LONG PROTECT {} {}", target.x, target.y);
-          drive_target(robot, target, 20, 100);
+          drive_target(robot, target);
           robot.rotation = ball_->relative_angle(robot);
         } else if (ball_pos.y >= config->strategy->keeper->dubins_border &&
                    dubins_->dubins_hit(robot, goal, field, 100, false)) {

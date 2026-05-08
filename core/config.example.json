@@ -123,6 +123,7 @@
       "alpha_xy": 0.25
     },
     "ball_filter": {
+      "enabled": true,
       "alpha_xy": 0.35,
       "beta_xy": 0.15,
       "friction_tau": 0.6,
@@ -139,9 +140,10 @@
     "dribbling": {
       "param_l": 0,
       "param_r": 600,
-      "value_l": 1500,
+      "value_l": 4000,
       "value_r": 8000
     },
+    "dribbling_slow": 3000,
     "attacker": {
       "border": 100,
       "dubins_enabled": false,

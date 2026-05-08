@@ -49,6 +49,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     }
 
   } else if (status_ == Status::TIMEOUT) {
+    // TODO: плавное замедление
     robot.dribbling = config->strategy->dribbling_slow;
     robot.vel = {0, 0};
   } else if (status_ == Status::KICK) {

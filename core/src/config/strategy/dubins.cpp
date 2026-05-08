@@ -16,5 +16,6 @@ Dubins::Dubins(const rapidjson::Value& doc) {
   camera_target_dist = doc["camera_target_dist"].GetDouble();
   kick_precision = make_unique<Switch>(doc["kick_precision"]);
   aim_bonus = doc["aim_bonus"].GetDouble();
+  kick_angle_tolerance = doc["kick_angle_tolerance"].GetDouble();
   speed = make_unique<Mapper>(doc["speed"]);
 }

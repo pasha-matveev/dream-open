@@ -40,19 +40,7 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
   }
 
   Vec ball_pos = ball_->position();
-  Vec goal_direction;
-
-  // TODO: camera visible fix
-  if (goal.visible && (ball_pos - robot.position).len() <=
-                          config->strategy->dubins->camera_target_dist) {
-    // Подъехали близко к мячу, можно целиться по камере
-    double dir_angle = goal.relative_angle + robot.field_angle;
-    goal_direction = Vec{dir_angle};
-  } else {
-    // Целимся по логике
-    Vec target{91, 240};
-    goal_direction = target - ball_pos;
-  }
+  Vec goal_direction = compute_goal_direction(robot, goal);
 
   Vec destination =
       ball_pos + goal_direction.resize(-config->strategy->dubins->bonus);
@@ -162,4 +150,29 @@ bool DubinsController::dubins_hit(Robot& robot, Object& goal, Field& field,
       normalize_angle(goal_direction.field_angle() - robot.field_angle);
 
   return true;
+}
+
+Vec DubinsController::compute_goal_direction(Robot& robot, Object& goal) {
+  assert(ball_ != nullptr && "DubinsController::init() not called");
+  Vec ball_pos = ball_->position();
+  // goal.visible не используется: для goal никто не вызывает
+  // compute_field_position, поэтому visible всегда false. На камеру
+  // ориентируемся через camera_visible.
+  if (goal.camera_visible && (ball_pos - robot.position).len() <=
+                                 config->strategy->dubins->camera_target_dist) {
+    // Подъехали близко к мячу, можно целиться по камере
+    double dir_angle = goal.relative_angle + robot.field_angle;
+    return Vec{dir_angle};
+  }
+  // Целимся по логике
+  Vec target{91, 240};
+  return target - ball_pos;
+}
+
+bool DubinsController::is_aligned_for_kick(Robot& robot, Object& goal) {
+  Vec goal_direction = compute_goal_direction(robot, goal);
+  double angle_error =
+      normalize_angle(goal_direction.field_angle() - robot.field_angle);
+  return abs(angle_error) <=
+         config->strategy->dubins->kick_angle_tolerance;
 }

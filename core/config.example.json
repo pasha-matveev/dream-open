@@ -177,6 +177,7 @@
         "deviation": 0.5
       },
       "aim_bonus": 15,
+      "kick_angle_tolerance": 0.26,
       "speed": {
         "param_l": 20,
         "param_r": 40,

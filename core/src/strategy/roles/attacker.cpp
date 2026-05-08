@@ -72,9 +72,12 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
 
   if (robot.emitter) {
     // Взяли мяч
-    if (dubins_->was_active_last_tick()) {
+    if (dubins_->was_active_last_tick() &&
+        dubins_->is_aligned_for_kick(robot, goal)) {
       spdlog::info("KICK DUBINS");
-      // Подъехали по окружности, используем удар оттуда
+      // Подъехали по окружности, используем удар оттуда. Гейт по углу
+      // защищает от удара в свои ворота, если мяч был захвачен на ранней
+      // фазе dubins, до того как корпус довернулся к воротам противника.
       dubins_->dubins_hit(robot, goal, field,
                           KickController::compute_power(robot.position), false);
     } else if (stabilize_capture(robot)) {

@@ -121,8 +121,10 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
-      if (dubins_->was_active_last_tick()) {
-        // Подъехали по dubins, продолжаем использовать эту стратегию
+      if (dubins_->was_active_last_tick() &&
+          dubins_->is_aligned_for_kick(robot, goal)) {
+        // Подъехали по dubins, продолжаем использовать эту стратегию.
+        // Гейт по углу защищает от удара в свои ворота при раннем захвате.
         // spdlog::info("DUBINS KICK");
         dubins_->dubins_hit(robot, goal, field, 100, false);
       } else if (stabilize_capture(robot)) {

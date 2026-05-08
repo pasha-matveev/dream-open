@@ -21,6 +21,8 @@ struct Dubins {
   double deep_inside;
   double camera_target_dist;
   double aim_bonus;
+  // Допустимое отклонение field_angle робота от направления удара, в радианах.
+  double kick_angle_tolerance;
   std::unique_ptr<Switch> kick_precision;
   std::unique_ptr<Mapper> speed;
 };

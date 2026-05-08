@@ -8,4 +8,5 @@ bool drive_target(Robot& robot, const Vec& target, double max_speed = 120,
 void drive_ball(Robot& robot, const Vec& ball);
 void accelerated_dribbling(Robot& robot);
 void desired_dribbling(Robot& robot, bool ac_dribbling);
+bool stabilize_capture(Robot& robot);
 bool take_ball(Robot& robot, long long forward_timeout);

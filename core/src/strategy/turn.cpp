@@ -15,6 +15,7 @@ bool in_enemy_goal_zone(const Vec& pos) {
 
 bool TurnController::execute(Robot& robot, const TurnParams& params) {
   reset_pending_ = false;
+  if (start_time_ < 0) start_time_ = millis();
   double delta = params.target_field_angle - robot.field_angle;
   bool near_enemy_goal = in_enemy_goal_zone(robot.position);
 
@@ -55,7 +56,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
   } else {
     robot.vel = {0, 0};
     robot.rotation_limit =
-        config->strategy->control->curved_turn->rotation_limit * k;
+        config->strategy->control->simple_turn->rotation_limit * k;
   }
   robot.rotation = delta;
   desired_dribbling(robot, params.accelerated_dribbling);

@@ -19,31 +19,15 @@ void KickController::execute(Robot& robot, const KickParams& params) {
   assert(turn_ != nullptr && "KickController::init() not called");
   reset_pending_ = false;
 
-  const int control_time = config->strategy->dribbling->param_r;
-
   // Переходы
-  if (status_ == Status::NONE) {
-    if (robot.first_time + control_time < millis()) {
-      status_ = Status::ROTATE;
-    }
-  } else if (status_ == Status::TIMEOUT) {
+  if (status_ == Status::TIMEOUT) {
     if (millis() >= timeout_stamp_) {
       status_ = Status::KICK;
     }
   }
 
   // Обработка
-  if (status_ == Status::NONE) {
-    // Медленно едем на мяч, ускоряя дриблинг
-    // TODO: control_speed в настройках
-    long long passed_time = millis() - robot.first_time;
-    long long left_time = control_time - passed_time;
-    double speed = 10.0 * left_time / control_time;
-    robot.vel = Vec{robot.field_angle}.resize(speed);
-    desired_dribbling(robot, params.accelerate_dribbling);
-    robot.rotation = 0;
-    robot.rotation_limit = 0;
-  } else if (status_ == Status::ROTATE) {
+  if (status_ == Status::ROTATE) {
     bool finished = turn_->execute(
         robot, {.target_field_angle = robot.field_angle + params.relative_dir,
                 .curved_rotation = params.curved_rotation,

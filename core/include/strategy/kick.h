@@ -15,7 +15,7 @@ struct KickParams {
 
 class KickController {
  public:
-  enum class Status { NONE, ROTATE, TIMEOUT, KICK, READY };
+  enum class Status { ROTATE, TIMEOUT, KICK, READY };
 
   KickController() = default;
 
@@ -30,7 +30,7 @@ class KickController {
   void mark_for_reset() { reset_pending_ = true; }
   void apply_reset_if_pending() {
     if (reset_pending_) {
-      status_ = Status::NONE;
+      status_ = Status::ROTATE;
       timeout_stamp_ = -10000;
     }
   }
@@ -39,7 +39,7 @@ class KickController {
 
  private:
   TurnController* turn_ = nullptr;
-  Status status_ = Status::NONE;
+  Status status_ = Status::ROTATE;
   long long timeout_stamp_ = -10000;
   bool reset_pending_ = false;
 };

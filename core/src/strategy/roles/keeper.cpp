@@ -125,6 +125,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         // Подъехали по dubins, продолжаем использовать эту стратегию
         // spdlog::info("DUBINS KICK");
         dubins_->dubins_hit(robot, goal, field, 100, false);
+      } else if (stabilize_capture(robot)) {
+        // Стабилизация только что захваченного мяча.
       } else {
         // Просто целимся и стреляем
         // spdlog::info("SIMPLE KICK");

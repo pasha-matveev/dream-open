@@ -77,6 +77,12 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       // Подъехали по окружности, используем удар оттуда
       dubins_->dubins_hit(robot, goal, field,
                           KickController::compute_power(robot.position), false);
+    } else if (stabilize_capture(robot)) {
+      // Только что захватили мяч: даём ему стабилизироваться (медленно
+      // едем вперёд + рамп дриблера) до того как идти в special_zone или
+      // в kick. Один раз на захват — стабилизатор сам отключается через
+      // dribbling.param_r после first_time.
+      spdlog::info("STABILIZE");
     } else {
       if (inside_special) {
         spdlog::info("SPECIAL");
@@ -88,66 +94,6 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         spdlog::info("KICK GOAL");
         kick_->execute_to_goal(robot, goal, {});
       }
-
-      // Vec hole_position = robot.ball_hole_position();
-      // if (!robot.prev_emitter) {
-      //   // Только что взяли мяч
-      //   // Проверяем, не нужно ли отъехать
-      //   if (left_attacker_r.inside(hole_position)) {
-      //     r_side = AttackerRSide::LEFT;
-      //     r_status = AttackerRStatus::TAKE_BALL;
-      //   } else if (right_attacker_r.inside(hole_position)) {
-      //     r_side = AttackerRSide::RIGHT;
-      //     r_status = AttackerRStatus::TAKE_BALL;
-      //   }
-      // }
-      // bool r_left = r_side == AttackerRSide::LEFT;
-      // if (r_status == AttackerRStatus::NONE) {
-      //   // Поворачиваемся и бьем
-      //   spdlog::info("SIMPLE");
-      //   kick_to_goal(robot, goal, {});
-      //   // attacker_simple(robot, goal);
-      // } else if (r_status == AttackerRStatus::TAKE_BALL) {
-      //   // Особая стратегия: нужно взять мяч
-      //   spdlog::info("TAKE_BALL");
-      //   bool finished = take_ball(robot, 600);
-      //   if (finished) {
-      //     r_status = AttackerRStatus::ROTATE_1;
-      //   }
-      // }
-      // if (r_status == AttackerRStatus::ROTATE_1) {
-      //   // Особая стратегия: поворот
-      //   spdlog::info("ROTATE_1");
-      //   robot.dribbling = config.strategy.max_dribbling;
-      //   double target_angle;
-      //   if (r_left) {
-      //     target_angle = M_PI / 2;
-      //   } else {
-      //     target_angle = -M_PI / 2;
-      //   }
-      //   bool finished = turn(robot, target_angle, true);
-      //   if (finished) {
-      //     r_status = AttackerRStatus::MOVE;
-      //   }
-      // } else if (r_status == AttackerRStatus::MOVE) {
-      //   // Особая стратегия: движение
-      //   spdlog::info("MOVE");
-      //   Vec target;
-      //   double target_angle;
-      //   if (r_left) {
-      //     target = Vec{30.0, 190.0};
-      //     target_angle = M_PI / 2;
-      //   } else {
-      //     target = Vec{182.0 - 30.0, 190.0};
-      //     target_angle = -M_PI / 2;
-      //   }
-      //   bool finished = drive_target(robot, target, 2, 20, 5);
-      //   robot.rotation = normalize_angle(target_angle - robot.field_angle);
-      //   robot.dribbling = config.strategy.max_dribbling;
-      //   if (finished) {
-      //     r_status = AttackerRStatus::ROTATE_2;
-      //   }
-      // }
     }
   } else {
     // Не взяли мяч
@@ -169,30 +115,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       drive_target(robot, target);
       robot.rotation = ball_->relative_angle(robot);
     } else {
-      // Мяч на нашей половине
-
-      // if (drive_state == DriveState::NONE) {
-      //   if (field.inside(last_ball_position) &&
-      //       field.dist(last_ball_position) >=
-      //           config.strategy.dubins.border_dist_2) {
-      //     drive_state = DriveState::DUBINS;
-      //   } else {
-      //     drive_state = DriveState::EDGE;
-      //   }
-      // } else if (drive_state == DriveState::DUBINS &&
-      //            (!field.inside(last_ball_position) ||
-      //             field.dist(last_ball_position) <
-      //                 config.strategy.dubins.border_dist_1)) {
-      //   drive_state = DriveState::EDGE;
-      // } else if (drive_state == DriveState::EDGE &&
-      //            field.inside(last_ball_position) &&
-      //            field.dist(last_ball_position) >
-      //                config.strategy.dubins.border_dist_2) {
-      //   drive_state = DriveState::DUBINS;
-      // }
-
-      // Мяч далеко от бортов, используем dubins path
-
+      // Пробуем использовать dubins
       bool res = false;
       if (config->strategy->attacker->dubins_enabled) {
         res = dubins_->dubins_hit(robot, goal, field,

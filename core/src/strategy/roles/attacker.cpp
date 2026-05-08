@@ -26,11 +26,11 @@
 #define SPECIAL_HEIGHT config->strategy->attacker->special_height
 
 static Polygon create_left_polygon() {
-  return {{{0.0, 240.0 - SPECIAL_HEIGHT}, {0.0, 240.0}, ENEMY_GOAL_CENTER}};
+  return {{{0.0, 243.0 - SPECIAL_HEIGHT}, {0.0, 243.0}, ENEMY_GOAL_CENTER}};
 }
 
 static Polygon create_right_polygon() {
-  return {{{182.0, 240.0 - SPECIAL_HEIGHT}, ENEMY_GOAL_CENTER, {182.0, 240.0}}};
+  return {{{182.0, 243.0 - SPECIAL_HEIGHT}, ENEMY_GOAL_CENTER, {182.0, 243.0}}};
 }
 
 static double weighted_dist(const Polygon& pol, const Vec& pos) {

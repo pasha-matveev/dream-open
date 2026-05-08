@@ -155,8 +155,8 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
   // draw points
   {
     Vec p1 = toSFML({52, 57});
-    Vec p2 = toSFML({52, 240 - 57});
-    Vec p3 = toSFML({182 - 52, 240 - 57});
+    Vec p2 = toSFML({52, 243 - 57});
+    Vec p3 = toSFML({182 - 52, 243 - 57});
     Vec p4 = toSFML({182 - 52, 57});
     auto s1 = sf::CircleShape(5);
     s1.setFillColor(sf::Color::Black);

@@ -12,6 +12,8 @@ using namespace std;
 // Центр вражеских ворот в пользовательской системе координат.
 // По соглашению координаты вводятся так, что вражеские ворота всегда здесь.
 inline const Vec ENEMY_GOAL_CENTER{91.0, 237.0};
+constexpr int FIELD_WIDTH = 182;
+constexpr int FIELD_HEIGHT = 243;
 
 // храним по часовой стрелке
 class Field : public Polygon {

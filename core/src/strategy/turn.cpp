@@ -23,7 +23,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
   wall_dist = min(wall_dist, robot.position.x);
   wall_dist = min(wall_dist, robot.position.y);
   wall_dist = min(wall_dist, 182 - robot.position.x);
-  wall_dist = min(wall_dist, 240 - robot.position.y);
+  wall_dist = min(wall_dist, 243 - robot.position.y);
   bool near_wall = wall_dist < config->strategy->control->curved_turn->dist;
 
   bool curved = params.curved_rotation && !near_enemy_goal && !near_wall;

@@ -80,9 +80,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     last_piter = *obstacle;
   }
 
-  long long ball_visible_tm = millis() - ball_->last_visible_ms();
   long long piter_visible_tm = millis() - last_piter_visible;
-  bool ball_ok = ball_visible_tm <= 2000;
+  bool ball_ok = ball_->recently_visible(millis(), 3000);
   bool piter_ok = piter_visible_tm <= 2000;
 
   bool is_piter;
@@ -110,10 +109,9 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
 
       // Мяч в вырезе под ворота: робот туда не заедет, но field.apply()
       // прижмёт его к границе выреза — у нас всё равно есть шанс достать.
-      bool ball_in_goal_cutout =
-          ball_pos.x >= KEEPER_GOAL_CUTOUT_X_MIN &&
-          ball_pos.x <= KEEPER_GOAL_CUTOUT_X_MAX &&
-          ball_pos.y < KEEPER_GOAL_CUTOUT_Y_MAX;
+      bool ball_in_goal_cutout = ball_pos.x >= KEEPER_GOAL_CUTOUT_X_MIN &&
+                                 ball_pos.x <= KEEPER_GOAL_CUTOUT_X_MAX &&
+                                 ball_pos.y < KEEPER_GOAL_CUTOUT_Y_MAX;
 
       if (field.inside(ball_pos) || ball_in_goal_cutout) {
         // Мяч внутри зоны вратаря (или в вырезе под ворота) — забираем.

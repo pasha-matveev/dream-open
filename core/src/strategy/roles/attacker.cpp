@@ -1,8 +1,9 @@
+#include "config/strategy/attacker.h"
+
 #include <spdlog/spdlog.h>
 
 #include "config/config.h"
 #include "config/strategy.h"
-#include "config/strategy/attacker.h"
 #include "config/strategy/dubins.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
@@ -91,7 +92,8 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         spdlog::info("SPECIAL");
         Vec target = use_left_special ? special_pos_left : special_pos_right;
         robot.dribbling = config->strategy->dribbling->value_r;
-        drive_target(robot, target, 30);
+        // TODO: вынести в настройки
+        drive_target(robot, target, 50);
         robot.rotation = 0;
       } else {
         spdlog::info("KICK GOAL");

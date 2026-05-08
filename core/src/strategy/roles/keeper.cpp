@@ -165,7 +165,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         // Не видим мяч
         // spdlog::info("IDLE");
         Vec target{91.0, config->strategy->keeper->line->y};
-        drive_target(robot, target, 2);
+        drive_target(robot, target);
         robot.rotation = -robot.field_angle;
       }
     }

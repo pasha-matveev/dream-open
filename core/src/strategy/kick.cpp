@@ -35,7 +35,6 @@ void KickController::execute(Robot& robot, const KickParams& params) {
   // Обработка
   if (status_ == Status::NONE) {
     // Медленно едем на мяч, ускоряя дриблинг
-    // TODO: control_time в настройках
     // TODO: control_speed в настройках
     long long passed_time = millis() - robot.first_time;
     long long left_time = control_time - passed_time;

@@ -32,7 +32,11 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   // потому что они хранят встроенный Switch для hyst_inside.
   static Polygon left_polygon = create_left_polygon();
   static Polygon right_polygon = create_right_polygon();
-  static Polygon keeper_zone = make_keeper_zone();
+  // Зона ответственности вратаря: keeper-зона + вырез под ворота. Вне неё
+  // вратарь либо стоит на месте (PROJECTION или IDLE), либо защищает по
+  // лучу не выезжая из своей зоны — мяч за нами не достанет, поэтому это
+  // территория нападающего. Hysteresis ±2 см встроен в Polygon.
+  static Polygon keeper_responsibility = make_keeper_responsibility();
 
   bool inside_left = left_polygon.hyst_inside(robot.position);
   bool inside_right = right_polygon.hyst_inside(robot.position);
@@ -85,10 +89,10 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     // Не взяли мяч
     bool recently_visible = ball_->recently_visible(millis(), 3000);
     Vec ball_pos = ball_->position();
-    bool ball_in_keeper_zone =
-        recently_visible && keeper_zone.hyst_inside(ball_pos);
+    bool ball_is_keepers =
+        recently_visible && keeper_responsibility.hyst_inside(ball_pos);
 
-    if (!recently_visible || ball_in_keeper_zone) {
+    if (!recently_visible || ball_is_keepers) {
       // Мяч у вратаря или мы его не видим — отъезжаем на пассивную позицию.
       Vec target;
       if (recently_visible && ball_pos.x < 91) {

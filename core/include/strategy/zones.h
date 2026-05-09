@@ -29,7 +29,15 @@ std::vector<Vec> keeper_zone_points();
 // не мог заехать в зону вратаря (Variant A анти-коллизии).
 std::vector<Vec> attacker_zone_points();
 
+// Точки «зоны ответственности вратаря» — простой прямоугольник, охватывающий
+// keeper-зону + ворота с запасом. Используется нападающим, чтобы решить
+// «мяч у вратаря — отъезжаю». Все точки keeper_zone лежат строго внутри
+// (с запасом ATTACKER_BOTTOM_SAFETY=2см), так что гистерезис hyst_inside
+// не флипает на крайних точках.
+std::vector<Vec> keeper_responsibility_points();
+
 // Удобные обёртки, возвращающие готовые Polygon (нужны там, где требуется
 // hyst_inside / inside / find_intersection).
 Polygon make_keeper_zone();
 Polygon make_attacker_zone();
+Polygon make_keeper_responsibility();

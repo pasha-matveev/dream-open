@@ -73,5 +73,24 @@ std::vector<Vec> attacker_zone_points() {
   };
 }
 
+std::vector<Vec> keeper_responsibility_points() {
+  // Простой прямоугольник: bounding box keeper-зоны, расширенный на
+  // ATTACKER_BOTTOM_SAFETY (2 см) с каждой стороны. Гарантированно
+  // содержит все точки keeper_zone, ATTACKER_BOTTOM_SAFETY запас
+  // компенсирует гистерезис hyst_inside (±2 см).
+  const double left = KEEPER_ZONE_SIDE_DIST - ATTACKER_BOTTOM_SAFETY;            // 34
+  const double right = FIELD_WIDTH - KEEPER_ZONE_SIDE_DIST + ATTACKER_BOTTOM_SAFETY;  // 148
+  const double top = KEEPER_ZONE_TOTAL_HEIGHT + ATTACKER_BOTTOM_SAFETY;          // 65
+  return {
+      {left, 0.0},
+      {left, top},
+      {right, top},
+      {right, 0.0},
+  };
+}
+
 Polygon make_keeper_zone() { return Polygon(keeper_zone_points()); }
 Polygon make_attacker_zone() { return Polygon(attacker_zone_points()); }
+Polygon make_keeper_responsibility() {
+  return Polygon(keeper_responsibility_points());
+}

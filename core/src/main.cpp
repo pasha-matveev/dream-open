@@ -65,9 +65,17 @@ int main() {
                   ? config->tracking->goal->yellow->hsv_max
                   : config->tracking->goal->blue->hsv_max,
               config->tracking->goal->setup, config->tracking->goal->min_area);
+  // Свои ворота — противоположный цвет, нужны для калибровки гироскопа в PAUSE.
+  Object own_goal(config->tracking->goal->type == "yellow"
+                      ? config->tracking->goal->blue->hsv_min
+                      : config->tracking->goal->yellow->hsv_min,
+                  config->tracking->goal->type == "yellow"
+                      ? config->tracking->goal->blue->hsv_max
+                      : config->tracking->goal->yellow->hsv_max,
+                  /*setup=*/false, config->tracking->goal->min_area);
   Robot robot;
   spdlog::info("Initializing hardware...");
-  robot.init_hardware(ball, goal);
+  robot.init_hardware(ball, goal, own_goal);
   spdlog::info("Hardware ready");
 
   Strategy strategy;
@@ -104,7 +112,7 @@ int main() {
     if (config->serial->enabled) {
       robot.read_from_arduino();
     }
-    strategy.run(robot, ball, goal, field);
+    strategy.run(robot, ball, goal, own_goal, field);
     robot.update_buzzer();
     if (config->serial->enabled) {
       robot.write_to_arduino();

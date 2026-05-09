@@ -11,8 +11,9 @@ Lidar::Lidar(const rapidjson::Value& doc) {
   calibration = make_unique<Calibration>();
   const rapidjson::Value& dcal = doc["calibration"];
   calibration->enabled = dcal["enabled"].GetBool();
-  calibration->delay = dcal["delay"].GetInt();
+  calibration->window = dcal["window"].GetInt();
   calibration->threshold = dcal["threshold"].GetInt();
   calibration->movement = dcal["movement"].GetDouble();
   calibration->angle = dcal["angle"].GetDouble();
+  calibration->own_goal_timeout = dcal["own_goal_timeout"].GetInt();
 }

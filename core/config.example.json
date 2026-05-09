@@ -102,10 +102,11 @@
     "path": "../lidar/build/bin/main",
     "calibration": {
       "enabled": true,
-      "delay": 5000,
+      "window": 1000,
       "threshold": 150,
       "movement": 10,
-      "angle": 1.5
+      "angle": 1.0,
+      "own_goal_timeout": 2000
     }
   },
   "visualization": {

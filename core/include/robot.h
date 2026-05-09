@@ -1,8 +1,9 @@
 #pragma once
 
+#include <deque>
 #include <optional>
-#include <queue>
 
+#include "field_dims.h"
 #include "gpio/buzzer.h"
 #include "gpio/display.h"
 #include "tracking/camera.h"
@@ -22,7 +23,7 @@ struct LidarPose {
 
 class Robot {
  private:
-  void init_camera(Object&, Object&);
+  void init_camera(Object&, Object&, Object&);
   void init_buzzer();
   void init_buttons();
   void init_uart();
@@ -38,10 +39,10 @@ class Robot {
 
   struct LidarHistory {
     long long time;
-    double field_angle;
+    double gyro_angle;
     Vec position;
   };
-  queue<LidarHistory> lidar_history;
+  std::deque<LidarHistory> lidar_history;
 
  public:
   Camera* camera = nullptr;
@@ -56,8 +57,8 @@ class Robot {
   // Координаты центра робота на поле, в сантиметрах.
   // Оси координат направлены математически
   // Наши ворота снизу, вражеские - сверху
-  Vec position = {182.0 / 2, 243.0 / 2};
-  Vec last_position = {182.0 / 2, 243.0 / 2};
+  Vec position = field_dims::kCenter;
+  Vec last_position = field_dims::kCenter;
   // Фактическое положение.
   // 0 - на ворота противника
   // P/2 - налево
@@ -90,7 +91,7 @@ class Robot {
 
   RobotState state = RobotState::PAUSE;
 
-  void init_hardware(Object& ball, Object& goal);
+  void init_hardware(Object& ball, Object& goal, Object& own_goal);
 
   // Возвращает измеренную позу от лидара, если свежие данные пришли.
   // Не модифицирует robot.position / robot.field_angle — это делает
@@ -100,7 +101,6 @@ class Robot {
   void calibrate();
   // Калибрует top_angle так, что гироскоп будет выдавать measured_field_angle.
   void calibrate(double measured_field_angle);
-  void look_forward();
   void compute_gyro_angle();
 
   void read_from_arduino();

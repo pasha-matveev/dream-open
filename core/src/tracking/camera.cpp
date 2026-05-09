@@ -29,6 +29,7 @@ struct Camera::Impl {
   cv::Mat preview_image;
   Object& ball;
   Object& goal;
+  Object& own_goal;
   bool preview_ready = false;
   std::atomic<bool> running{true};
   std::atomic<bool> new_data{false};
@@ -40,12 +41,12 @@ struct Camera::Impl {
   void show_preview();
   void request_stop();
 
-  Impl(Object& ball, Object& goal);
+  Impl(Object& ball, Object& goal, Object& own_goal);
   ~Impl() = default;
 };
 
-Camera::Impl::Impl(Object& ball_reference, Object& goal_)
-    : ball(ball_reference), goal(goal_) {
+Camera::Impl::Impl(Object& ball_reference, Object& goal_, Object& own_goal_)
+    : ball(ball_reference), goal(goal_), own_goal(own_goal_) {
   const int radius = config->tracking->radius,
             disabled_radius = config->tracking->disabled_radius;
   mask = cv::Mat(cv::Size(radius * 2, radius * 2), 0);
@@ -54,13 +55,15 @@ Camera::Impl::Impl(Object& ball_reference, Object& goal_)
   circle(mask, {radius, radius}, disabled_radius, 0, -1);
 }
 
-Camera::Camera(Object& b, Object& goal_) : ball(b), goal(goal_) {
-  impl = make_unique<Impl>(ball, goal);
+Camera::Camera(Object& b, Object& goal_, Object& own_goal_)
+    : ball(b), goal(goal_), own_goal(own_goal_) {
+  impl = make_unique<Impl>(ball, goal, own_goal);
 }
 
 void Camera::Impl::analyze() {
   ball.find(hsv_frame);
   goal.find(hsv_frame);
+  own_goal.find(hsv_frame);
 }
 
 void Camera::Impl::draw() {
@@ -68,6 +71,7 @@ void Camera::Impl::draw() {
   preview_image = frame;
   ball.draw(preview_image);
   goal.draw(preview_image);
+  own_goal.draw(preview_image);
   preview_ready = true;
 }
 

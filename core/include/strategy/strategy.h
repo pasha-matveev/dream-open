@@ -31,6 +31,9 @@ class Strategy {
 
   // Был ли уже принят хотя бы один кадр лидара (после этого переходим на EMA).
   bool has_lidar_fix = false;
+  // Когда последний раз видели свои ворота (мс). Используется для timeout
+  // fallback к field_angle=0 в PAUSE.
+  long long last_own_goal_seen_ms = -1;
   // Момент начала предыдущего тика стратегии (для вычисления реального dt).
   long long last_tick_ms = -1;
   // Последний вычисленный dt, с ограничением [0, 0.1] сек.
@@ -50,6 +53,7 @@ class Strategy {
   Strategy(const Strategy&) = delete;
   Strategy& operator=(const Strategy&) = delete;
 
-  void run(Robot& robot, Object& ball, Object& goal, Field& field);
+  void run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
+           Field& field);
   double get_last_dt() const { return last_dt; }
 };

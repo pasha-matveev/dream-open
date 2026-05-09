@@ -4,7 +4,8 @@ struct Camera::Impl {
   void request_stop() {}
 };
 
-Camera::Camera(Object& ball_, Object& goal_) : ball(ball_), goal(goal_) {};
+Camera::Camera(Object& ball_, Object& goal_, Object& own_goal_)
+    : ball(ball_), goal(goal_), own_goal(own_goal_) {};
 Camera::~Camera() { stop(); }
 
 void Camera::start() {}

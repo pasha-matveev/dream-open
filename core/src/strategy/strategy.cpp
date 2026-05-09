@@ -8,6 +8,7 @@
 #include <cstdint>
 
 #include "config/config.h"
+#include "config/lidar.h"
 #include "config/serial.h"
 #include "config/strategy.h"
 #include "config/visualization.h"
@@ -38,7 +39,8 @@ Strategy::Strategy() {
 
 Strategy::~Strategy() = default;
 
-void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
+void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
+                   Field& field) {
   long long now = millis();
   double dt = 0.0;
   if (last_tick_ms >= 0) {
@@ -61,11 +63,48 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
     }
   }
 
+  // В PAUSE моторы стоят — обнуляем actual_vel, чтобы predict_position
+  // не сдвигал позицию во время калибровки по своим воротам.
+  if (robot.state == RobotState::PAUSE) {
+    robot.actual_vel = {0, 0};
+  }
+
   // Всегда двигаем позу предсказанием; лидар потом её уточняет EMA-блендингом.
   if (config->serial->enabled) {
     robot.compute_gyro_angle();
     robot.predict_position(dt);
   }
+
+  // PAUSE-разворот по своим воротам: лидар не различает 180°, поэтому в PAUSE
+  // используем свои ворота для определения, в какой половине мы стоим.
+  // Гистерезис: переключаем калибровку только если current half отличается
+  // от target — чтобы не затирать точную подстройку гироскопа лидаром.
+  // Если свои ворота не видны дольше own_goal_timeout, считаем что робот
+  // смотрит на ворота противника (field_angle=0).
+  if (robot.state == RobotState::PAUSE) {
+    if (own_goal.camera_visible) {
+      last_own_goal_seen_ms = now;
+      double a = own_goal.relative_angle;
+      double target_half =
+          (abs(normalize_angle(a)) < M_PI / 2) ? M_PI : 0.0;
+      // Текущая половина гироскопа.
+      double current_half =
+          (abs(normalize_angle(robot.field_angle)) < M_PI / 2) ? 0.0 : M_PI;
+      if (abs(normalize_angle(current_half - target_half)) > M_PI / 2) {
+        robot.calibrate(target_half);
+        robot.compute_gyro_angle();
+      }
+    } else if (last_own_goal_seen_ms >= 0 &&
+               now - last_own_goal_seen_ms >
+                   config->lidar->calibration->own_goal_timeout) {
+      // Долго не видим свои ворота — fallback к ориентации на чужие.
+      if (abs(normalize_angle(robot.field_angle)) > M_PI / 2) {
+        robot.calibrate(0.0);
+        robot.compute_gyro_angle();
+      }
+    }
+  }
+
   if (auto measured = robot.compute_lidar(); measured.has_value()) {
     if (has_lidar_fix) {
       // Позицию сглаживаем EMA с лидаром. Угол оставляем от гироскопа —
@@ -75,7 +114,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Field& field) {
           measured->position * config->strategy->predict->alpha_xy +
           robot.position * (1.0 - config->strategy->predict->alpha_xy);
     } else {
-      // Первый кадр — хард-снап позиции и синхронизация гироскопа к лидару.
+      // Первый кадр — хард-снап позиции и синхронизация гироскопа к лидару
+      // (точная подстройка половины, выбранной выше через свои ворота).
       robot.position = measured->position;
       robot.calibrate(measured->field_angle);
       robot.compute_gyro_angle();

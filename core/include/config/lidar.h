@@ -18,10 +18,13 @@ struct Lidar {
 
   struct Calibration {
     bool enabled;
-    int delay;
+    int window;
     int threshold;
     double movement;
     double angle;
+    // Сколько мс не видим свои ворота в PAUSE, прежде чем считать,
+    // что робот направлен на ворота противника (field_angle=0).
+    int own_goal_timeout;
   };
   std::unique_ptr<Calibration> calibration;
 };

@@ -12,11 +12,12 @@ class Camera {
   struct Impl;
   std::unique_ptr<Impl> impl;
 
-  Camera(Object& ball_, Object& goal_);
+  Camera(Object& ball_, Object& goal_, Object& own_goal_);
   ~Camera();
 
   Object& ball;
   Object& goal;
+  Object& own_goal;
 
   void start();
   void stop();

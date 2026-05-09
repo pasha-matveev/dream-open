@@ -49,8 +49,8 @@ void Robot::write_to_arduino() {
   uart->write_data<bool>(state == RobotState::PAUSE);
 }
 
-void Robot::init_camera(Object& ball, Object& goal) {
-  camera = new Camera(ball, goal);
+void Robot::init_camera(Object& ball, Object& goal, Object& own_goal) {
+  camera = new Camera(ball, goal, own_goal);
   camera->start();
 }
 
@@ -90,9 +90,9 @@ void Robot::init_lidar() {
   }
 }
 
-void Robot::init_hardware(Object& ball, Object& goal) {
+void Robot::init_hardware(Object& ball, Object& goal, Object& own_goal) {
   if (config->tracking->enabled) {
-    init_camera(ball, goal);
+    init_camera(ball, goal, own_goal);
   }
   spdlog::info("Camera ready");
   if (config->gpio->enabled) {
@@ -152,6 +152,7 @@ std::optional<LidarPose> Robot::compute_lidar() {
 
   if (!res.computed) return std::nullopt;
 
+  // Лидар не различает разворот на 180° — подгоняем под текущий гироскоп.
   double angle1 = gyro_angle - top_angle;
   double angle2 = res.rotation;
   if (abs(normalize_angle(angle1 - angle2)) > M_PI / 2) {
@@ -159,44 +160,41 @@ std::optional<LidarPose> Robot::compute_lidar() {
     res.rotation += M_PI;
   }
 
-  Vec center = {182.0 / 2, 243.0 / 2};
-  LidarPose measured{center + res.v, normalize_angle(res.rotation)};
+  LidarPose measured{field_dims::kCenter + res.v,
+                     normalize_angle(res.rotation)};
 
   if (!config->lidar->calibration->enabled) return measured;
 
-  lidar_history.push({millis(), measured.field_angle, measured.position});
+  long long now = millis();
+  lidar_history.push_back({now, gyro_angle, position});
 
-  // while (true) {
-  //   if (lidar_history.empty()) break;
-  //   auto entry = lidar_history.front();
-  //   long long elapsed = millis() - entry.time;
-  //   if (elapsed < config->lidar->calibration->delay) {
-  //     // Еще не прошло достаточно времени
-  //     break;
-  //   }
-  //   if (elapsed >
-  //       config->lidar->calibration->delay +
-  //       config->lidar->calibration->threshold)
-  //       {
-  //     spdlog::warn("Lidar calibration: too old data: {} out of {} + {}",
-  //                  elapsed, config->lidar->calibration->delay,
-  //                  config->lidar->calibration->threshold);
-  //     lidar_history.pop();
-  //     continue;
-  //   }
-  //   double movement = (measured.position - entry.position).len();
-  //   double angle =
-  //       abs(normalize_angle(measured.field_angle - entry.field_angle));
-  //   if (movement > config->lidar->calibration->movement ||
-  //       angle > config->lidar->calibration->angle) {
-  //     lidar_history.pop();
-  //     continue;
-  //   }
-  //   // Лидар стабилен — выравниваем гироскоп к измеренному углу.
-  //   top_angle = normalize_angle(gyro_angle - measured.field_angle);
-  //   lidar_history.pop();
-  //   break;
-  // }
+  long long window_ms = config->lidar->calibration->window;
+  long long threshold_ms = config->lidar->calibration->threshold;
+
+  while (!lidar_history.empty() &&
+         now - lidar_history.front().time > window_ms + threshold_ms) {
+    lidar_history.pop_front();
+  }
+
+  if (lidar_history.size() >= 2 &&
+      now - lidar_history.front().time >= window_ms) {
+    double total_rotation = 0.0;
+    double total_movement = 0.0;
+    for (size_t i = 1; i < lidar_history.size(); ++i) {
+      total_rotation += abs(normalize_angle(
+          lidar_history[i].gyro_angle - lidar_history[i - 1].gyro_angle));
+      total_movement +=
+          (lidar_history[i].position - lidar_history[i - 1].position).len();
+    }
+    if (total_rotation < config->lidar->calibration->angle &&
+        total_movement < config->lidar->calibration->movement) {
+      top_angle = normalize_angle(gyro_angle - measured.field_angle);
+      lidar_history.clear();
+      spdlog::info(
+          "Lidar drift calibration: rotation={:.3f} movement={:.2f}",
+          total_rotation, total_movement);
+    }
+  }
 
   return measured;
 }
@@ -226,13 +224,4 @@ double Robot::relative_angle(const Vec& p) const {
 Vec Robot::ball_hole_position() const {
   Vec d = Vec{field_angle}.resize(9.5);
   return position + d;
-}
-
-void Robot::look_forward() {
-  if (abs(normalize_angle(field_angle)) > M_PI / 2) {
-    field_angle = normalize_angle(field_angle + M_PI);
-    position.x = 182 - position.x;
-    position.y = 243 - position.y;
-  }
-  calibrate();
 }

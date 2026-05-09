@@ -15,6 +15,7 @@
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/kick.h"
+#include "strategy/spin_shot.h"
 #include "strategy/test.h"
 #include "strategy/turn.h"
 #include "utils/geo/vec.h"
@@ -27,6 +28,7 @@ Strategy::Strategy() {
   turn_ = std::make_unique<TurnController>();
   kick_ = std::make_unique<KickController>();
   dubins_ = std::make_unique<DubinsController>();
+  spin_shot_ = std::make_unique<SpinShotController>();
   test_ = std::make_unique<TestController>();
 
   // Фаза 2: связываем зависимости явно. Циклы между контроллерами теперь
@@ -146,6 +148,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
   if (config->strategy->enabled) {
     kick_->mark_for_reset();
     turn_->mark_for_reset();
+    spin_shot_->mark_for_reset();
 
     if (robot.state == RobotState::RUNNING) {
       if (role == "attacker") {
@@ -164,6 +167,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
 
     kick_->apply_reset_if_pending();
     turn_->apply_reset_if_pending();
+    spin_shot_->apply_reset_if_pending();
     field.apply(robot);
   }
   dubins_->on_tick_end();

@@ -10,6 +10,7 @@ class BallTracker;
 class TurnController;
 class KickController;
 class DubinsController;
+class SpinShotController;
 class TestController;
 
 class Strategy {
@@ -20,6 +21,7 @@ class Strategy {
   std::unique_ptr<TurnController> turn_;
   std::unique_ptr<KickController> kick_;
   std::unique_ptr<DubinsController> dubins_;
+  std::unique_ptr<SpinShotController> spin_shot_;
   // Тестовые/калибровочные роли вынесены в TestController, чтобы добавление
   // новой тест-роли не требовало пересборки всех TU, включающих strategy.h.
   std::unique_ptr<TestController> test_;

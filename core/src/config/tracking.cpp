@@ -17,6 +17,8 @@ Tracking::Tracking(const rapidjson::Value& doc) {
   brightness = doc["brightness"].GetDouble();
   radius = doc["radius"].GetInt();
   disabled_radius = doc["disabled_radius"].GetInt();
+  out_of_field_tolerance = doc["out_of_field_tolerance"].GetDouble();
+  clamp_to_field = doc["clamp_to_field"].GetBool();
 
   center = make_unique<Center>();
   const rapidjson::Value& dcenter = doc["center"];

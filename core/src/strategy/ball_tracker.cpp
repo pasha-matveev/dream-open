@@ -1,7 +1,5 @@
 #include "strategy/ball_tracker.h"
 
-#include <cassert>
-
 #include "config/config.h"
 #include "config/strategy.h"
 #include "config/strategy/ball_filter.h"
@@ -28,7 +26,6 @@ void BallTracker::update(Robot& robot, Object& ball, double dt, long long now,
   if (robot.camera && robot.camera->new_data()) {
     ball.compute_field_position(robot);
     if (ball.visible) {
-      assert(ball.field_position.x >= 0 && ball.field_position.y >= 0);
       last_visible_ = now;
       if (config->strategy->ball_filter->enabled) {
         filter_.update(ball.field_position, now);

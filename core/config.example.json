@@ -10,6 +10,8 @@
     "brightness": 0.08,
     "radius": 370,
     "disabled_radius": 20,
+    "out_of_field_tolerance": 30,
+    "clamp_to_field": true,
     "center": {
       "x": 486,
       "y": 512

@@ -2,11 +2,13 @@
 
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <vector>
 
 #include "robot.h"
 #include "config/config.h"
 #include "config/tracking.h"
+#include "field_dims.h"
 
 using namespace std;
 
@@ -126,14 +128,16 @@ void Object::compute_field_position(const Robot& robot) {
   double ball_angle = normalize_angle(robot.field_angle + relative_angle);
   Vec offset{-1 * sin(ball_angle) * get_cm(), cos(ball_angle) * get_cm()};
   field_position = robot.position + offset;
-  if (field_position.x <= 0 || field_position.x >= 182 ||
-      field_position.y <= 0 || field_position.y >= 243) {
-    // if (field_position.x < -10 || field_position.x > 182 + 10 ||
-    //     field_position.y < -10 || field_position.y > 243 + 40) {
+  double tol = config->tracking->out_of_field_tolerance;
+  if (field_position.x <= -tol || field_position.x >= field_dims::kWidth + tol ||
+      field_position.y <= -tol ||
+      field_position.y >= field_dims::kHeight + tol) {
     visible = false;
-    // spdlog::warn("Wrong object position: {} {}", field_position.x,
-    //  field_position.y);
     return;
+  }
+  if (config->tracking->clamp_to_field) {
+    field_position.x = std::clamp(field_position.x, 0.0, field_dims::kWidth);
+    field_position.y = std::clamp(field_position.y, 0.0, field_dims::kHeight);
   }
   visible = true;
 }

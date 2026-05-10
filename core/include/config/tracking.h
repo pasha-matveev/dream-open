@@ -24,6 +24,8 @@ struct Tracking {
   double brightness;
   int radius;
   int disabled_radius;
+  double out_of_field_tolerance;
+  bool clamp_to_field;
 
   struct Center {
     int x, y;

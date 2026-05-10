@@ -166,7 +166,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
             spdlog::info("SPIN");
 
             SpinShotParams p;
-            p.direction = spin.use_left ? -1 : +1;
+            p.direction = spin.use_left ? +1 : -1;
             p.sweep_angle = spin_cfg.sweep_angle;
             p.rotation_limit = spin_cfg.rotation_limit;
             p.dribbling = spin_cfg.dribbling_during_spin;

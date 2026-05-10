@@ -165,7 +165,7 @@
         "sweep_angle": 1.6,
         "rotation_limit": 30.0,
         "dribbling_during_spin": -1,
-        "kicker_ms": 0,
+        "kicker_angle": 0.0,
         "spin_timeout_ms": 2000
       }
     },

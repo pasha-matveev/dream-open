@@ -21,6 +21,9 @@ bool SpinShotController::execute(Robot& robot, const SpinShotParams& params) {
            "SpinShot: sweep_angle must be in (0, pi]");
     assert((params.direction == 1 || params.direction == -1) &&
            "SpinShot: direction must be +1 or -1");
+    assert(params.kicker_angle >= 0 &&
+           params.kicker_angle <= params.sweep_angle &&
+           "SpinShot: kicker_angle must be in [0, sweep_angle]");
     start_ms_ = millis();
     start_field_angle_ = robot.field_angle;
     target_field_angle_ = normalize_angle(
@@ -41,14 +44,17 @@ bool SpinShotController::execute(Robot& robot, const SpinShotParams& params) {
                           ? *params.dribbling
                           : config->strategy->dribbling->value_r;
 
-    if (params.kicker_ms > 0 && !kicker_fired_ && elapsed >= params.kicker_ms) {
-      robot.kicker_force = params.kicker_force;
-      kicker_fired_ = true;
-      spdlog::info("SPIN kicker fire: power={}", robot.kicker_force);
-    }
-
     double swept =
         std::abs(normalize_angle(robot.field_angle - start_field_angle_));
+
+    if (params.kicker_angle > 0 && !kicker_fired_ &&
+        swept >= params.kicker_angle) {
+      robot.kicker_force = params.kicker_force;
+      kicker_fired_ = true;
+      spdlog::info("SPIN kicker fire: power={}, swept={:.2f}",
+                   robot.kicker_force, swept);
+    }
+
     bool angle_done = swept >= params.sweep_angle;
     bool timeout_done =
         params.spin_timeout_ms > 0 && elapsed >= params.spin_timeout_ms;

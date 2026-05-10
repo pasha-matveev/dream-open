@@ -15,8 +15,9 @@ struct SpinShotParams {
   double rotation_limit = 30;
   // Дриблер во время spin. nullopt = config->strategy->dribbling->value_r.
   std::optional<int> dribbling = std::nullopt;
-  // Через сколько мс после старта spin выстрелить киккером. 0 = не стрелять.
-  int kicker_ms = 0;
+  // На каком пройденном угле (рад, [0, sweep_angle]) выстрелить киккером.
+  // 0 = не стрелять.
+  double kicker_angle = 0;
   // Сила киккера, явное значение из конфига
   int kicker_force = 0;
   // Жёсткий таймаут spin. 0 = таймаут выключен

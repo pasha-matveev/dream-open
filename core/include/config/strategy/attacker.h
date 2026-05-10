@@ -40,7 +40,7 @@ struct Attacker {
     std::optional<int>
         dribbling_during_spin;  // -1 в JSON = nullopt (default value_r). Любое
                                 // >=0 = явное значение.
-    int kicker_ms;              // 0 = без киккера
+    double kicker_angle;        // рад, 0 = без киккера
     int kicker_force;           // сила удара
     int spin_timeout_ms;        // 0 = только по углу
   };

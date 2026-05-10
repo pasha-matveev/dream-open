@@ -164,7 +164,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
             p.sweep_angle = spin_cfg.sweep_angle;
             p.rotation_limit = spin_cfg.rotation_limit;
             p.dribbling = spin_cfg.dribbling_during_spin;
-            p.kicker_ms = spin_cfg.kicker_ms;
+            p.kicker_angle = spin_cfg.kicker_angle;
             p.kicker_force = spin_cfg.kicker_force;
             p.spin_timeout_ms = spin_cfg.spin_timeout_ms;
 

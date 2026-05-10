@@ -20,4 +20,8 @@ Control::Control(const rapidjson::Value& doc) {
   const rapidjson::Value& dst = doc["simple_turn"];
   simple_turn->accel_time = dst["accel_time"].GetInt();
   simple_turn->rotation_limit = dst["rotation_limit"].GetInt();
+
+  ball_drive = make_unique<BallDrive>();
+  const rapidjson::Value& dbd = doc["ball_drive"];
+  ball_drive->max_accel = dbd["max_accel"].GetDouble();
 }

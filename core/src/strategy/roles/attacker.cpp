@@ -7,6 +7,7 @@
 #include "config/config.h"
 #include "config/strategy.h"
 #include "config/strategy/dubins.h"
+#include "strategy/accel_drive.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/field.h"
@@ -140,7 +141,10 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
           }
           case SpinPhase::DRIVE: {
             spdlog::info("SPIN DRIVE");
-            drive_target(robot, target_pos, 30);
+            AccelDriveParams p;
+            p.target = target_pos;
+            p.max_speed = spin_cfg.drive_max_speed;
+            accel_drive_->execute(robot, p);
             // drive_target сам ставит rotation, поэтому override после.
             robot.rotation = normalize_angle(wall_angle - robot.field_angle);
             if ((target_pos - robot.position).len() < spin_cfg.ready_dist)

@@ -30,6 +30,12 @@ struct Control {
     double rotation_limit;
   };
   std::unique_ptr<SimpleTurn> simple_turn;
+
+  struct BallDrive {
+    // Ограничение ускорения при движении с захваченным мячом
+    double max_accel;
+  };
+  std::unique_ptr<BallDrive> ball_drive;
 };
 
 }  // namespace cfg

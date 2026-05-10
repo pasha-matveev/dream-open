@@ -43,6 +43,7 @@ struct Attacker {
     double kicker_angle;        // рад, 0 = без киккера
     int kicker_force;           // сила удара
     int spin_timeout_ms;        // 0 = только по углу
+    double drive_max_speed;     // см/с, потолок скорости в фазе DRIVE
   };
   std::unique_ptr<SpinShot> spin_shot;
 };

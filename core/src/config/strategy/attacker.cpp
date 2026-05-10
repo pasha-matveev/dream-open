@@ -35,4 +35,5 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   spin_shot->kicker_angle = ds["kicker_angle"].GetDouble();
   spin_shot->kicker_force = ds["kicker_force"].GetInt();
   spin_shot->spin_timeout_ms = ds["spin_timeout_ms"].GetInt();
+  spin_shot->drive_max_speed = ds["drive_max_speed"].GetDouble();
 }

@@ -167,8 +167,9 @@
         "sweep_angle": 1.6,
         "rotation_limit": 30.0,
         "dribbling_during_spin": -1,
+        "spin_timeout_ms": 2000,
         "kicker_angle": 0.0,
-        "spin_timeout_ms": 2000
+        "drive_max_speed": 30.0
       }
     },
     "keeper": {
@@ -220,6 +221,9 @@
       "simple_turn": {
         "accel_time": 400,
         "rotation_limit": 20
+      },
+      "ball_drive": {
+        "max_accel": 60.0
       }
     }
   }

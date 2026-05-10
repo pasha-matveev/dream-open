@@ -35,15 +35,12 @@ namespace {
 // Состояние spin-shot пайплайна нападающего. Живёт как function-static в
 // run_attacker (как и static-полигоны выше) — потому что это срез логики
 // именно этой ветки, никому больше не нужен.
-enum class SpinPhase { HIDE_TURN, DRIVE, PRE_SHOT_TURN, SPIN };
+enum class SpinPhase { IDLE, HIDE_TURN, DRIVE, PRE_SHOT_TURN, SPIN };
 struct SpinPipelineState {
-  SpinPhase phase = SpinPhase::HIDE_TURN;
+  SpinPhase phase = SpinPhase::IDLE;
   int prev_first_time = -100000;
-  // Сторона: синк с use_left_special пока робот внутри special, после
-  // выхода (в т.ч. в DRIVE) значение замораживается на последнем live.
-  // Это нужно потому что target_pos лежит за пределами special_zone, и
-  // во время DRIVE робот пересекает границу — без заморозки use_left
-  // мог бы флипнуться при пересечении центра поля.
+  // Сторона: фиксируется в момент IDLE → HIDE_TURN из текущего use_left_special
+  // и держится до конца пайплайна
   bool use_left = false;
 };
 }  // namespace
@@ -84,13 +81,13 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   bool fresh_capture =
       robot.emitter && (robot.first_time != spin.prev_first_time);
   if (!robot.emitter || fresh_capture) {
-    spin.phase = SpinPhase::HIDE_TURN;
+    spin.phase = SpinPhase::IDLE;
   }
   spin.prev_first_time = robot.first_time;
 
-  // Пайплайн "engaged" с момента, как HIDE_TURN отработал и стартовал DRIVE.
-  // С этой точки ведём до завершения SPIN независимо от inside_special.
-  bool spin_engaged = spin.phase != SpinPhase::HIDE_TURN;
+  // Пайплайн "engaged" с момента, как мы вышли из IDLE (т.е. начали HIDE_TURN).
+  // С этой точки ведём до завершения SPIN независимо от inside_special
+  bool spin_engaged = spin.phase != SpinPhase::IDLE;
 
   if (robot.emitter) {
     // Взяли мяч
@@ -111,8 +108,10 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     } else {
       if (inside_special || spin_engaged) {
         const auto& spin_cfg = *config->strategy->attacker->spin_shot;
-        if (inside_special) {
+        // Старт пайплайна: фиксируем сторону и переводим в HIDE_TURN.
+        if (spin.phase == SpinPhase::IDLE) {
           spin.use_left = use_left_special;
+          spin.phase = SpinPhase::HIDE_TURN;
         }
         Vec target_pos = spin.use_left ? special_pos_left : special_pos_right;
         robot.dribbling = config->strategy->dribbling->value_r;
@@ -129,6 +128,9 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         double pre_shot_angle = M_PI + pre_shot_delta;
 
         switch (spin.phase) {
+          case SpinPhase::IDLE:
+            // Unreachable: IDLE переведён в HIDE_TURN до switch.
+            break;
           case SpinPhase::HIDE_TURN: {
             spdlog::info("SPIN HIDE_TURN");
             double delta = normalize_angle(wall_angle - robot.field_angle);
@@ -173,7 +175,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
             p.spin_timeout_ms = spin_cfg.spin_timeout_ms;
 
             bool done = spin_shot_->execute(robot, p);
-            if (done) spin.phase = SpinPhase::HIDE_TURN;
+            if (done) spin.phase = SpinPhase::IDLE;
             break;
           }
         }

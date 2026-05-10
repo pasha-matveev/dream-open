@@ -1,8 +1,9 @@
+#include "config/strategy/kickoff.h"
+
 #include <spdlog/spdlog.h>
 
 #include "config/config.h"
 #include "config/strategy.h"
-#include "config/strategy/kickoff.h"
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "strategy/turn.h"
@@ -105,16 +106,15 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
         Vec target = s.left ? Vec{cfg_k.target_left.x, cfg_k.target_left.y}
                             : Vec{cfg_k.target_right.x, cfg_k.target_right.y};
         s.target_field_angle =
-            compute_ricochet_field_angle(robot.ball_hole_position(), target,
-                                         s.left);
+            compute_ricochet_field_angle(robot.position, target, s.left);
         s.target_computed = true;
         spdlog::info("KICKOFF ricochet target_field_angle={:.3f}",
                      s.target_field_angle);
       }
-      bool finished = turn_->execute(
-          robot, {.target_field_angle = s.target_field_angle,
-                  .curved_rotation = false,
-                  .accelerated_dribbling = true});
+      bool finished =
+          turn_->execute(robot, {.target_field_angle = s.target_field_angle,
+                                 .curved_rotation = false,
+                                 .accelerated_dribbling = true});
       if (finished) {
         s.phase = KickoffPhase::KICK;
       }
@@ -139,12 +139,13 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
     case KickoffPhase::DONE: {
       spdlog::info("KICKOFF DONE");
       // Используем существующий механизм Strategy::stop_until — он держит
-      // vel=0 / rotation=0 до момента millis() >= stop_until (см. strategy.cpp).
-      // Это даёт мячу время улететь из дриблера до того, как обычная роль
-      // (attacker) возьмёт управление.
+      // vel=0 / rotation=0 до момента millis() >= stop_until (см.
+      // strategy.cpp). Это даёт мячу время улететь из дриблера до того, как
+      // обычная роль (attacker) возьмёт управление.
       stop_until = millis() + cfg_k.post_kickoff_delay_ms;
       robot.state = RobotState::RUNNING;
-      // s сбросится при следующем входе в run_kickoff (по флагу или phase==DONE).
+      // s сбросится при следующем входе в run_kickoff (по флагу или
+      // phase==DONE).
       break;
     }
   }

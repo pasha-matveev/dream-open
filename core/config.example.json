@@ -165,7 +165,7 @@
         "ready_angle": 0.05,
         "pre_shot_angle_offset": 0.52,
         "sweep_angle": 1.6,
-        "rotation_limit": 30.0,
+        "rotation_limit": 60.0,
         "dribbling_during_spin": -1,
         "spin_timeout_ms": 2000,
         "kicker_angle": 0.0,
@@ -183,8 +183,14 @@
     "kickoff": {
       "capture_blind_timeout_ms": 600,
       "capture_speed": 10.0,
-      "target_left":  { "x": 91, "y": 230 },
-      "target_right": { "x": 91, "y": 230 },
+      "target_left": {
+        "x": 91,
+        "y": 230
+      },
+      "target_right": {
+        "x": 91,
+        "y": 230
+      },
       "kick_force": 100,
       "kick_followthrough_ms": 200,
       "post_kickoff_delay_ms": 300

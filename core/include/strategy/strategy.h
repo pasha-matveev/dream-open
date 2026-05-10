@@ -50,6 +50,8 @@ class Strategy {
   void run_keeper(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_attacker(Robot& robot, Object& ball, Object& goal, Field& field);
   void run_challenge(Robot& robot, Object& ball, Object& goal);
+  void run_kickoff(Robot& robot, Object& ball, Object& goal, Field& field,
+                   bool left);
 
  public:
   Strategy();

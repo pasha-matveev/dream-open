@@ -13,6 +13,7 @@ struct Control;
 struct BallFilter;
 struct Attacker;
 struct Keeper;
+struct Kickoff;
 struct Dubins;
 
 struct Strategy {
@@ -46,6 +47,7 @@ struct Strategy {
 
   std::unique_ptr<Attacker> attacker;
   std::unique_ptr<Keeper> keeper;
+  std::unique_ptr<Kickoff> kickoff;
   std::unique_ptr<Dubins> dubins;
   std::unique_ptr<Control> control;
 };

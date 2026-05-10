@@ -58,6 +58,13 @@ static void handle_left_button(WPIWfiStatus status, void* p) {
     spdlog::error("Kickoff called from non-pause state {}", (int)robot->state);
     return;
   }
+  // Порядок важен: сначала atomic-флаг, потом state. seq_cst-store создаёт
+  // memory barrier, поэтому когда strategy-поток увидит state == KICKOFF_LEFT,
+  // флаг гарантированно тоже виден. Обратный порядок открывает окно, в котором
+  // state уже новый, а флаг ещё нет — exchange(false) тогда вернёт false и
+  // pipeline не сбросится (если phase != DONE, например при нажатии PAUSE+KICKOFF
+  // посреди предыдущей разводки).
+  robot->kickoff_reset_request.store(true);
   robot->state = RobotState::KICKOFF_LEFT;
 }
 
@@ -68,6 +75,8 @@ static void handle_right_button(WPIWfiStatus status, void* p) {
     spdlog::error("Kickoff called from non-pause state {}", (int)robot->state);
     return;
   }
+  // См. порядок-комментарий в handle_left_button.
+  robot->kickoff_reset_request.store(true);
   robot->state = RobotState::KICKOFF_RIGHT;
 }
 

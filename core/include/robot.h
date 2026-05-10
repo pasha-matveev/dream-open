@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <deque>
 #include <optional>
 
@@ -90,6 +91,9 @@ class Robot {
   bool rgb_led = false;
 
   RobotState state = RobotState::PAUSE;
+  // Thread-safe Сброс состояния разводки при любой последовательности переходов
+  // состояний
+  std::atomic<bool> kickoff_reset_request{false};
 
   void init_hardware(Object& ball, Object& goal, Object& own_goal);
 

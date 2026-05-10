@@ -10,3 +10,5 @@ void accelerated_dribbling(Robot& robot);
 void desired_dribbling(Robot& robot, bool ac_dribbling);
 bool stabilize_capture(Robot& robot);
 bool take_ball(Robot& robot, long long forward_timeout);
+double compute_ricochet_field_angle(const Vec& ball_pos, const Vec& target,
+                                    bool left);

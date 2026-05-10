@@ -14,12 +14,7 @@ namespace {
 
 // Архитектура — тот же паттерн, что в attacker.cpp со SpinPipelineState:
 // state живёт как function-static, никому за пределами run_kickoff не нужен.
-enum class KickoffPhase {
-  CAPTURE_BLIND,
-  STABILIZE,
-  TURN_TO_RICOCHET,
-  KICK
-};
+enum class KickoffPhase { CAPTURE_BLIND, STABILIZE, TURN_TO_RICOCHET, KICK };
 
 struct KickoffPipelineState {
   KickoffPhase phase = KickoffPhase::CAPTURE_BLIND;
@@ -105,8 +100,8 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
       if (!s.target_computed) {
         Vec target = s.left ? Vec{cfg_k.target_left.x, cfg_k.target_left.y}
                             : Vec{cfg_k.target_right.x, cfg_k.target_right.y};
-        s.target_field_angle =
-            compute_ricochet_field_angle(robot.position, target, s.left);
+        s.target_field_angle = compute_ricochet_field_angle(
+            robot.ball_hole_position(), target, s.left);
         s.target_computed = true;
         spdlog::info("KICKOFF ricochet target_field_angle={:.3f}",
                      s.target_field_angle);

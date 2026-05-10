@@ -161,12 +161,12 @@
       "spin_shot": {
         "ready_dist": 3.0,
         "ready_angle": 0.05,
-        "pre_shot_angle_offset": 1.5708,
+        "pre_shot_angle_offset": 0.52,
         "sweep_angle": 1.6,
-        "rotation_limit": 60.0,
+        "rotation_limit": 30.0,
         "dribbling_during_spin": -1,
         "kicker_ms": 0,
-        "spin_timeout_ms": 0
+        "spin_timeout_ms": 2000
       }
     },
     "keeper": {

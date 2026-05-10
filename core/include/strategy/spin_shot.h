@@ -6,22 +6,20 @@
 class Robot;
 
 struct SpinShotParams {
-  // Знак угловой скорости. +1 = field_angle растёт (CCW), -1 = убывает (CW).
+  // Знак угловой скорости. +1 = field_angle растёт (влево), -1 = убывает
+  // (вправо).
   int direction = +1;
-  // Угол поворота за один spin (рад). Контракт: (0, π].
+  // Угол поворота за один spin (рад) (0, π].
   double sweep_angle = M_PI / 2;
   // Кэп угловой скорости на Arduino во время spin.
-  double rotation_limit = 40;
+  double rotation_limit = 30;
   // Дриблер во время spin. nullopt = config->strategy->dribbling->value_r.
   std::optional<int> dribbling = std::nullopt;
   // Через сколько мс после старта spin выстрелить киккером. 0 = не стрелять.
-  // Это единственный способ отключить киккер; kicker_force=0 НЕ отключает,
-  // а триггерит compute_power.
   int kicker_ms = 0;
-  // Сила киккера. 0 = взять KickController::compute_power(robot.position).
-  // Любое >0 — явная сила. Чтобы не стрелять, ставь kicker_ms=0.
+  // Сила киккера, явное значение из конфига
   int kicker_force = 0;
-  // Жёсткий таймаут spin. 0 = только по углу.
+  // Жёсткий таймаут spin. 0 = таймаут выключен
   int spin_timeout_ms = 0;
 };
 

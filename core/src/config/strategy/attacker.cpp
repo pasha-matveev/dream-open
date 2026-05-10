@@ -33,5 +33,6 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   spin_shot->dribbling_during_spin =
       raw_dribbling < 0 ? std::nullopt : std::optional<int>{raw_dribbling};
   spin_shot->kicker_ms = ds["kicker_ms"].GetInt();
+  spin_shot->kicker_force = ds["kicker_force"].GetInt();
   spin_shot->spin_timeout_ms = ds["spin_timeout_ms"].GetInt();
 }

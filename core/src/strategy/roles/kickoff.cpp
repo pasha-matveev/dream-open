@@ -18,8 +18,7 @@ enum class KickoffPhase {
   CAPTURE_BLIND,
   STABILIZE,
   TURN_TO_RICOCHET,
-  KICK,
-  DONE
+  KICK
 };
 
 struct KickoffPipelineState {
@@ -48,9 +47,10 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
   // Это покрывает оба сценария:
   //   1) первый запуск разводки (флаг выставлен в handle_*_button);
   //   2) PAUSE посреди разводки → второе нажатие KICKOFF → флаг снова true.
-  // На случай если флаг каким-то образом не выставлен, fallback на phase==DONE.
-  if (robot.kickoff_reset_request.exchange(false) ||
-      s.phase == KickoffPhase::DONE) {
+  // handle_*_button гарантирует seq_cst-порядок store(true) перед сменой
+  // state, поэтому флаг всегда виден к моменту, когда strategy-поток
+  // увидит state==KICKOFF — fallback не нужен.
+  if (robot.kickoff_reset_request.exchange(false)) {
     s = {};
     s.left = left;
   }
@@ -131,21 +131,14 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
       robot.vel = {0, 0};
       robot.rotation = 0;
       if (millis() - s.kick_start_ms >= cfg_k.kick_followthrough_ms) {
-        s.phase = KickoffPhase::DONE;
+        // Завершаем разводку: переключаем state на RUNNING (attacker
+        // подхватит на следующих тиках) и держим робота через stop_until
+        // в течение post_kickoff_delay_ms, чтобы мяч успел улететь из
+        // дриблера. См. strategy.cpp::run для механизма stop_until.
+        spdlog::info("KICKOFF DONE");
+        stop_until = millis() + cfg_k.post_kickoff_delay_ms;
+        robot.state = RobotState::RUNNING;
       }
-      break;
-    }
-
-    case KickoffPhase::DONE: {
-      spdlog::info("KICKOFF DONE");
-      // Используем существующий механизм Strategy::stop_until — он держит
-      // vel=0 / rotation=0 до момента millis() >= stop_until (см.
-      // strategy.cpp). Это даёт мячу время улететь из дриблера до того, как
-      // обычная роль (attacker) возьмёт управление.
-      stop_until = millis() + cfg_k.post_kickoff_delay_ms;
-      robot.state = RobotState::RUNNING;
-      // s сбросится при следующем входе в run_kickoff (по флагу или
-      // phase==DONE).
       break;
     }
   }

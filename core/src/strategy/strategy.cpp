@@ -144,19 +144,17 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
   }
   robot.prev_emitter = robot.emitter;
 
-  if (millis() < stop_until) {
-    robot.vel = {0, 0};
-    robot.rotation = 0;
-    robot.rotation_limit = 0;
-    robot.apply_motion_limits(dt);
-    return;
-  }
-
   robot.kicker_force = 0;
   robot.dribbling = 0;
   robot.rotation = 0;
   robot.vel = {0, 0};
   robot.rotation_limit = 15;
+
+  if (millis() < stop_until) {
+    robot.rotation_limit = 0;
+    robot.apply_motion_limits(dt);
+    return;
+  }
 
   if (config->strategy->enabled) {
     kick_->mark_for_reset();

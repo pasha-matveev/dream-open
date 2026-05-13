@@ -183,6 +183,14 @@
         "padding": 60,
         "y": 36,
         "ray_min_y": 18
+      },
+      "ram": {
+        "enabled": true,
+        "safety_y": 0,
+        "far_min_dist": 25,
+        "blind_min_ms": 250,
+        "max_speed": 120,
+        "min_speed": 30
       }
     },
     "kickoff": {

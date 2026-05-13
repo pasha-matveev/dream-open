@@ -14,6 +14,7 @@
 #include "strategy/motion.h"
 #include "strategy/strategy.h"
 #include "strategy/zones.h"
+#include "utils/mapper.h"
 #include "utils/millis.h"
 
 using namespace std;
@@ -69,6 +70,11 @@ static Vec compute_ray_target(const Vec& target, const Field& field,
 static long long last_piter_visible = -10000;
 static Vec last_piter;
 
+// Состояние тарана
+static bool ram_prev_visible = false;
+static bool ram_active = false;
+static bool was_ram = false;
+
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           Field& field) {
   auto obstacle = nearest_obstacle(robot);
@@ -98,6 +104,12 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
 
   const auto& keeper_cfg = *config->strategy->keeper;
 
+  bool cur_visible =
+      ball_->recently_visible(millis(), keeper_cfg.ram->blind_min_ms);
+  bool fresh = cur_visible && !ram_prev_visible;
+  ram_prev_visible = cur_visible;
+  ram_active = false;
+
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
@@ -125,7 +137,23 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       if (field.inside(ball_pos) || additional_keeper_responsibility) {
         // Мяч внутри keeper-зоны либо в её дополнительной зоне
         // ответственности — забираем.
-        drive_ball(robot, ball_pos);
+        const auto& ram_cfg = *keeper_cfg.ram;
+        double dist = (ball_pos - robot.position).len();
+        bool safety_ok = (ball_pos.y - robot.position.y) >= ram_cfg.safety_y;
+        bool far = dist >= ram_cfg.far_min_dist;
+        // Гистерезис: пока мяч в зоне ответственности и safety не нарушен,
+        // продолжаем ram, начатый в предыдущем тике. Если мяч выйдет — мы
+        // окажемся в другой ветке (projection/ray) и ram сам сбросится.
+        if (ram_cfg.enabled && safety_ok && (fresh || far || was_ram)) {
+          // RAM: едем на мяч на физически безопасной скорости, минуя мапер.
+          drive_target(robot, ball_pos, ram_cfg.max_speed, ram_cfg.min_speed,
+                       /*is_ball=*/false);
+          robot.dribbling = config->strategy->dribbling->value_l;
+          robot.rotation_limit = 40;
+          ram_active = true;
+        } else {
+          drive_ball(robot, ball_pos);
+        }
       } else if (ball_pos.y >= keeper_cfg.projection_border) {
         // Мяч далеко — стоим на проекции на горизонтальную линию.
         double xl = keeper_cfg.line->padding;
@@ -156,4 +184,5 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     robot.rotation = normalize_angle(
         (last_piter - robot.position).field_angle() - robot.field_angle);
   }
+  was_ram = ram_active;
 }

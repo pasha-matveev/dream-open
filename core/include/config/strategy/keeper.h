@@ -26,6 +26,21 @@ struct Keeper {
     double ray_min_y;
   };
   std::unique_ptr<Line> line;
+
+  // Ram-режим
+  struct Ram {
+    bool enabled;
+    // Минимальный зазор ball.y − robot.y
+    double safety_y;
+    // Триггер "далеко": дистанция до мяча ≥ этого значения, см.
+    double far_min_dist;
+    // Окно невидимости.
+    long long blind_min_ms;
+    // Пределы для drive_target в ram-режиме, см/с.
+    double max_speed;
+    double min_speed;
+  };
+  std::unique_ptr<Ram> ram;
 };
 
 }  // namespace cfg

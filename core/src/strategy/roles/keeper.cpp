@@ -111,14 +111,20 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     } else if (ball_ok) {
       Vec ball_pos = ball_->position();
 
-      // Мяч в вырезе под ворота: робот туда не заедет, но field.apply()
-      // прижмёт его к границе выреза — у нас всё равно есть шанс достать.
-      bool ball_in_goal_cutout = ball_pos.x >= KEEPER_GOAL_CUTOUT_X_MIN &&
-                                 ball_pos.x <= KEEPER_GOAL_CUTOUT_X_MAX &&
-                                 ball_pos.y < KEEPER_GOAL_CUTOUT_Y_MAX;
+      // Мяч в дополнительной зоне ответственности (полоса вдоль задней
+      // линии под keeper-зоной): робот туда не заедет — там либо ворота,
+      // либо угловой карман за стойкой, но field.apply() прижмёт его к
+      // границе зоны, и у нас есть шанс достать. По x ограничиваем
+      // диапазоном keeper-зоны, чтобы не пытаться ехать за мячом,
+      // улетевшим в дальние углы поля.
+      bool additional_keeper_responsibility =
+          ball_pos.x >= KEEPER_ZONE_SIDE_DIST &&
+          ball_pos.x <= FIELD_WIDTH - KEEPER_ZONE_SIDE_DIST &&
+          ball_pos.y < KEEPER_ADDITIONAL_RESPONSIBILITY_Y_MAX;
 
-      if (field.inside(ball_pos) || ball_in_goal_cutout) {
-        // Мяч внутри зоны вратаря (или в вырезе под ворота) — забираем.
+      if (field.inside(ball_pos) || additional_keeper_responsibility) {
+        // Мяч внутри keeper-зоны либо в её дополнительной зоне
+        // ответственности — забираем.
         drive_ball(robot, ball_pos);
       } else if (ball_pos.y >= keeper_cfg.projection_border) {
         // Мяч далеко — стоим на проекции на горизонтальную линию.

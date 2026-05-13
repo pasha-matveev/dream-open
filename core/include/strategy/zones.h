@@ -2,7 +2,6 @@
 
 #include <vector>
 
-#include "strategy/field.h"
 #include "utils/geo/polygon.h"
 #include "utils/geo/vec.h"
 
@@ -11,13 +10,12 @@ constexpr double KEEPER_ZONE_TOTAL_HEIGHT = 63.0;
 // Расстояние от боковой границы поля до боковой границы keeper-зоны (см).
 constexpr double KEEPER_ZONE_SIDE_DIST = 36.0;
 
-// Вырез под ворота (cutout): робот туда заехать не может (там физически
-// ворота), но мяч там может оказаться. Если мяч в этом прямоугольнике —
-// пытаемся его всё равно забрать (заезжаем настолько глубоко, насколько
-// разрешит field.apply()).
-constexpr double KEEPER_GOAL_CUTOUT_X_MIN = 51.0;
-constexpr double KEEPER_GOAL_CUTOUT_X_MAX = FIELD_WIDTH - 51.0;  // 131
-constexpr double KEEPER_GOAL_CUTOUT_Y_MAX = 37.0;
+// Дополнительная зона ответственности вратаря: полоса вдоль задней линии
+// (y < предела), куда робот заехать не может (там физически ворота либо
+// угловой карман у стенки), но мяч там может оказаться. Если мяч в этой
+// полосе — пытаемся его всё равно забрать (заезжаем настолько глубоко,
+// насколько разрешит field.apply()).
+constexpr double KEEPER_ADDITIONAL_RESPONSIBILITY_Y_MAX = 37.0;
 
 // Точки физической зоны вратаря: прямоугольник 36..146 x 12..63 с нотчем
 // возле ворот (cutout 80x25 с R15 угловыми кривыми). Включает обе нижние

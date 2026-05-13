@@ -6,7 +6,6 @@
 #include "config/strategy.h"
 #include "config/strategy/control.h"
 #include "robot.h"
-#include "strategy/motion.h"
 #include "utils/millis.h"
 
 bool in_enemy_goal_zone(const Vec& pos) {
@@ -59,7 +58,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
         config->strategy->control->simple_turn->rotation_limit * k;
   }
   robot.rotation = delta;
-  desired_dribbling(robot, params.accelerated_dribbling);
+  robot.dribbling = params.dribbling;
   bool low_precision = near_enemy_goal;
   double prec = low_precision ? 0.1 : config->strategy->turn_precision;
   if (low_precision) {

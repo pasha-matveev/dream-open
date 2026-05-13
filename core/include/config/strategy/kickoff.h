@@ -2,6 +2,10 @@
 
 #include <rapidjson/fwd.h>
 
+#include <memory>
+
+struct Mapper;
+
 namespace cfg {
 
 struct Kickoff {
@@ -9,6 +13,9 @@ struct Kickoff {
   ~Kickoff();
   Kickoff(const Kickoff&) = delete;
   Kickoff& operator=(const Kickoff&) = delete;
+
+  // Скорость дриблинга
+  std::unique_ptr<Mapper> dribbling;
 
   // Максимум "слепого" хода вперёд для захвата мяча (мс).
   long long capture_blind_timeout_ms;

@@ -99,7 +99,8 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       // фазе dubins, до того как корпус довернулся к воротам противника.
       dubins_->dubins_hit(robot, goal, field,
                           KickController::compute_power(robot.position), false);
-    } else if (stabilize_capture(robot)) {
+    } else if (stabilize_capture(robot,
+                                 {.dribbling = *config->strategy->dribbling})) {
       // Только что захватили мяч: даём ему стабилизироваться (медленно
       // едем вперёд + разгон дриблера) до того как идти в special_zone или
       // в kick. Один раз на захват — стабилизатор сам отключается через
@@ -114,7 +115,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
           spin.phase = SpinPhase::HIDE_TURN;
         }
         Vec target_pos = spin.use_left ? special_pos_left : special_pos_right;
-        robot.dribbling = config->strategy->dribbling->value_r;
+        robot.dribbling = spin_cfg.dribbling->value_r;
 
         // wall_angle: ориентация корпуса лицом к ближайшей вертикальной
         // стенке (HIDE_TURN/DRIVE)
@@ -169,7 +170,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
             p.direction = spin.use_left ? +1 : -1;
             p.sweep_angle = spin_cfg.sweep_angle;
             p.rotation_limit = spin_cfg.rotation_limit;
-            p.dribbling = spin_cfg.dribbling_during_spin;
+            p.dribbling = spin_cfg.dribbling->value_r;
             p.kicker_angle = spin_cfg.kicker_angle;
             p.kicker_force = spin_cfg.kicker_force;
             p.spin_timeout_ms = spin_cfg.spin_timeout_ms;

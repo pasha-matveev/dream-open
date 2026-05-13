@@ -5,12 +5,9 @@
 #include <cassert>
 #include <cmath>
 
-#include "config/config.h"
-#include "config/strategy.h"
 #include "robot.h"
 #include "strategy/kick.h"
 #include "utils/geo/vec.h"
-#include "utils/mapper.h"
 #include "utils/millis.h"
 
 bool SpinShotController::execute(Robot& robot, const SpinShotParams& params) {
@@ -40,9 +37,7 @@ bool SpinShotController::execute(Robot& robot, const SpinShotParams& params) {
     robot.rotation = delta;
     robot.rotation_limit = params.rotation_limit;
     robot.vel = {0, 0};
-    robot.dribbling = params.dribbling.has_value()
-                          ? *params.dribbling
-                          : config->strategy->dribbling->value_r;
+    robot.dribbling = params.dribbling;
 
     double swept =
         std::abs(normalize_angle(robot.field_angle - start_field_angle_));

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cmath>
-#include <optional>
 
 class Robot;
 
@@ -13,8 +12,8 @@ struct SpinShotParams {
   double sweep_angle = M_PI / 2;
   // Кэп угловой скорости на Arduino во время spin.
   double rotation_limit = 30;
-  // Дриблер во время spin. nullopt = config->strategy->dribbling->value_r.
-  std::optional<int> dribbling = std::nullopt;
+  // Скорость дриблинга
+  int dribbling = 0;
   // На каком пройденном угле (рад, [0, sweep_angle]) выстрелить киккером.
   // 0 = не стрелять.
   double kicker_angle = 0;

@@ -3,7 +3,8 @@
 #include <rapidjson/fwd.h>
 
 #include <memory>
-#include <optional>
+
+struct Mapper;
 
 namespace cfg {
 
@@ -37,13 +38,11 @@ struct Attacker {
     double sweep_angle;            // рад, угол поворота в SPIN
     double rotation_limit;         // angle/s, кэп угловой скорости в SPIN
 
-    std::optional<int>
-        dribbling_during_spin;  // -1 в JSON = nullopt (default value_r). Любое
-                                // >=0 = явное значение.
-    double kicker_angle;        // рад, 0 = без киккера
-    int kicker_force;           // сила удара
-    int spin_timeout_ms;        // 0 = только по углу
-    double drive_max_speed;     // см/с, потолок скорости в фазе DRIVE
+    std::unique_ptr<Mapper> dribbling;  // скорость дриблинга
+    double kicker_angle;                // рад, 0 = без киккера
+    int kicker_force;                   // сила удара
+    int spin_timeout_ms;                // 0 = только по углу
+    double drive_max_speed;             // см/с, потолок скорости в фазе DRIVE
   };
   std::unique_ptr<SpinShot> spin_shot;
 };

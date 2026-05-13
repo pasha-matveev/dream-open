@@ -166,7 +166,12 @@
         "pre_shot_angle_offset": 0.52,
         "sweep_angle": 1.6,
         "rotation_limit": 60.0,
-        "dribbling_during_spin": -1,
+        "dribbling": {
+          "param_l": 0,
+          "param_r": 600,
+          "value_l": 4000,
+          "value_r": 8000
+        },
         "spin_timeout_ms": 2000,
         "kicker_angle": 0.0,
         "drive_max_speed": 30.0
@@ -181,6 +186,12 @@
       }
     },
     "kickoff": {
+      "dribbling": {
+        "param_l": 0,
+        "param_r": 600,
+        "value_l": 4000,
+        "value_r": 8000
+      },
       "capture_blind_timeout_ms": 600,
       "capture_speed": 10.0,
       "target_left": {

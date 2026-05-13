@@ -101,7 +101,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
-      if (stabilize_capture(robot)) {
+      if (stabilize_capture(robot,
+                            {.dribbling = *config->strategy->dribbling})) {
         // Стабилизация только что захваченного мяча.
       } else {
         // Просто целимся и стреляем

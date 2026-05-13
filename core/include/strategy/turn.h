@@ -5,7 +5,8 @@ class Robot;
 struct TurnParams {
   double target_field_angle;
   bool curved_rotation = true;
-  bool accelerated_dribbling = true;
+  // turn вызывается после stabilize -> скорость дриблинга
+  int dribbling;
 };
 
 class TurnController {

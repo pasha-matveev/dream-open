@@ -8,6 +8,7 @@
 #include "strategy/strategy.h"
 #include "strategy/turn.h"
 #include "utils/geo/vec.h"
+#include "utils/mapper.h"
 #include "utils/millis.h"
 
 namespace {
@@ -73,12 +74,11 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
         break;
       }
 
-      // Идентично take_ball, но скорость и таймаут управляются конфигом
-      // разводки, а не общим dribbling.param_r.
+      // Линейное замедление вперёд + разгон дриблера
       double speed = cfg_k.capture_speed *
                      (1.0 - double(elapsed) / cfg_k.capture_blind_timeout_ms);
       robot.vel = Vec{robot.field_angle}.resize(speed);
-      accelerated_dribbling(robot);
+      accelerated_dribbling(robot, *cfg_k.dribbling);
       robot.rotation = 0;
       robot.rotation_limit = 0;
       break;
@@ -89,7 +89,7 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
       // Сюда попадаем только если в CAPTURE_BLIND emitter сработал, поэтому
       // robot.first_time гарантированно валиден (выставлен в strategy.cpp
       // на rising edge emitter).
-      if (!stabilize_capture(robot)) {
+      if (!stabilize_capture(robot, {.dribbling = *cfg_k.dribbling})) {
         s.phase = KickoffPhase::TURN_TO_RICOCHET;
       }
       break;
@@ -106,10 +106,10 @@ void Strategy::run_kickoff(Robot& robot, Object& ball, Object& goal,
         spdlog::info("KICKOFF ricochet target_field_angle={:.3f}",
                      s.target_field_angle);
       }
-      bool finished =
-          turn_->execute(robot, {.target_field_angle = s.target_field_angle,
-                                 .curved_rotation = false,
-                                 .accelerated_dribbling = true});
+      bool finished = turn_->execute(
+          robot, {.target_field_angle = s.target_field_angle,
+                  .curved_rotation = false,
+                  .dribbling = static_cast<int>(cfg_k.dribbling->value_r)});
       if (finished) {
         s.phase = KickoffPhase::KICK;
       }

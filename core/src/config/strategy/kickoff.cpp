@@ -3,12 +3,15 @@
 #include <cassert>
 
 #include "field_dims.h"
+#include "utils/mapper.h"
 
 using namespace cfg;
+using std::make_unique;
 
 Kickoff::~Kickoff() = default;
 
 Kickoff::Kickoff(const rapidjson::Value& doc) {
+  dribbling = make_unique<Mapper>(doc["dribbling"]);
   capture_blind_timeout_ms = doc["capture_blind_timeout_ms"].GetInt64();
   capture_speed = doc["capture_speed"].GetDouble();
 

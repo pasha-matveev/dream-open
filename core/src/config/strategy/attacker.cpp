@@ -1,6 +1,6 @@
 #include "config/strategy/attacker.h"
 
-#include <optional>
+#include "utils/mapper.h"
 
 using namespace cfg;
 using std::make_unique;
@@ -29,9 +29,7 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   spin_shot->pre_shot_angle_offset = ds["pre_shot_angle_offset"].GetDouble();
   spin_shot->sweep_angle = ds["sweep_angle"].GetDouble();
   spin_shot->rotation_limit = ds["rotation_limit"].GetDouble();
-  int raw_dribbling = ds["dribbling_during_spin"].GetInt();
-  spin_shot->dribbling_during_spin =
-      raw_dribbling < 0 ? std::nullopt : std::optional<int>{raw_dribbling};
+  spin_shot->dribbling = make_unique<Mapper>(ds["dribbling"]);
   spin_shot->kicker_angle = ds["kicker_angle"].GetDouble();
   spin_shot->kicker_force = ds["kicker_force"].GetInt();
   spin_shot->spin_timeout_ms = ds["spin_timeout_ms"].GetInt();

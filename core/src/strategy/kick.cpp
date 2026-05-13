@@ -31,7 +31,8 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     bool finished = turn_->execute(
         robot, {.target_field_angle = robot.field_angle + params.relative_dir,
                 .curved_rotation = params.curved_rotation,
-                .accelerated_dribbling = params.accelerate_dribbling});
+                .dribbling = static_cast<int>(
+                    config->strategy->dribbling->value_r)});
 
     if (finished) {
       // TODO: kick_timout в настройках

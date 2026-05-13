@@ -62,6 +62,9 @@ find_package(spdlog REQUIRED)
 
 # SFML
 
+if(DEFINED ENV{FETCHCONTENT_BASE_DIR})
+    set(FETCHCONTENT_BASE_DIR "$ENV{FETCHCONTENT_BASE_DIR}" CACHE PATH "")
+endif()
 include(FetchContent)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git

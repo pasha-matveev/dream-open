@@ -20,9 +20,18 @@ constexpr int FIELD_HEIGHT = static_cast<int>(field_dims::kHeight);
 // храним по часовой стрелке
 class Field : public Polygon {
  private:
+  // Параллельный массив: brake_enabled_[i] управляет применением
+  // Segment::apply на ребре points[i]→points[(i+1)%N]. false означает, что
+  // ребро остаётся частью геометрии (inside/find_intersection/dispatch
+  // работают как раньше), но Field::apply_seg для него no-op — не клампит
+  // скорость робота. Используется для зонных границ keeper'а, у которых нет
+  // физической стенки.
+  std::vector<bool> brake_enabled_;
+
   void apply_seg(int i, Robot& robot) const;
 
  public:
   Field(const vector<Vec>& points_);
+  Field(const vector<Vec>& points_, std::vector<bool> brake_enabled);
   void apply(Robot& robot) const;
 };

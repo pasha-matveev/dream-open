@@ -42,15 +42,11 @@ int main() {
     return 1;
   }
 
-  vector<Vec> field_points;
-  if (config->strategy->role == "keeper") {
-    spdlog::info("Running as keeper");
-    field_points = keeper_zone_points();
-  } else {
-    spdlog::info("Running as attacker");
-    field_points = attacker_zone_points();
-  }
-  Field field(field_points);
+  const bool is_keeper = config->strategy->role == "keeper";
+  spdlog::info("Running as {}", is_keeper ? "keeper" : "attacker");
+  Field field = is_keeper
+                    ? Field(keeper_zone_points(), keeper_zone_brake_flags())
+                    : Field(attacker_zone_points());
 
   if (config->tracking->preview_enabled) {
     cv::namedWindow("Camera", cv::WINDOW_AUTOSIZE);

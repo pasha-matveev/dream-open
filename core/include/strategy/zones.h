@@ -22,6 +22,13 @@ constexpr double KEEPER_ADDITIONAL_RESPONSIBILITY_Y_MAX = 37.0;
 // особые точки {52,57} и {130,57}.
 std::vector<Vec> keeper_zone_points();
 
+// Параллельный массив brake-флагов для keeper_zone_points(): индекс совпадает
+// со стартовой точкой сегмента (i → ребро points[i]→points[(i+1)%N]). false
+// означает «не применять Segment::apply на этом ребре» (виртуальная граница
+// зоны, без физической стенки). Оба getter'а проецируются из общего источника
+// истины в zones.cpp — рассинхронизация невозможна по конструкции.
+std::vector<bool> keeper_zone_brake_flags();
+
 // Точки физической зоны нападающего: верхняя часть поля (выше keeper-зоны).
 // Нижняя грань поднята до KEEPER_ZONE_TOTAL_HEIGHT + safety, чтобы нападающий
 // не мог заехать в зону вратаря (Variant A анти-коллизии).

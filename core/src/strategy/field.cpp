@@ -2,11 +2,20 @@
 
 #include <spdlog/spdlog.h>
 
+#include <cassert>
+
 #include "strategy/segment.h"
 
-Field::Field(const vector<Vec>& points_) : Polygon(points_) {}
+Field::Field(const vector<Vec>& points_)
+    : Polygon(points_), brake_enabled_(points_.size(), true) {}
+
+Field::Field(const vector<Vec>& points_, std::vector<bool> brake_enabled)
+    : Polygon(points_), brake_enabled_(std::move(brake_enabled)) {
+  assert(points.size() == brake_enabled_.size());
+}
 
 void Field::apply_seg(int i, Robot& robot) const {
+  if (!brake_enabled_[i]) return;
   int j = (i + 1) % points.size();
   Segment seg{points[i], points[j]};
   seg.apply(robot);

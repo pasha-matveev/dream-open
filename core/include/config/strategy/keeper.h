@@ -27,6 +27,12 @@ struct Keeper {
   };
   std::unique_ptr<Line> line;
 
+  struct PushOut {
+    double k;
+    double v_min;
+  };
+  std::unique_ptr<PushOut> push_out;
+
   // Ram-режим
   struct Ram {
     bool enabled;

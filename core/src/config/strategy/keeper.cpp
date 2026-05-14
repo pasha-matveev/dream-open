@@ -14,6 +14,11 @@ Keeper::Keeper(const rapidjson::Value& doc) {
   line->y = dline["y"].GetDouble();
   line->ray_min_y = dline["ray_min_y"].GetDouble();
 
+  push_out = make_unique<PushOut>();
+  const rapidjson::Value& dpush_out = doc["push_out"];
+  push_out->k = dpush_out["k"].GetDouble();
+  push_out->v_min = dpush_out["v_min"].GetDouble();
+
   ram = make_unique<Ram>();
   const rapidjson::Value& dram = doc["ram"];
   ram->enabled = dram["enabled"].GetBool();

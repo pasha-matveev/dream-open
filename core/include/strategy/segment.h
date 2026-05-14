@@ -20,7 +20,7 @@ class Segment {
   bool correct_side(const Vec& p) const;
   double normal_dist(const Vec& p) const;
   double dist(const Vec& p) const;
-  void apply(Robot& robot) const;
+  void apply(Robot& robot, double push_k, double push_v_min) const;
   bool has_point(const Vec& p) const;
   bool intersects_vel_deprecated(const Segment& vel) const;
   Vec intersect_point(const Segment& vel) const;

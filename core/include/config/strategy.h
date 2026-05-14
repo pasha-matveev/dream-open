@@ -39,6 +39,8 @@ struct Strategy {
     double max_angular_accel;
     double decel_k;
     double wall_limit;
+    double push_out_k;
+    double push_out_v_min;
   };
   std::unique_ptr<Motion> motion;
 

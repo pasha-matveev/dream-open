@@ -14,14 +14,15 @@ Field::Field(const vector<Vec>& points_, std::vector<bool> brake_enabled)
   assert(points.size() == brake_enabled_.size());
 }
 
-void Field::apply_seg(int i, Robot& robot) const {
+void Field::apply_seg(int i, Robot& robot, double push_k,
+                      double push_v_min) const {
   if (!brake_enabled_[i]) return;
   int j = (i + 1) % points.size();
   Segment seg{points[i], points[j]};
-  seg.apply(robot);
+  seg.apply(robot, push_k, push_v_min);
 }
 
-void Field::apply(Robot& robot) const {
+void Field::apply(Robot& robot, double push_k, double push_v_min) const {
   if (robot.vel.len() == 0) {
     // Не нужно ограничивать скорость
     return;
@@ -34,17 +35,18 @@ void Field::apply(Robot& robot) const {
     Vec long_vel = robot.vel.resize(10000);
     auto [np, idx] = find_intersection(robot.position, long_vel);
     if (idx != -1) {
-      apply_seg(idx, robot);
+      apply_seg(idx, robot, push_k, push_v_min);
     } else {
       spdlog::error("Not found any segment by intersection");
     }
 
     for (int i = 0; i < points.size(); ++i) {
+      if (!brake_enabled_[i]) continue;
       int j = (i + 1) % points.size();
       Segment seg(points[i], points[j]);
       if (seg.is_proection(robot.position) &&
           seg.correct_side(robot.position)) {
-        seg.apply(robot);
+        seg.apply(robot, push_k, push_v_min);
       }
     }
   } else {
@@ -68,13 +70,13 @@ void Field::apply(Robot& robot) const {
       }
     }
     if (idx1 != -1) {
-      apply_seg(idx1, robot);
+      apply_seg(idx1, robot, push_k, push_v_min);
     } else {
       spdlog::error("Not found first closest segment: {} {}", robot.position.x,
                     robot.position.y);
     }
     if (idx2 != -1) {
-      apply_seg(idx2, robot);
+      apply_seg(idx2, robot, push_k, push_v_min);
     } else {
       spdlog::error("Not found second closest segment: {} {}", robot.position.x,
                     robot.position.y);

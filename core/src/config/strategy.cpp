@@ -30,6 +30,8 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   motion->max_angular_accel = dmotion["max_angular_accel"].GetDouble();
   motion->decel_k = dmotion["decel_k"].GetDouble();
   motion->wall_limit = dmotion["wall_limit"].GetDouble();
+  motion->push_out_k = dmotion["push_out_k"].GetDouble();
+  motion->push_out_v_min = dmotion["push_out_v_min"].GetDouble();
 
   dribbling = make_unique<Mapper>(doc["dribbling"]);
   dribbling_slow = doc["dribbling_slow"].GetDouble();

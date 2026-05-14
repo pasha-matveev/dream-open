@@ -12,6 +12,7 @@
 #include "config/serial.h"
 #include "config/strategy.h"
 #include "config/strategy/control.h"
+#include "config/strategy/keeper.h"
 #include "config/visualization.h"
 #include "strategy/accel_drive.h"
 #include "strategy/ball_tracker.h"
@@ -185,7 +186,15 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
     turn_->apply_reset_if_pending();
     spin_shot_->apply_reset_if_pending();
     accel_drive_->apply_reset_if_pending();
-    field.apply(robot);
+    double push_k, push_v_min;
+    if (role == "keeper") {
+      push_k = config->strategy->keeper->push_out->k;
+      push_v_min = config->strategy->keeper->push_out->v_min;
+    } else {
+      push_k = config->strategy->motion->push_out_k;
+      push_v_min = config->strategy->motion->push_out_v_min;
+    }
+    field.apply(robot, push_k, push_v_min);
   }
   dubins_->on_tick_end();
 

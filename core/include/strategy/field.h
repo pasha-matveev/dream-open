@@ -28,10 +28,10 @@ class Field : public Polygon {
   // физической стенки.
   std::vector<bool> brake_enabled_;
 
-  void apply_seg(int i, Robot& robot) const;
+  void apply_seg(int i, Robot& robot, double push_k, double push_v_min) const;
 
  public:
   Field(const vector<Vec>& points_);
   Field(const vector<Vec>& points_, std::vector<bool> brake_enabled);
-  void apply(Robot& robot) const;
+  void apply(Robot& robot, double push_k, double push_v_min) const;
 };

@@ -138,7 +138,9 @@
       "max_linear_accel": 200,
       "max_angular_accel": 20,
       "decel_k": 0.6,
-      "wall_limit": 4
+      "wall_limit": 4,
+      "push_out_k": 2.0,
+      "push_out_v_min": 0.0
     },
     "dribbling": {
       "param_l": 0,
@@ -183,6 +185,10 @@
         "padding": 60,
         "y": 36,
         "ray_min_y": 18
+      },
+      "push_out": {
+        "k": 6.0,
+        "v_min": 20.0
       },
       "ram": {
         "enabled": true,

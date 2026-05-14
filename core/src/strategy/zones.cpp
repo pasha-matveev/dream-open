@@ -129,8 +129,52 @@ std::vector<Vec> keeper_responsibility_points() {
   };
 }
 
+std::vector<Vec> full_field_markup_points() {
+  // Простой многоугольник (single closed curve, без отдельных hole-loop'ов):
+  // внешний прямоугольник 12..170 × 12..231 с двумя «прокусами» под ворота.
+  // Точки выреза скопированы как есть из attacker_zone (верх) и keeper_zone
+  // (низ) — порядок обхода уже согласован с их соответствующими сторонами,
+  // здесь просто склеиваются в общем CW-обходе.
+  return {
+      {12.0, 12.0},
+      {12.0, 231.0},
+      // Top cutout 80×25 R15 (вражеские ворота) — копия из attacker_zone.
+      {51.0, 231.0},
+      {51.0, 221.0},
+      {52.1, 215.3},
+      {55.4, 210.4},
+      {60.3, 207.1},
+      {66.0, 206.0},
+      {116.0, 206.0},
+      {121.7, 207.1},
+      {126.6, 210.4},
+      {129.9, 215.3},
+      {131.0, 221.0},
+      {131.0, 231.0},
+      {170.0, 231.0},
+      {170.0, 12.0},
+      // Bottom cutout 80×25 R15 (свои ворота) — копия из keeper_zone_spec.
+      {131.0, 12.0},
+      {131.0, 22.0},
+      {129.9, 27.7},
+      {126.6, 32.6},
+      {121.7, 35.9},
+      {116.0, 37.0},
+      {66.0, 37.0},
+      {60.3, 35.9},
+      {55.4, 32.6},
+      {52.1, 27.7},
+      {51.0, 22.0},
+      {51.0, 12.0},
+      // Замыкающее ребро (51,12) → (12,12) добавит сам Polygon.
+  };
+}
+
 Polygon make_keeper_zone() { return Polygon(keeper_zone_points()); }
 Polygon make_attacker_zone() { return Polygon(attacker_zone_points()); }
 Polygon make_keeper_responsibility() {
   return Polygon(keeper_responsibility_points());
+}
+Polygon make_full_field_markup() {
+  return Polygon(full_field_markup_points());
 }

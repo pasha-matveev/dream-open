@@ -109,6 +109,10 @@
       "movement": 10,
       "angle": 1.0,
       "own_goal_timeout": 2000
+    },
+    "piter": {
+      "self_exclusion_radius": 10.0,
+      "markup_tolerance": 6.0
     }
   },
   "visualization": {

@@ -3,9 +3,11 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <limits>
 #include <optional>
 
 #include "config/config.h"
+#include "config/lidar.h"
 #include "config/strategy.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
@@ -20,21 +22,26 @@
 using namespace std;
 
 static optional<Vec> nearest_obstacle(Robot& robot) {
-  optional<Vec> nearest_obstacle = nullopt;
-  if (robot.lidar) {
-    for (const auto& obstacle : robot.lidar->obstacles_data) {
-      if (obstacle.y < 13 || obstacle.y > 80) {
-        continue;
-      }
-      if (obstacle.x < 3 || obstacle.x > FIELD_WIDTH - 3) {
-        continue;
-      }
-      if (!nearest_obstacle.has_value() || obstacle.y < nearest_obstacle->y) {
-        nearest_obstacle = obstacle;
-      }
+  if (!robot.lidar) return nullopt;
+  static Polygon full_markup = make_full_field_markup();
+
+  const auto& piter_cfg = *config->lidar->piter;
+
+  optional<Vec> best = nullopt;
+  double best_dist = std::numeric_limits<double>::infinity();
+  for (const auto& obs : robot.lidar->obstacles_data) {
+    double self_dist = (obs - robot.position).len();
+    if (self_dist < piter_cfg.self_exclusion_radius) continue;
+    if (!full_markup.inside(obs) &&
+        full_markup.dist(obs) > piter_cfg.markup_tolerance) {
+      continue;
+    }
+    if (self_dist < best_dist) {
+      best_dist = self_dist;
+      best = obs;
     }
   }
-  return nearest_obstacle;
+  return best;
 }
 
 // Точка на луче из {91,0} через target, ВНУТРИ keeper field (на 2 см глубже
@@ -79,9 +86,9 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           Field& field) {
   auto obstacle = nearest_obstacle(robot);
 
-  // Если препятствие действительно можно считать роботом
-  if (obstacle.has_value() && (*obstacle - robot.position).len() >= 11 &&
-      (field.inside(*obstacle) || field.dist(*obstacle) <= 6)) {
+  // nearest_obstacle уже фильтрует по полной разметке поля и зоне
+  // самоисключения — здесь достаточно факта наличия валидной точки.
+  if (obstacle.has_value()) {
     last_piter_visible = millis();
     last_piter = *obstacle;
     spdlog::warn("Piter: {} {}", last_piter.x, last_piter.y);

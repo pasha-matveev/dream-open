@@ -16,4 +16,9 @@ Lidar::Lidar(const rapidjson::Value& doc) {
   calibration->movement = dcal["movement"].GetDouble();
   calibration->angle = dcal["angle"].GetDouble();
   calibration->own_goal_timeout = dcal["own_goal_timeout"].GetInt();
+
+  piter = make_unique<Piter>();
+  const rapidjson::Value& dpiter = doc["piter"];
+  piter->self_exclusion_radius = dpiter["self_exclusion_radius"].GetDouble();
+  piter->markup_tolerance = dpiter["markup_tolerance"].GetDouble();
 }

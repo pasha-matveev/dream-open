@@ -41,8 +41,13 @@ std::vector<Vec> attacker_zone_points();
 // не флипает на крайних точках.
 std::vector<Vec> keeper_responsibility_points();
 
+// Точки полной игровой разметки: прямоугольник x∈[12,170], y∈[12,231]
+// (отступ 12 от бортов поля 182×243) с вырезами 80×25 R15 у обоих ворот.
+std::vector<Vec> full_field_markup_points();
+
 // Удобные обёртки, возвращающие готовые Polygon (нужны там, где требуется
 // hyst_inside / inside / find_intersection).
 Polygon make_keeper_zone();
 Polygon make_attacker_zone();
 Polygon make_keeper_responsibility();
+Polygon make_full_field_markup();

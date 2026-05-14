@@ -27,6 +27,18 @@ struct Lidar {
     int own_goal_timeout;
   };
   std::unique_ptr<Calibration> calibration;
+
+  // Параметры детекции вражеского робота («piter») по данным лидара.
+  struct Piter {
+    // Радиус самоисключения, см: препятствия ближе считаются ручкой для
+    // переноски, а не врагом.
+    double self_exclusion_radius;
+    // Допуск шума лидара относительно границы полной игровой разметки, см:
+    // точка валидна, если внутри многоугольника или не дальше этого
+    // значения от его границы.
+    double markup_tolerance;
+  };
+  std::unique_ptr<Piter> piter;
 };
 
 }  // namespace cfg

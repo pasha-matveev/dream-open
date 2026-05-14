@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <csignal>
+#include <cstdlib>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -113,7 +114,7 @@ Lidar::ComputeResult Lidar::compute(const Robot& robot) {
 
   {
     lock_guard<mutex> lock(data_mtx);
-    if (latest_data.empty()) return {false, {0, 0}};
+    if (latest_data.empty()) return {false, {0, 0}, 0};
     local_copy = latest_data;
     latest_data.clear();
   }
@@ -123,33 +124,62 @@ Lidar::ComputeResult Lidar::compute(const Robot& robot) {
   double result_rotation = 0;
 
   if (local_copy.size() >= 5) {
-    field.update(stod(local_copy[0]), stod(local_copy[1]), stod(local_copy[2]),
-                 stoi(local_copy[3]), stoi(local_copy[4]));
-    field.rotate();
+    try {
+      field.update(stod(local_copy[0]), stod(local_copy[1]),
+                   stod(local_copy[2]), stoi(local_copy[3]),
+                   stoi(local_copy[4]));
+      field.rotate();
 
-    double robot_angle = -field.rotation;
-    double vector_angle = normalize_angle(robot_angle + field.angle - M_PI / 2);
-    v = {(double)sin(vector_angle) * field.dist,
-         (double)(-1.0 * cos(vector_angle) * field.dist)};
-    result_rotation = -1 * field.rotation;
+      // Поле 182x241 (см). После rotate() width — длинная сторона.
+      // Дропаем кадр если поле не похоже на настоящее: слишком большое
+      // (робота подняли с поля / битые числа) или слишком маленькое
+      // (вырожденный кадр при ошибке сканирования: grabScanDataHq отдал
+      // 0 точек → bounding rect = {w=0,h=0,corners=∅}, далее dist
+      // улетает в ~565 при подсчёте от центра-картинки).
+      // Допуски ~±20% от номинала.
+      constexpr double kFieldMinWidth = 200.0;   // 241 * 0.83
+      constexpr double kFieldMaxWidth = 290.0;   // 241 * 1.20
+      constexpr double kFieldMinHeight = 150.0;  // 182 * 0.82
+      constexpr double kFieldMaxHeight = 220.0;  // 182 * 1.21
+      if (field.width < kFieldMinWidth || field.width > kFieldMaxWidth ||
+          field.height < kFieldMinHeight || field.height > kFieldMaxHeight) {
+        spdlog::warn("Lidar field out of bounds: w={} h={} — dropping frame",
+                     field.width, field.height);
+        return {false, {0, 0}, 0};
+      }
 
-    computed = true;
+      double robot_angle = -field.rotation;
+      double vector_angle =
+          normalize_angle(robot_angle + field.angle - M_PI / 2);
+      v = {(double)sin(vector_angle) * field.dist,
+           (double)(-1.0 * cos(vector_angle) * field.dist)};
+      result_rotation = -1 * field.rotation;
+
+      computed = true;
+    } catch (const std::exception& e) {
+      spdlog::warn("Lidar field parse failed: {} — dropping frame", e.what());
+      return {false, {0, 0}, 0};
+    }
   }
 
   obstacles_data.clear();
   for (size_t i = 5; i + 5 <= local_copy.size(); i += 5) {
-    LidarObject obj;
+    try {
+      LidarObject obj;
 
-    obj.update(stod(local_copy[i]), stod(local_copy[i + 1]),
-               stod(local_copy[i + 2]), stoi(local_copy[i + 3]),
-               stoi(local_copy[i + 4]));
+      obj.update(stod(local_copy[i]), stod(local_copy[i + 1]),
+                 stod(local_copy[i + 2]), stoi(local_copy[i + 3]),
+                 stoi(local_copy[i + 4]));
 
-    double result_angle =
-        normalize_angle(robot.field_angle + obj.angle - (M_PI / 2));
-    Vec vec{obj.dist * -1 * sin(result_angle), obj.dist * cos(result_angle)};
-    Vec r = vec + robot.position;
+      double result_angle =
+          normalize_angle(robot.field_angle + obj.angle - (M_PI / 2));
+      Vec vec{obj.dist * -1 * sin(result_angle), obj.dist * cos(result_angle)};
+      Vec r = vec + robot.position;
 
-    obstacles_data.push_back(r);
+      obstacles_data.push_back(r);
+    } catch (const std::exception& e) {
+      spdlog::warn("Lidar obstacle parse failed at i={}: {}", i, e.what());
+    }
   }
   return {computed, v, result_rotation};
 }
@@ -160,9 +190,16 @@ bool Lidar::new_data() {
 }
 
 void Lidar::_output_loop() {
-  char buffer[256];
-  while (running && pipe && fgets(buffer, sizeof(buffer), pipe)) {
-    string line(buffer);
+  // POSIX getline: динамически растущий буфер, никакого 256-байтного
+  // обрезания, из-за которого терялись tail-токены и кадры становились
+  // битыми (главная причина "phantom obstacle" и спонтанного вращения
+  // около стены).
+  char* buf = nullptr;
+  size_t cap = 0;
+  while (running && pipe) {
+    ssize_t n = ::getline(&buf, &cap, pipe);
+    if (n < 0) break;
+    string line(buf, static_cast<size_t>(n));
     if (!line.empty() && line.back() == '\n') line.pop_back();
 
     istringstream iss(line);
@@ -191,4 +228,5 @@ void Lidar::_output_loop() {
       }
     }
   }
+  free(buf);
 }

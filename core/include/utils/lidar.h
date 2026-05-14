@@ -49,7 +49,7 @@ class Lidar {
 
   LidarObject field;
   vector<Vec> obstacles_data;
-  bool received_data = false;
+  atomic<bool> received_data{false};
 
  private:
   FILE* pipe = nullptr;

@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <fstream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "config/gpio.h"
@@ -26,13 +27,63 @@ std::unique_ptr<Config> config;
 
 Config::~Config() = default;
 
+namespace {
+
+void apply_profile(Config& c, const std::string& name) {
+  if (name == "manual") return;
+  if (name == "play") {
+    c.tracking->enabled = true;
+    c.tracking->preview_enabled = false;
+    c.serial->enabled = true;
+    c.gpio->enabled = true;
+    c.lidar->enabled = true;
+    c.visualization->enabled = false;
+    c.strategy->enabled = true;
+  } else if (name == "visual") {
+    c.tracking->enabled = true;
+    c.tracking->preview_enabled = false;
+    c.serial->enabled = true;
+    c.gpio->enabled = true;
+    c.lidar->enabled = true;
+    c.visualization->enabled = true;
+    c.strategy->enabled = true;
+  } else if (name == "virtual") {
+    c.tracking->enabled = false;
+    c.tracking->preview_enabled = false;
+    c.serial->enabled = false;
+    c.gpio->enabled = false;
+    c.lidar->enabled = false;
+    c.visualization->enabled = true;
+    c.strategy->enabled = true;
+  } else if (name == "camera") {
+    c.tracking->enabled = true;
+    c.tracking->preview_enabled = true;
+    c.serial->enabled = false;
+    c.gpio->enabled = false;
+    c.lidar->enabled = false;
+    c.visualization->enabled = false;
+    c.strategy->enabled = false;
+  } else {
+    throw std::runtime_error(
+        "config.json: unknown profile '" + name +
+        "' (expected one of: manual, play, visual, virtual, camera)");
+  }
+}
+
+}  // namespace
+
 Config::Config(const rapidjson::Value& doc) {
+  std::string profile = doc["profile"].GetString();
+
   tracking = make_unique<Tracking>(doc["tracking"]);
   serial = make_unique<Serial>(doc["serial"]);
   gpio = make_unique<Gpio>(doc["gpio"]);
   lidar = make_unique<Lidar>(doc["lidar"]);
   visualization = make_unique<Visualization>(doc["visualization"]);
   strategy = make_unique<Strategy>(doc["strategy"]);
+
+  apply_profile(*this, profile);
+  spdlog::info("Profile: {}", profile);
 }
 
 void load_config() {

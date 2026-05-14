@@ -134,12 +134,13 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       // линии под keeper-зоной): робот туда не заедет — там либо ворота,
       // либо угловой карман за стойкой, но field.apply() прижмёт его к
       // границе зоны, и у нас есть шанс достать. По x ограничиваем
-      // диапазоном keeper-зоны, чтобы не пытаться ехать за мячом,
-      // улетевшим в дальние углы поля.
+      // диапазоном, чтобы не пытаться ехать за мячом, улетевшим в дальние
+      // углы поля.
+      const auto& ar_cfg = *keeper_cfg.additional_responsibility;
       bool additional_keeper_responsibility =
-          ball_pos.x >= KEEPER_ADDITIONAL_DIST &&
-          ball_pos.x <= FIELD_WIDTH - KEEPER_ADDITIONAL_DIST &&
-          ball_pos.y < KEEPER_ADDITIONAL_RESPONSIBILITY_Y_MAX;
+          ball_pos.x >= ar_cfg.x_padding &&
+          ball_pos.x <= FIELD_WIDTH - ar_cfg.x_padding &&
+          ball_pos.y < ar_cfg.y_max;
 
       if (field.inside(ball_pos) || additional_keeper_responsibility) {
         // Мяч внутри keeper-зоны либо в её дополнительной зоне

@@ -47,6 +47,19 @@ struct Keeper {
     double min_speed;
   };
   std::unique_ptr<Ram> ram;
+
+  // Дополнительная зона ответственности вратаря: полоса вдоль задней линии
+  // поля, в которую робот заехать не может (ворота / угловой карман у стенки),
+  // но если мяч там — вратарь всё равно пытается доехать (field.apply прижмёт
+  // к границе зоны).
+  struct AdditionalResponsibility {
+    // Верхняя граница полосы по Y (см). Учитывается, если ball.y < y_max.
+    double y_max;
+    // Отступ от боковых границ поля по X (см). Учитывается, если
+    // x_padding ≤ ball.x ≤ FIELD_WIDTH − x_padding.
+    double x_padding;
+  };
+  std::unique_ptr<AdditionalResponsibility> additional_responsibility;
 };
 
 }  // namespace cfg

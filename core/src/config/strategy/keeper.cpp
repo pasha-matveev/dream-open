@@ -27,4 +27,9 @@ Keeper::Keeper(const rapidjson::Value& doc) {
   ram->blind_min_ms = dram["blind_min_ms"].GetInt64();
   ram->max_speed = dram["max_speed"].GetDouble();
   ram->min_speed = dram["min_speed"].GetDouble();
+
+  additional_responsibility = make_unique<AdditionalResponsibility>();
+  const rapidjson::Value& dar = doc["additional_responsibility"];
+  additional_responsibility->y_max = dar["y_max"].GetDouble();
+  additional_responsibility->x_padding = dar["x_padding"].GetDouble();
 }

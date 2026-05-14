@@ -202,6 +202,10 @@
         "blind_min_ms": 250,
         "max_speed": 120,
         "min_speed": 30
+      },
+      "additional_responsibility": {
+        "y_max": 73.0,
+        "x_padding": 36.0
       }
     },
     "kickoff": {

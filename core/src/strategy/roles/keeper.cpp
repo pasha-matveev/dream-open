@@ -137,8 +137,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       // диапазоном keeper-зоны, чтобы не пытаться ехать за мячом,
       // улетевшим в дальние углы поля.
       bool additional_keeper_responsibility =
-          ball_pos.x >= KEEPER_ZONE_SIDE_DIST &&
-          ball_pos.x <= FIELD_WIDTH - KEEPER_ZONE_SIDE_DIST &&
+          ball_pos.x >= KEEPER_ADDITIONAL_DIST &&
+          ball_pos.x <= FIELD_WIDTH - KEEPER_ADDITIONAL_DIST &&
           ball_pos.y < KEEPER_ADDITIONAL_RESPONSIBILITY_Y_MAX;
 
       if (field.inside(ball_pos) || additional_keeper_responsibility) {

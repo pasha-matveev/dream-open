@@ -145,10 +145,10 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       Vec target;
       if (recently_visible && ball_pos.x < 91) {
         // Едем к левому краю
-        target = {20, 120};
+        target = {45, 105};
       } else {
         // Едем к правому краю
-        target = {160, 120};
+        target = {137, 105};
       }
       spdlog::info("DRIVE PASSIVE");
       drive_target(robot, target);

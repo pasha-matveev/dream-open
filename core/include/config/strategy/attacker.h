@@ -45,6 +45,22 @@ struct Attacker {
     double drive_max_speed;             // см/с, потолок скорости в фазе DRIVE
   };
   std::unique_ptr<SpinShot> spin_shot;
+
+  struct Kurwa {
+    double probability;  // [0, 1], вероятность выбрать kurwa вместо spin
+    struct Pos {
+      double x, y;
+    };
+    std::unique_ptr<Pos> pos_1;  // x, y в системе special_pos (y от ворот противника)
+    std::unique_ptr<Pos> pos_2;
+    double turn_1_angle;     // рад, базис field_angle=0, знак мирррится по стороне
+    double turn_2_angle;     // рад
+    double ready_dist;       // см, "на позиции"
+    double ready_angle;      // рад, "ровно повёрнут"
+    double drive_max_speed;  // см/с, потолок скорости в DRIVE-фазах
+    int dribbling;           // скорость дриблинга в активных фазах
+  };
+  std::unique_ptr<Kurwa> kurwa;
 };
 
 }  // namespace cfg

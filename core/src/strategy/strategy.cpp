@@ -18,7 +18,9 @@
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/kick.h"
+#include "strategy/kurwa.h"
 #include "strategy/motion.h"
+#include "strategy/spin_pipeline.h"
 #include "strategy/spin_shot.h"
 #include "strategy/test.h"
 #include "strategy/turn.h"
@@ -33,6 +35,8 @@ Strategy::Strategy() {
   kick_ = std::make_unique<KickController>();
   dubins_ = std::make_unique<DubinsController>();
   spin_shot_ = std::make_unique<SpinShotController>();
+  spin_pipeline_ = std::make_unique<SpinPipelineController>();
+  kurwa_ = std::make_unique<KurwaController>();
   accel_drive_ = std::make_unique<AccelDriveController>();
   test_ = std::make_unique<TestController>();
 
@@ -40,6 +44,8 @@ Strategy::Strategy() {
   // тоже возможны (если вдруг понадобятся в будущем).
   kick_->init(turn_.get());
   dubins_->init(kick_.get(), ball_.get());
+  spin_pipeline_->init(accel_drive_.get(), spin_shot_.get());
+  kurwa_->init(accel_drive_.get(), kick_.get());
 
   role = config->strategy->role;
 
@@ -161,6 +167,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
     kick_->mark_for_reset();
     turn_->mark_for_reset();
     spin_shot_->mark_for_reset();
+    spin_pipeline_->mark_for_reset();
+    kurwa_->mark_for_reset();
     accel_drive_->mark_for_reset();
 
     if (robot.state == RobotState::RUNNING) {
@@ -185,6 +193,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
     kick_->apply_reset_if_pending();
     turn_->apply_reset_if_pending();
     spin_shot_->apply_reset_if_pending();
+    spin_pipeline_->apply_reset_if_pending();
+    kurwa_->apply_reset_if_pending();
     accel_drive_->apply_reset_if_pending();
     double push_k, push_v_min;
     if (role == "keeper") {

@@ -182,6 +182,23 @@
         "spin_timeout_ms": 2000,
         "kicker_angle": 0.0,
         "drive_max_speed": 30.0
+      },
+      "kurwa": {
+        "probability": 0.5,
+        "pos_1": {
+          "x": 48,
+          "y": 14
+        },
+        "pos_2": {
+          "x": 48,
+          "y": 25
+        },
+        "turn_1_angle": 0.8,
+        "turn_2_angle": 0.0,
+        "ready_dist": 3.0,
+        "ready_angle": 0.05,
+        "drive_max_speed": 30.0,
+        "dribbling": 8000
       }
     },
     "keeper": {

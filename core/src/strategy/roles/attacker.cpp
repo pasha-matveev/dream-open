@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cmath>
+#include <random>
 
 #include "config/config.h"
 #include "config/strategy.h"
@@ -12,7 +13,9 @@
 #include "strategy/dubins.h"
 #include "strategy/field.h"
 #include "strategy/kick.h"
+#include "strategy/kurwa.h"
 #include "strategy/motion.h"
+#include "strategy/spin_pipeline.h"
 #include "strategy/spin_shot.h"
 #include "strategy/strategy.h"
 #include "strategy/zones.h"
@@ -32,16 +35,13 @@ static Polygon create_right_polygon() {
 }
 
 namespace {
-// Состояние spin-shot пайплайна нападающего. Живёт как function-static в
-// run_attacker (как и static-полигоны выше) — потому что это срез логики
-// именно этой ветки, никому больше не нужен.
-enum class SpinPhase { IDLE, HIDE_TURN, DRIVE, PRE_SHOT_TURN, SPIN };
-struct SpinPipelineState {
-  SpinPhase phase = SpinPhase::IDLE;
+// Диспетчер атак: какой контроллер сейчас активен. NONE = ни spin, ни kurwa.
+// Бросок монеты делается один раз на переходе NONE → SPIN/KURWA, держится
+// до завершения атаки или потери мяча.
+enum class AttackKind { NONE, SPIN, KURWA };
+struct AttackState {
+  AttackKind kind = AttackKind::NONE;
   int prev_first_time = -100000;
-  // Сторона: фиксируется в момент IDLE → HIDE_TURN из текущего use_left_special
-  // и держится до конца пайплайна
-  bool use_left = false;
 };
 }  // namespace
 
@@ -53,9 +53,9 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   static Polygon right_polygon = create_right_polygon();
   // Зона ответственности вратаря: keeper-зона + вырез под ворота
   static Polygon keeper_responsibility = make_keeper_responsibility();
-  // Состояние spin-shot пайплайна. Той же природы, что и static-полигоны
+  // Состояние диспетчера атак. Той же природы, что и static-полигоны
   // выше — нужно между тиками, не нужно никому за пределами run_attacker.
-  static SpinPipelineState spin;
+  static AttackState attack;
 
   bool inside_left = left_polygon.hyst_inside(robot.position);
   bool inside_right = right_polygon.hyst_inside(robot.position);
@@ -70,24 +70,17 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     use_left_special = robot.position.x < 91.0;
   }
 
-  static Vec special_pos_left = {
-      config->strategy->attacker->special_pos->x,
-      240.0 - config->strategy->attacker->special_pos->y};
-  static Vec special_pos_right = {
-      182.0 - config->strategy->attacker->special_pos->x,
-      240.0 - config->strategy->attacker->special_pos->y};
-
-  // Сброс spin-pipeline
+  // Сброс диспетчера на потере мяча / новом захвате.
   bool fresh_capture =
-      robot.emitter && (robot.first_time != spin.prev_first_time);
+      robot.emitter && (robot.first_time != attack.prev_first_time);
   if (!robot.emitter || fresh_capture) {
-    spin.phase = SpinPhase::IDLE;
+    attack.kind = AttackKind::NONE;
   }
-  spin.prev_first_time = robot.first_time;
+  attack.prev_first_time = robot.first_time;
 
-  // Пайплайн "engaged" с момента, как мы вышли из IDLE (т.е. начали HIDE_TURN).
-  // С этой точки ведём до завершения SPIN независимо от inside_special
-  bool spin_engaged = spin.phase != SpinPhase::IDLE;
+  // Атака считается "engaged" с момента, как мы выбрали тип. С этой точки
+  // ведём до завершения независимо от inside_special.
+  bool engaged = attack.kind != AttackKind::NONE;
 
   if (robot.emitter) {
     // Взяли мяч
@@ -107,79 +100,29 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       // dribbling.param_r после first_time.
       spdlog::info("STABILIZE");
     } else {
-      if (inside_special || spin_engaged) {
-        const auto& spin_cfg = *config->strategy->attacker->spin_shot;
-        // Старт пайплайна: фиксируем сторону и переводим в HIDE_TURN.
-        if (spin.phase == SpinPhase::IDLE) {
-          spin.use_left = use_left_special;
-          spin.phase = SpinPhase::HIDE_TURN;
+      if (inside_special || engaged) {
+        if (attack.kind == AttackKind::NONE) {
+          // Бросок монеты — один раз на активацию. Seed от random_device;
+          // если понадобится детерминированность в тестах, можно временно
+          // подменить на rng.seed(...).
+          static thread_local std::mt19937 rng(std::random_device{}());
+          std::uniform_real_distribution<double> dist(0.0, 1.0);
+          double r = dist(rng);
+          double p = config->strategy->attacker->kurwa->probability;
+          attack.kind = (r < p) ? AttackKind::KURWA : AttackKind::SPIN;
+          spdlog::info("ATTACK START: {}",
+                       attack.kind == AttackKind::KURWA ? "kurwa" : "spin");
         }
-        Vec target_pos = spin.use_left ? special_pos_left : special_pos_right;
-        robot.dribbling = spin_cfg.dribbling->value_r;
 
-        // wall_angle: ориентация корпуса лицом к ближайшей вертикальной
-        // стенке (HIDE_TURN/DRIVE)
-        double wall_angle = spin.use_left ? +M_PI / 2 : -M_PI / 2;
-        // pre_shot_angle: базис M_PI (лицом к нашим воротам, "вниз")
-        // плюс отклонение в сторону ближайшей стенки. На левой стороне
-        // -offset уходит в сторону +π/2 (левая стенка), на правой
-        // +offset уходит в сторону -π/2 через wrap (правая стенка).
-        double pre_shot_delta =
-            (spin.use_left ? -1 : 1) * spin_cfg.pre_shot_angle_offset;
-        double pre_shot_angle = M_PI + pre_shot_delta;
-
-        switch (spin.phase) {
-          case SpinPhase::IDLE:
-            // Unreachable: IDLE переведён в HIDE_TURN до switch.
-            break;
-          case SpinPhase::HIDE_TURN: {
-            spdlog::info("SPIN HIDE_TURN");
-            double delta = normalize_angle(wall_angle - robot.field_angle);
-            robot.vel = {0, 0};
-            robot.rotation = delta;
-            if (std::abs(delta) < spin_cfg.ready_angle) {
-              spin.phase = SpinPhase::DRIVE;
-            }
-            break;
-          }
-          case SpinPhase::DRIVE: {
-            spdlog::info("SPIN DRIVE");
-            AccelDriveParams p;
-            p.target = target_pos;
-            p.max_speed = spin_cfg.drive_max_speed;
-            accel_drive_->execute(robot, p);
-            // drive_target сам ставит rotation, поэтому override после.
-            robot.rotation = normalize_angle(wall_angle - robot.field_angle);
-            if ((target_pos - robot.position).len() < spin_cfg.ready_dist)
-              spin.phase = SpinPhase::PRE_SHOT_TURN;
-            break;
-          }
-          case SpinPhase::PRE_SHOT_TURN: {
-            spdlog::info("SPIN PRE_SHOT_TURN");
-            double delta = normalize_angle(pre_shot_angle - robot.field_angle);
-            robot.vel = {0, 0};
-            robot.rotation = delta;
-            if (std::abs(delta) < spin_cfg.ready_angle)
-              spin.phase = SpinPhase::SPIN;
-            break;
-          }
-          case SpinPhase::SPIN: {
-            spdlog::info("SPIN");
-
-            SpinShotParams p;
-            p.direction = spin.use_left ? +1 : -1;
-            p.sweep_angle = spin_cfg.sweep_angle;
-            p.rotation_limit = spin_cfg.rotation_limit;
-            p.dribbling = spin_cfg.dribbling->value_r;
-            p.kicker_angle = spin_cfg.kicker_angle;
-            p.kicker_force = spin_cfg.kicker_force;
-            p.spin_timeout_ms = spin_cfg.spin_timeout_ms;
-
-            bool done = spin_shot_->execute(robot, p);
-            if (done) spin.phase = SpinPhase::IDLE;
-            break;
-          }
+        bool done = false;
+        if (attack.kind == AttackKind::SPIN) {
+          done = spin_pipeline_->execute(robot, use_left_special,
+                                         *config->strategy->attacker);
+        } else {
+          done = kurwa_->execute(robot, goal, use_left_special,
+                                 *config->strategy->attacker);
         }
+        if (done) attack.kind = AttackKind::NONE;
       } else {
         spdlog::info("KICK GOAL");
         kick_->execute_to_goal(robot, goal, {});

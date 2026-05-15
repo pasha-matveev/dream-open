@@ -34,4 +34,20 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   spin_shot->kicker_force = ds["kicker_force"].GetInt();
   spin_shot->spin_timeout_ms = ds["spin_timeout_ms"].GetInt();
   spin_shot->drive_max_speed = ds["drive_max_speed"].GetDouble();
+
+  kurwa = make_unique<Kurwa>();
+  const rapidjson::Value& dk = doc["kurwa"];
+  kurwa->probability = dk["probability"].GetDouble();
+  kurwa->pos_1 = make_unique<Kurwa::Pos>();
+  kurwa->pos_1->x = dk["pos_1"]["x"].GetDouble();
+  kurwa->pos_1->y = dk["pos_1"]["y"].GetDouble();
+  kurwa->pos_2 = make_unique<Kurwa::Pos>();
+  kurwa->pos_2->x = dk["pos_2"]["x"].GetDouble();
+  kurwa->pos_2->y = dk["pos_2"]["y"].GetDouble();
+  kurwa->turn_1_angle = dk["turn_1_angle"].GetDouble();
+  kurwa->turn_2_angle = dk["turn_2_angle"].GetDouble();
+  kurwa->ready_dist = dk["ready_dist"].GetDouble();
+  kurwa->ready_angle = dk["ready_angle"].GetDouble();
+  kurwa->drive_max_speed = dk["drive_max_speed"].GetDouble();
+  kurwa->dribbling = dk["dribbling"].GetInt();
 }

@@ -4,6 +4,7 @@
 #include "utils/geo/vec.h"
 
 struct Mapper;
+class KickController;
 
 struct StabilizeCaptureParams {
   const Mapper& dribbling;
@@ -18,3 +19,13 @@ void accelerated_dribbling(Robot& robot, const Mapper& dribbling);
 bool stabilize_capture(Robot& robot, const StabilizeCaptureParams& params);
 double compute_ricochet_field_angle(const Vec& ball_pos, const Vec& target,
                                     bool left);
+
+// Повернуться на угол рикошета от ближней стенки и ударить. При
+// recompute_each_tick == true угол пересчитывается каждый вызов от текущего
+// ball_hole_position; иначе фиксируется при первом вызове в cached_field_angle
+// (angle_computed — флаг latch, владелец хранит снаружи).
+void execute_ricochet_kick(Robot& robot, KickController& kick, bool left,
+                           const Vec& target, bool recompute_each_tick,
+                           bool curved_rotation,
+                           const Mapper* dribbling_slowdown,
+                           double& cached_field_angle, bool& angle_computed);

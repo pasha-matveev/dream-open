@@ -213,6 +213,25 @@
         "ready_angle": 0.05,
         "drive_max_speed": 30.0,
         "dribbling": 8000
+      },
+      "icarus": {
+        "enabled": true,
+        "curved_rotation": false,
+        "recompute_angle_each_tick": true,
+        "target_left": {
+          "x": 91.0,
+          "y": 237.0
+        },
+        "target_right": {
+          "x": 91.0,
+          "y": 237.0
+        },
+        "dribbling_slowdown": {
+          "param_l": 0,
+          "param_r": 400,
+          "value_l": 8000,
+          "value_r": 3000
+        }
       }
     },
     "keeper": {

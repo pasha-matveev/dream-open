@@ -58,4 +58,15 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   kurwa->ready_angle = dk["ready_angle"].GetDouble();
   kurwa->drive_max_speed = dk["drive_max_speed"].GetDouble();
   kurwa->dribbling = dk["dribbling"].GetInt();
+
+  icarus = make_unique<Icarus>();
+  const rapidjson::Value& di = doc["icarus"];
+  icarus->enabled = di["enabled"].GetBool();
+  icarus->curved_rotation = di["curved_rotation"].GetBool();
+  icarus->recompute_angle_each_tick = di["recompute_angle_each_tick"].GetBool();
+  icarus->target_left.x = di["target_left"]["x"].GetDouble();
+  icarus->target_left.y = di["target_left"]["y"].GetDouble();
+  icarus->target_right.x = di["target_right"]["x"].GetDouble();
+  icarus->target_right.y = di["target_right"]["y"].GetDouble();
+  icarus->dribbling_slowdown = make_unique<Mapper>(di["dribbling_slowdown"]);
 }

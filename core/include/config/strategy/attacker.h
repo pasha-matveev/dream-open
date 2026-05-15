@@ -70,6 +70,30 @@ struct Attacker {
     int dribbling;           // скорость дриблинга в активных фазах
   };
   std::unique_ptr<Kurwa> kurwa;
+
+  // icarus: при захвате мяча враг был вплотную и корпус смотрит в верхнюю
+  // половину поля — вместо удара вперёд бьём рикошетом от ближнего бортика.
+  struct Icarus {
+    // Выключатель режима. false — icarus никогда не активируется.
+    bool enabled;
+    // Тип поворота при ударе → KickParams.curved_rotation.
+    bool curved_rotation;
+    // true — пересчитываем угол рикошета каждый тик от текущего
+    // ball_hole_position; false — фиксируем при первом ударе.
+    bool recompute_angle_each_tick;
+    // Точки-таргеты (зеркалятся через боковую стенку в
+    // compute_ricochet_field_angle).
+    struct Target {
+      double x;
+      double y;
+    };
+    Target target_left;
+    Target target_right;
+    // Мапер плавного замедления дриблинга перед ударом (прошедшие мс →
+    // значение дриблинга).
+    std::unique_ptr<Mapper> dribbling_slowdown;
+  };
+  std::unique_ptr<Icarus> icarus;
 };
 
 }  // namespace cfg

@@ -45,6 +45,11 @@ struct AttackState {
   AttackKind kind = AttackKind::NONE;
   int prev_first_time = -100000;
 };
+
+// Режим icarus решается один раз на захват мяча и держится до его потери.
+// UNDECIDED — решение ещё не принято (до первого тика с мячом);
+// OFF — обычная логика; LEFT/RIGHT — рикошет от соответствующего бортика.
+enum class IcarusState { UNDECIDED, OFF, LEFT, RIGHT };
 }  // namespace
 
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
@@ -61,6 +66,12 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   // Время последней детекции "враг у мяча"; -1 = не было. Латч переживает
   // пропажи цели лидаром между кадрами (см. enemy_latch_ms).
   static long long enemy_near_since = -1;
+  // Состояние режima icarus. Решается один раз на захват, сбрасывается при
+  // потере мяча. icarus_target_field_angle/icarus_angle_computed — latch угла
+  // для execute_ricochet_kick при recompute_angle_each_tick == false.
+  static IcarusState icarus_state = IcarusState::UNDECIDED;
+  static double icarus_target_field_angle = 0.0;
+  static bool icarus_angle_computed = false;
 
   bool inside_left = left_polygon.hyst_inside(robot.position);
   bool inside_right = right_polygon.hyst_inside(robot.position);
@@ -80,6 +91,8 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       robot.emitter && (robot.first_time != attack.prev_first_time);
   if (!robot.emitter || fresh_capture) {
     attack.kind = AttackKind::NONE;
+    icarus_state = IcarusState::UNDECIDED;
+    icarus_angle_computed = false;
   }
   attack.prev_first_time = robot.first_time;
 
@@ -89,8 +102,49 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
 
   if (robot.emitter) {
     // Взяли мяч
-    if (dubins_->was_active_last_tick() &&
-        dubins_->is_aligned_for_kick(robot, goal)) {
+    const auto& icarus_cfg = *config->strategy->attacker->icarus;
+
+    // Решение icarus — один раз на захват. Враг берётся из сигнала подъезда
+    // (enemy_near_since из no-ball ветки, дебаунсен enemy_latch_ms) — на
+    // одном кадре лидара решение не принимаем.
+    if (icarus_state == IcarusState::UNDECIDED) {
+      bool enemy_near =
+          enemy_near_since >= 0 &&
+          millis() - enemy_near_since <=
+              config->strategy->attacker->enemy_latch_ms;
+      bool facing_up = std::abs(robot.field_angle) <= M_PI / 2;
+      if (icarus_cfg.enabled && enemy_near && facing_up && !inside_special &&
+          !engaged) {
+        icarus_state = robot.position.x < 91.0 ? IcarusState::LEFT
+                                               : IcarusState::RIGHT;
+        spdlog::info("ICARUS DECIDED: {}",
+                     icarus_state == IcarusState::LEFT ? "left" : "right");
+      } else {
+        icarus_state = IcarusState::OFF;
+      }
+    }
+
+    if (icarus_state == IcarusState::LEFT ||
+        icarus_state == IcarusState::RIGHT) {
+      // Режим icarus: сперва даём мячу стабилизироваться (это же гарантирует
+      // сброс общего KickController — на этих тиках kick_->execute не
+      // зовётся), затем бьём рикошетом от ближнего бортика.
+      if (stabilize_capture(robot,
+                            {.dribbling = *config->strategy->dribbling})) {
+        spdlog::info("STABILIZE");
+      } else {
+        bool left = icarus_state == IcarusState::LEFT;
+        const auto& t =
+            left ? icarus_cfg.target_left : icarus_cfg.target_right;
+        spdlog::info("ICARUS KICK");
+        execute_ricochet_kick(robot, *kick_, left, {t.x, t.y},
+                              icarus_cfg.recompute_angle_each_tick,
+                              icarus_cfg.curved_rotation,
+                              icarus_cfg.dribbling_slowdown.get(),
+                              icarus_target_field_angle, icarus_angle_computed);
+      }
+    } else if (dubins_->was_active_last_tick() &&
+               dubins_->is_aligned_for_kick(robot, goal)) {
       spdlog::info("KICK DUBINS");
       // Подъехали по окружности, используем удар оттуда. Гейт по углу
       // защищает от удара в свои ворота, если мяч был захвачен на ранней

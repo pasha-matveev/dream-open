@@ -152,23 +152,12 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         if (ricochet_mode != RicochetMode::NONE) {
           bool left = (ricochet_mode == RicochetMode::LEFT);
           const auto& t = left ? rc_cfg.target_left : rc_cfg.target_right;
-          double field_angle;
-          if (rc_cfg.recompute_angle_each_tick) {
-            field_angle = compute_ricochet_field_angle(
-                robot.ball_hole_position(), {t.x, t.y}, left);
-          } else {
-            if (!ricochet_target_computed) {
-              ricochet_target_field_angle = compute_ricochet_field_angle(
-                  robot.ball_hole_position(), {t.x, t.y}, left);
-              ricochet_target_computed = true;
-            }
-            field_angle = ricochet_target_field_angle;
-          }
-          double relative_dir =
-              normalize_angle(field_angle - robot.field_angle);
-          KickParams kp{.relative_dir = relative_dir};
-          kp.dribbling_slowdown = rc_cfg.dribbling_slowdown.get();
-          kick_->execute(robot, kp);
+          execute_ricochet_kick(robot, *kick_, left, {t.x, t.y},
+                                rc_cfg.recompute_angle_each_tick,
+                                /*curved_rotation=*/true,
+                                rc_cfg.dribbling_slowdown.get(),
+                                ricochet_target_field_angle,
+                                ricochet_target_computed);
         } else {
           // Прямой удар по чужим воротам.
           kick_->execute_to_goal(robot, goal, {});

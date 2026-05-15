@@ -1,0 +1,298 @@
+{
+  "profile": "play",
+  "tracking": {
+    "enabled": true,
+    "preview_enabled": false,
+    "camera_id": 0,
+    "retries": 10,
+    "fps": 45,
+    "width": 972,
+    "height": 972,
+    "brightness": 0.2,
+    "radius": 350,
+    "disabled_radius": 90,
+    "out_of_field_tolerance": 30,
+    "clamp_to_field": true,
+    "center": {
+      "x": 486,
+      "y": 475
+    },
+    "formula": {
+      "a": 5995.14693,
+      "b": 342.45723,
+      "c": 8.19683
+    },
+    "ball": {
+      "setup": false,
+      "min_area": 10,
+      "hsv_min": [
+        106,
+        46,
+        41
+      ],
+      "hsv_max": [
+        126,
+        255,
+        255
+      ]
+    },
+    "goal": {
+      "type": "yellow",
+      "setup": false,
+      "min_area": 20,
+      "yellow": {
+        "hsv_min": [
+          79,
+          108,
+          108
+        ],
+        "hsv_max": [
+          90,
+          255,
+          255
+        ]
+      },
+      "blue": {
+        "hsv_min": [
+          0,
+          123,
+          96
+        ],
+        "hsv_max": [
+          20,
+          255,
+          255
+        ]
+      }
+    }
+  },
+  "serial": {
+    "enabled": true,
+    "device": "auto",
+    "rate": 115200,
+    "interference": false,
+    "emitter": {
+      "threshold": 500,
+      "optimist": 100
+    }
+  },
+  "gpio": {
+    "enabled": true,
+    "buzzer": {
+      "enabled": true,
+      "pin": 23,
+      "notes": 2,
+      "duration": 50
+    },
+    "buttons": {
+      "enabled": true,
+      "pins": [
+        11,
+        9,
+        10
+      ]
+    },
+    "display": {
+      "enabled": false,
+      "device": "/dev/i2c-1",
+      "address": "0x3c",
+      "mode": "img",
+      "img": 1
+    }
+  },
+  "lidar": {
+    "enabled": true,
+    "path": "../lidar/build/bin/main",
+    "calibration": {
+      "enabled": true,
+      "window": 1000,
+      "threshold": 150,
+      "movement": 10,
+      "angle": 1.0,
+      "own_goal_timeout": 2000
+    },
+    "piter": {
+      "self_exclusion_radius": 10.0,
+      "markup_tolerance": 0
+    }
+  },
+  "visualization": {
+    "enabled": false,
+    "window_name": "Dream",
+    "frames": 50,
+    "interactive": false
+  },
+  "strategy": {
+    "enabled": true,
+    "role": "keeper",
+    "turn_precision": 0.04,
+    "predict": {
+      "enabled": true,
+      "alpha_xy": 0.2
+    },
+    "ball_filter": {
+      "enabled": false,
+      "alpha_xy": 0.35,
+      "beta_xy": 0.15,
+      "friction_tau": 0.6,
+      "latency_ms": 40,
+      "max_jump": 40,
+      "lost_timeout_ms": 500
+    },
+    "motion": {
+      "max_linear_accel": 500,
+      "max_angular_accel": 20,
+      "decel_k": 0.4,
+      "wall_limit": 0,
+      "push_out_k": 2.0,
+      "push_out_v_min": 0.0
+    },
+    "dribbling": {
+      "param_l": 0,
+      "param_r": 600,
+      "value_l": 5000,
+      "value_r": 9000
+    },
+    "dribbling_slow": 3000,
+    "attacker": {
+      "border": 100,
+      "dubins_enabled": false,
+      "special_height": 40,
+      "special_pos": {
+        "x": 38,
+        "y": 45
+      },
+      "ff": {
+        "enabled": false,
+        "v_min": 10,
+        "stale_ms": 200,
+        "gain": 1.0
+      },
+      "spin_shot": {
+        "ready_dist": 3.0,
+        "ready_angle": 0.05,
+        "pre_shot_angle_offset": 0.52,
+        "sweep_angle": 1.6,
+        "rotation_limit": 60.0,
+        "dribbling": {
+          "param_l": 0,
+          "param_r": 600,
+          "value_l": 4000,
+          "value_r": 8000
+        },
+        "spin_timeout_ms": 2000,
+        "kicker_angle": 0.0,
+        "kicker_force": 2,
+        "drive_max_speed": 30.0
+      },
+      "kurwa": {
+        "probability": 1,
+        "pos_1": {
+          "x": 48,
+          "y": 14
+        },
+        "pos_2": {
+          "x": 48,
+          "y": 25
+        },
+        "turn_1_angle": 0.8,
+        "turn_2_angle": 0.0,
+        "ready_dist": 3.0,
+        "ready_angle": 0.05,
+        "drive_max_speed": 80.0,
+        "dribbling": 8000
+      }
+    },
+    "keeper": {
+      "projection_border": 1000,
+      "line": {
+        "padding": 60,
+        "y": 36,
+        "ray_min_y": 18
+      },
+      "push_out": {
+        "k": 6.0,
+        "v_min": 100.0
+      },
+      "ram": {
+        "enabled": true,
+        "safety_y": 0,
+        "far_min_dist": 25,
+        "blind_min_ms": 250,
+        "max_speed": 120,
+        "min_speed": 30
+      },
+      "additional_responsibility": {
+        "y_max": 73.0,
+        "x_padding": 36.0
+      }
+    },
+    "kickoff": {
+      "dribbling": {
+        "param_l": 0,
+        "param_r": 600,
+        "value_l": 4000,
+        "value_r": 8000
+      },
+      "capture_blind_timeout_ms": 600,
+      "capture_speed": 10.0,
+      "target_left": {
+        "x": 91,
+        "y": 230
+      },
+      "target_right": {
+        "x": 91,
+        "y": 230
+      },
+      "kick_force": 100,
+      "kick_followthrough_ms": 200,
+      "post_kickoff_delay_ms": 300
+    },
+    "dubins": {
+      "bonus": 5,
+      "separate": 1,
+      "radius": 12,
+      "deep_inside": 3,
+      "camera_target_dist": 10,
+      "kick_precision": {
+        "middle": 1.5,
+        "deviation": 0.5
+      },
+      "aim_bonus": 15,
+      "kick_angle_tolerance": 0.26,
+      "speed": {
+        "param_l": 18,
+        "param_r": 80,
+        "value_l": 25,
+        "value_r": 120
+      }
+    },
+    "control": {
+      "speed": {
+        "param_l": 18,
+        "param_r": 80,
+        "value_l": 8,
+        "value_r": 120
+      },
+      "kick_power": {
+        "param_l": 50,
+        "param_r": 200,
+        "value_l": 99,
+        "value_r": 100
+      },
+      "curved_turn": {
+        "accel_time": 400,
+        "rotation_limit": 15,
+        "vel": 19,
+        "dist": 17
+      },
+      "simple_turn": {
+        "accel_time": 400,
+        "rotation_limit": 20
+      },
+      "ball_drive": {
+        "max_accel": 60.0
+      }
+    }
+  }
+}

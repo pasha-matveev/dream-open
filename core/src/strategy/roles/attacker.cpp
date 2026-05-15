@@ -154,14 +154,17 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       drive_target(robot, target);
       robot.rotation = ball_->relative_angle(robot);
     } else {
-      // Враг рядом с мячом? Лидаром ищем препятствие, ближайшее к мячу;
-      // зону вратаря отбрасываем по y — лидар не отличает своих от чужих.
-      auto enemy = nearest_obstacle(robot, ball_pos,
-                                    config->strategy->attacker->enemy_min_y);
       bool detected_now = false;
-      if (enemy) {
-        double d = (*enemy - ball_pos).len();
-        detected_now = config->strategy->attacker->enemy_near_ball->compute(d);
+      if (config->strategy->attacker->fast_direct_enabled) {
+        // Враг рядом с мячом? Лидаром ищем препятствие, ближайшее к мячу;
+        // зону вратаря отбрасываем по y — лидар не отличает своих от чужих.
+        auto enemy = nearest_obstacle(robot, ball_pos,
+                                      config->strategy->attacker->enemy_min_y);
+        if (enemy) {
+          double d = (*enemy - ball_pos).len();
+          detected_now =
+              config->strategy->attacker->enemy_near_ball->compute(d);
+        }
       }
       if (detected_now) enemy_near_since = millis();
       bool enemy_near_ball =

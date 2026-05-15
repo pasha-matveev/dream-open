@@ -157,6 +157,7 @@
     "attacker": {
       "dubins_enabled": false,
       "special_height": 40,
+      "fast_direct_enabled": true,
       "fast_direct": {
         "param_l": 20,
         "param_r": 40,

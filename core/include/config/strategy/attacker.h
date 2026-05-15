@@ -19,6 +19,7 @@ struct Attacker {
   double special_height;
 
   // Быстрый прямой подъезд к мячу, когда враг рядом с мячом.
+  bool fast_direct_enabled;                 // вкл/выкл быстрый таран врага у мяча
   std::unique_ptr<Mapper> fast_direct;      // дистанция → скорость
   std::unique_ptr<Switch> enemy_near_ball;  // гистерезис близости врага к мячу
   double enemy_min_y;          // см, препятствия ниже игнорируются (зона вратаря)

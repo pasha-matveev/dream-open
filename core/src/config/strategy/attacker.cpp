@@ -12,6 +12,7 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   dubins_enabled = doc["dubins_enabled"].GetBool();
   special_height = doc["special_height"].GetDouble();
 
+  fast_direct_enabled = doc["fast_direct_enabled"].GetBool();
   fast_direct = make_unique<Mapper>(doc["fast_direct"]);
   enemy_near_ball = make_unique<Switch>(doc["enemy_near_ball"]);
   enemy_min_y = doc["enemy_min_y"].GetDouble();

@@ -690,7 +690,7 @@ int main(int argc, const char* argv[]) {
     partitionPointsInsideOutside(points, inner, inside, outside);
     vector<vector<Point>> clusters = clusterPoints(inside, 10);
     for (auto& cluster : clusters)
-      if (cluster.size() > 6)
+      if (cluster.size() > 3)
         result_data.push_back(minimalAreaBoundingRectangle(cluster));
 
     if (preview) {

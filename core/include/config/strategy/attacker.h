@@ -5,6 +5,7 @@
 #include <memory>
 
 struct Mapper;
+struct Switch;
 
 namespace cfg {
 
@@ -16,6 +17,13 @@ struct Attacker {
 
   bool dubins_enabled;
   double special_height;
+
+  // Быстрый прямой подъезд к мячу, когда враг рядом с мячом.
+  std::unique_ptr<Mapper> fast_direct;      // дистанция → скорость
+  std::unique_ptr<Switch> enemy_near_ball;  // гистерезис близости врага к мячу
+  double enemy_min_y;          // см, препятствия ниже игнорируются (зона вратаря)
+  long long enemy_latch_ms;    // мс, латч режима при пропаже цели лидаром
+  int fast_direct_dribbling;   // скорость дриблера в быстром подъезде
 
   struct SpecialPos {
     double x, y;

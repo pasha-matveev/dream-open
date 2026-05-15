@@ -3,46 +3,21 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
-#include <limits>
 #include <optional>
 
 #include "config/config.h"
-#include "config/lidar.h"
 #include "config/strategy.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/field.h"
 #include "strategy/kick.h"
 #include "strategy/motion.h"
+#include "strategy/obstacles.h"
 #include "strategy/strategy.h"
-#include "strategy/zones.h"
 #include "utils/mapper.h"
 #include "utils/millis.h"
 
 using namespace std;
-
-static optional<Vec> nearest_obstacle(Robot& robot) {
-  if (!robot.lidar) return nullopt;
-  static Polygon full_markup = make_full_field_markup();
-
-  const auto& piter_cfg = *config->lidar->piter;
-
-  optional<Vec> best = nullopt;
-  double best_dist = std::numeric_limits<double>::infinity();
-  for (const auto& obs : robot.lidar->obstacles_data) {
-    double self_dist = (obs - robot.position).len();
-    if (self_dist < piter_cfg.self_exclusion_radius) continue;
-    if (!full_markup.inside(obs) &&
-        full_markup.dist(obs) > piter_cfg.markup_tolerance) {
-      continue;
-    }
-    if (self_dist < best_dist) {
-      best_dist = self_dist;
-      best = obs;
-    }
-  }
-  return best;
-}
 
 // Точка на луче из {91,0} через target, ВНУТРИ keeper field (на 2 см глубже
 // границы пересечения), с клампом по минимальному Y.
@@ -92,7 +67,7 @@ static bool ricochet_target_computed = false;
 
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           Field& field) {
-  auto obstacle = nearest_obstacle(robot);
+  auto obstacle = nearest_obstacle(robot, robot.position);
 
   // nearest_obstacle уже фильтрует по полной разметке поля и зоне
   // самоисключения — здесь достаточно факта наличия валидной точки.

@@ -157,6 +157,19 @@
     "attacker": {
       "dubins_enabled": false,
       "special_height": 40,
+      "fast_direct": {
+        "param_l": 20,
+        "param_r": 40,
+        "value_l": 90,
+        "value_r": 121
+      },
+      "enemy_near_ball": {
+        "middle": 20,
+        "deviation": 7
+      },
+      "enemy_min_y": 60,
+      "enemy_latch_ms": 1000,
+      "fast_direct_dribbling": 8000,
       "special_pos": {
         "x": 38,
         "y": 45
@@ -229,8 +242,14 @@
         "x_padding": 61.0,
         "hysteresis": 5.0,
         "recompute_angle_each_tick": true,
-        "target_left":  {"x": 91.0, "y": 237.0},
-        "target_right": {"x": 91.0, "y": 237.0},
+        "target_left": {
+          "x": 91.0,
+          "y": 237.0
+        },
+        "target_right": {
+          "x": 91.0,
+          "y": 237.0
+        },
         "dribbling_slowdown": {
           "param_l": 0,
           "param_r": 400,

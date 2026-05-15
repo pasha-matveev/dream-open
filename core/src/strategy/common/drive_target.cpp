@@ -1,5 +1,3 @@
-#include <spdlog/spdlog.h>
-
 #include "config/config.h"
 #include "config/strategy.h"
 #include "config/strategy/control.h"
@@ -7,18 +5,17 @@
 #include "utils/mapper.h"
 
 bool drive_target(Robot& robot, const Vec& target, double max_speed,
-                  double min_speed, bool is_ball) {
+                  double min_speed, bool is_ball, const Mapper* speed_map) {
   Vec vel = target - robot.position;
   double d_safe = vel.len();
   double v_safe =
       sqrt(2.0 * config->strategy->motion->max_linear_accel * d_safe);
   if (is_ball) {
-    double mapper_vel = config->strategy->control->speed->map(d_safe);
-    if (mapper_vel > v_safe) {
-      spdlog::error("Mapper speed higher than estimated safe speed: {} / {}",
-                    mapper_vel, v_safe);
-    }
-    v_safe = min(v_safe, mapper_vel);
+    // speed_map задаёт свою кривую скорости (напр. fast_direct); по умолчанию
+    // используется control->speed.
+    const Mapper& m =
+        speed_map ? *speed_map : *config->strategy->control->speed;
+    v_safe = min(v_safe, m.map(d_safe));
   }
   // TODO: в конфигурации
   bool finished = (target - robot.position).len() <= 2;

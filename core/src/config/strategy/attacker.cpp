@@ -1,6 +1,7 @@
 #include "config/strategy/attacker.h"
 
 #include "utils/mapper.h"
+#include "utils/switch.h"
 
 using namespace cfg;
 using std::make_unique;
@@ -10,6 +11,12 @@ Attacker::~Attacker() = default;
 Attacker::Attacker(const rapidjson::Value& doc) {
   dubins_enabled = doc["dubins_enabled"].GetBool();
   special_height = doc["special_height"].GetDouble();
+
+  fast_direct = make_unique<Mapper>(doc["fast_direct"]);
+  enemy_near_ball = make_unique<Switch>(doc["enemy_near_ball"]);
+  enemy_min_y = doc["enemy_min_y"].GetDouble();
+  enemy_latch_ms = doc["enemy_latch_ms"].GetInt64();
+  fast_direct_dribbling = doc["fast_direct_dribbling"].GetInt();
 
   special_pos = make_unique<SpecialPos>();
   special_pos->x = doc["special_pos"]["x"].GetDouble();

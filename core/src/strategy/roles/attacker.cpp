@@ -15,6 +15,7 @@
 #include "strategy/kick.h"
 #include "strategy/kurwa.h"
 #include "strategy/motion.h"
+#include "strategy/obstacles.h"
 #include "strategy/spin_pipeline.h"
 #include "strategy/spin_shot.h"
 #include "strategy/strategy.h"
@@ -23,6 +24,7 @@
 #include "utils/geo/vec.h"
 #include "utils/mapper.h"
 #include "utils/millis.h"
+#include "utils/switch.h"
 
 #define SPECIAL_HEIGHT config->strategy->attacker->special_height
 
@@ -56,6 +58,9 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   // Состояние диспетчера атак. Той же природы, что и static-полигоны
   // выше — нужно между тиками, не нужно никому за пределами run_attacker.
   static AttackState attack;
+  // Время последней детекции "враг у мяча"; -1 = не было. Латч переживает
+  // пропажи цели лидаром между кадрами (см. enemy_latch_ms).
+  static long long enemy_near_since = -1;
 
   bool inside_left = left_polygon.hyst_inside(robot.position);
   bool inside_right = right_polygon.hyst_inside(robot.position);
@@ -149,23 +154,48 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       drive_target(robot, target);
       robot.rotation = ball_->relative_angle(robot);
     } else {
-      // Пробуем использовать dubins
-      bool res = false;
-      if (config->strategy->attacker->dubins_enabled) {
-        res = dubins_->dubins_hit(robot, goal, field,
-                                  KickController::compute_power(robot.position),
-                                  false);
+      // Враг рядом с мячом? Лидаром ищем препятствие, ближайшее к мячу;
+      // зону вратаря отбрасываем по y — лидар не отличает своих от чужих.
+      auto enemy = nearest_obstacle(robot, ball_pos,
+                                    config->strategy->attacker->enemy_min_y);
+      bool detected_now = false;
+      if (enemy) {
+        double d = (*enemy - ball_pos).len();
+        detected_now = config->strategy->attacker->enemy_near_ball->compute(d);
       }
-      if (!res) {
-        // Мяч близко к бортам, играем как обычно
-        drive_ball(robot, ball_pos);
-        // Компенсация скорости мяча: если мяч катится, добавляем его
-        // скорость к команде, чтобы относительная скорость сближения
-        // соответствовала тому, что drive_target насчитал для статичной цели.
-        const auto& ff = *config->strategy->attacker->ff;
-        if (ff.enabled && ball_->recently_visible(millis(), ff.stale_ms) &&
-            ball_->velocity().len() >= ff.v_min) {
-          robot.vel += ball_->velocity() * ff.gain;
+      if (detected_now) enemy_near_since = millis();
+      bool enemy_near_ball =
+          enemy_near_since >= 0 &&
+          millis() - enemy_near_since <=
+              config->strategy->attacker->enemy_latch_ms;
+
+      if (enemy_near_ball) {
+        // Враг захватил мяч и убегает — dubins бесполезен. Едем напрямую и
+        // быстрее (fast_direct), дриблер сразу на максимум, чтобы выхватить
+        // мяч на подъезде.
+        drive_target(robot, ball_pos, 120, 0, true,
+                     config->strategy->attacker->fast_direct.get());
+        robot.dribbling = config->strategy->attacker->fast_direct_dribbling;
+        robot.rotation_limit = 40;
+      } else {
+        // Пробуем использовать dubins
+        bool res = false;
+        if (config->strategy->attacker->dubins_enabled) {
+          res = dubins_->dubins_hit(
+              robot, goal, field,
+              KickController::compute_power(robot.position), false);
+        }
+        if (!res) {
+          // Мяч близко к бортам, играем как обычно
+          drive_ball(robot, ball_pos);
+          // Компенсация скорости мяча: если мяч катится, добавляем его
+          // скорость к команде, чтобы относительная скорость сближения
+          // соответствовала тому, что drive_target насчитал для статичной цели.
+          const auto& ff = *config->strategy->attacker->ff;
+          if (ff.enabled && ball_->recently_visible(millis(), ff.stale_ms) &&
+              ball_->velocity().len() >= ff.v_min) {
+            robot.vel += ball_->velocity() * ff.gain;
+          }
         }
       }
     }

@@ -223,6 +223,13 @@
       "additional_responsibility": {
         "y_max": 73.0,
         "x_padding": 36.0
+      },
+      "ricochet": {
+        "x_padding": 61.0,
+        "hysteresis": 5.0,
+        "recompute_angle_each_tick": true,
+        "target_left":  {"x": 91.0, "y": 237.0},
+        "target_right": {"x": 91.0, "y": 237.0}
       }
     },
     "kickoff": {

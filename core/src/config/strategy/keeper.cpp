@@ -32,4 +32,15 @@ Keeper::Keeper(const rapidjson::Value& doc) {
   const rapidjson::Value& dar = doc["additional_responsibility"];
   additional_responsibility->y_max = dar["y_max"].GetDouble();
   additional_responsibility->x_padding = dar["x_padding"].GetDouble();
+
+  ricochet = make_unique<Ricochet>();
+  const rapidjson::Value& drc = doc["ricochet"];
+  ricochet->x_padding = drc["x_padding"].GetDouble();
+  ricochet->hysteresis = drc["hysteresis"].GetDouble();
+  ricochet->recompute_angle_each_tick =
+      drc["recompute_angle_each_tick"].GetBool();
+  ricochet->target_left.x = drc["target_left"]["x"].GetDouble();
+  ricochet->target_left.y = drc["target_left"]["y"].GetDouble();
+  ricochet->target_right.x = drc["target_right"]["x"].GetDouble();
+  ricochet->target_right.y = drc["target_right"]["y"].GetDouble();
 }

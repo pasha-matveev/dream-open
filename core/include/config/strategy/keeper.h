@@ -60,6 +60,30 @@ struct Keeper {
     double x_padding;
   };
   std::unique_ptr<AdditionalResponsibility> additional_responsibility;
+
+  // Удар рикошетом, когда вратарь за проекцией своих ворот. Без него робот
+  // при ударе вращался бы в сторону чужих ворот, держа мяч в лунке,
+  // развёрнутой опасно — противник может перехватить.
+  struct Ricochet {
+    // Отступ от боковых стенок: x < x_padding → левый рикошет;
+    // x > FIELD_WIDTH − x_padding → правый рикошет.
+    double x_padding;
+    // Гистерезис: выйти из ricochet-режима только когда x ушёл от порога
+    // вглубь на `hysteresis` см.
+    double hysteresis;
+    // true — пересчитываем угол каждый тик от текущего ball_hole_position;
+    // false — фиксируем угол при входе в режим (как kickoff).
+    bool recompute_angle_each_tick;
+    // Точки-таргеты для расчёта угла (зеркалятся через соответствующую
+    // боковую стенку в compute_ricochet_field_angle).
+    struct Target {
+      double x;
+      double y;
+    };
+    Target target_left;
+    Target target_right;
+  };
+  std::unique_ptr<Ricochet> ricochet;
 };
 
 }  // namespace cfg

@@ -82,6 +82,14 @@ static bool ram_prev_visible = false;
 static bool ram_active = false;
 static bool was_ram = false;
 
+// Ricochet-режим: когда вратарь за проекцией своих ворот, бить рикошетом
+// от ближней стенки вместо поворота в сторону чужих ворот.
+// Сбрасывается при падении emitter
+enum class RicochetMode { NONE, LEFT, RIGHT };
+static RicochetMode ricochet_mode = RicochetMode::NONE;
+static double ricochet_target_field_angle = 0.0;
+static bool ricochet_target_computed = false;
+
 void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                           Field& field) {
   auto obstacle = nearest_obstacle(robot);
@@ -117,6 +125,13 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   ram_prev_visible = cur_visible;
   ram_active = false;
 
+  // Падающий фронт emitter → сброс ricochet-состояния. На следующем
+  // захвате режим решается заново.
+  if (!robot.emitter) {
+    ricochet_mode = RicochetMode::NONE;
+    ricochet_target_computed = false;
+  }
+
   if (!is_piter) {
     if (robot.emitter) {
       // Мяч в лунке
@@ -124,8 +139,59 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
                             {.dribbling = *config->strategy->dribbling})) {
         // Стабилизация только что захваченного мяча.
       } else {
-        // Просто целимся и стреляем
-        kick_->execute_to_goal(robot, goal, {});
+        // Гистерезис по robot.position.x: левее x_padding → LEFT;
+        // правее FIELD_WIDTH − x_padding → RIGHT. Выход из режима
+        // только когда x ушёл от порога вглубь на hysteresis.
+        const auto& rc_cfg = *keeper_cfg.ricochet;
+        double xl = rc_cfg.x_padding;
+        double xr = FIELD_WIDTH - rc_cfg.x_padding;
+        double rx = robot.position.x;
+        switch (ricochet_mode) {
+          case RicochetMode::NONE:
+            if (rx < xl) {
+              ricochet_mode = RicochetMode::LEFT;
+              ricochet_target_computed = false;
+            } else if (rx > xr) {
+              ricochet_mode = RicochetMode::RIGHT;
+              ricochet_target_computed = false;
+            }
+            break;
+          case RicochetMode::LEFT:
+            if (rx > xl + rc_cfg.hysteresis) {
+              ricochet_mode = RicochetMode::NONE;
+              ricochet_target_computed = false;
+            }
+            break;
+          case RicochetMode::RIGHT:
+            if (rx < xr - rc_cfg.hysteresis) {
+              ricochet_mode = RicochetMode::NONE;
+              ricochet_target_computed = false;
+            }
+            break;
+        }
+
+        if (ricochet_mode != RicochetMode::NONE) {
+          bool left = (ricochet_mode == RicochetMode::LEFT);
+          const auto& t = left ? rc_cfg.target_left : rc_cfg.target_right;
+          double field_angle;
+          if (rc_cfg.recompute_angle_each_tick) {
+            field_angle = compute_ricochet_field_angle(
+                robot.ball_hole_position(), {t.x, t.y}, left);
+          } else {
+            if (!ricochet_target_computed) {
+              ricochet_target_field_angle = compute_ricochet_field_angle(
+                  robot.ball_hole_position(), {t.x, t.y}, left);
+              ricochet_target_computed = true;
+            }
+            field_angle = ricochet_target_field_angle;
+          }
+          double relative_dir =
+              normalize_angle(field_angle - robot.field_angle);
+          kick_->execute(robot, {.relative_dir = relative_dir});
+        } else {
+          // Прямой удар по чужим воротам.
+          kick_->execute_to_goal(robot, goal, {});
+        }
       }
     } else if (ball_ok) {
       Vec ball_pos = ball_->position();

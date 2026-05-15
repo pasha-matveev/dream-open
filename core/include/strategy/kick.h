@@ -4,12 +4,16 @@ class Object;
 class Robot;
 class TurnController;
 class Vec;
+struct Mapper;
 
 struct KickParams {
   double relative_dir;
   bool curved_rotation = true;
   int kick_timeout = 0;
   double precision = 0.015;
+  // Опциональный мапер плавного замедления дриблинга перед ударом
+  // (прошедшие мс → значение дриблинга). nullptr — замедление не нужно.
+  const Mapper* dribbling_slowdown = nullptr;
 };
 
 class KickController {
@@ -40,5 +44,7 @@ class KickController {
   TurnController* turn_ = nullptr;
   Status status_ = Status::ROTATE;
   long long timeout_stamp_ = -10000;
+  // Момент входа в фазу замедления дриблинга (TIMEOUT с dribbling_slowdown).
+  long long slowdown_start_ = 0;
   bool reset_pending_ = false;
 };

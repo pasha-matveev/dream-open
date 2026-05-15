@@ -1,5 +1,7 @@
 #include "config/strategy/keeper.h"
 
+#include "utils/mapper.h"
+
 using namespace cfg;
 using std::make_unique;
 
@@ -35,6 +37,7 @@ Keeper::Keeper(const rapidjson::Value& doc) {
 
   ricochet = make_unique<Ricochet>();
   const rapidjson::Value& drc = doc["ricochet"];
+  ricochet->enabled = drc["enabled"].GetBool();
   ricochet->x_padding = drc["x_padding"].GetDouble();
   ricochet->hysteresis = drc["hysteresis"].GetDouble();
   ricochet->recompute_angle_each_tick =
@@ -43,4 +46,6 @@ Keeper::Keeper(const rapidjson::Value& doc) {
   ricochet->target_left.y = drc["target_left"]["y"].GetDouble();
   ricochet->target_right.x = drc["target_right"]["x"].GetDouble();
   ricochet->target_right.y = drc["target_right"]["y"].GetDouble();
+  ricochet->dribbling_slowdown =
+      make_unique<Mapper>(drc["dribbling_slowdown"]);
 }

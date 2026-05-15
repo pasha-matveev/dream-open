@@ -4,6 +4,8 @@
 
 #include <memory>
 
+struct Mapper;
+
 namespace cfg {
 
 struct Keeper {
@@ -65,6 +67,9 @@ struct Keeper {
   // при ударе вращался бы в сторону чужих ворот, держа мяч в лунке,
   // развёрнутой опасно — противник может перехватить.
   struct Ricochet {
+    // Выключатель режима рикошета. false — вратарь всегда бьёт прямо по
+    // чужим воротам, в LEFT/RIGHT не входит.
+    bool enabled;
     // Отступ от боковых стенок: x < x_padding → левый рикошет;
     // x > FIELD_WIDTH − x_padding → правый рикошет.
     double x_padding;
@@ -82,6 +87,9 @@ struct Keeper {
     };
     Target target_left;
     Target target_right;
+    // Мапер плавного замедления дриблинга перед ударом рикошетом
+    // (прошедшие мс → значение дриблинга).
+    std::unique_ptr<Mapper> dribbling_slowdown;
   };
   std::unique_ptr<Ricochet> ricochet;
 };

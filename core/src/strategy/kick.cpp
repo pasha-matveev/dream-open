@@ -35,10 +35,17 @@ void KickController::execute(Robot& robot, const KickParams& params) {
                     config->strategy->dribbling->value_r)});
 
     if (finished) {
-      // TODO: kick_timout в настройках
-      if (params.kick_timeout) {
+      if (params.dribbling_slowdown) {
+        // Плавное замедление дриблинга перед ударом: фаза TIMEOUT длиной
+        // param_r мс, dribbling мапится от прошедшего времени.
         status_ = Status::TIMEOUT;
-        // TODO: плавное замедление
+        slowdown_start_ = millis();
+        timeout_stamp_ =
+            millis() +
+            static_cast<long long>(params.dribbling_slowdown->param_r);
+        robot.dribbling = params.dribbling_slowdown->map(0);
+      } else if (params.kick_timeout) {
+        status_ = Status::TIMEOUT;
         robot.dribbling = config->strategy->dribbling_slow;
         timeout_stamp_ = millis() + params.kick_timeout;
       } else {
@@ -50,12 +57,20 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     }
 
   } else if (status_ == Status::TIMEOUT) {
-    // TODO: плавное замедление
-    robot.dribbling = config->strategy->dribbling_slow;
+    if (params.dribbling_slowdown) {
+      robot.dribbling =
+          params.dribbling_slowdown->map(millis() - slowdown_start_);
+    } else {
+      robot.dribbling = config->strategy->dribbling_slow;
+    }
     robot.vel = {0, 0};
   } else if (status_ == Status::KICK) {
     robot.kicker_force = compute_power(robot.position);
-    if (params.kick_timeout) {
+    if (params.dribbling_slowdown) {
+      // map клампит → итоговое низкое value_r.
+      robot.dribbling =
+          params.dribbling_slowdown->map(millis() - slowdown_start_);
+    } else if (params.kick_timeout) {
       robot.dribbling = 0;
     } else {
       robot.dribbling = config->strategy->dribbling->value_r;

@@ -80,7 +80,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   }
 
   long long piter_visible_tm = millis() - last_piter_visible;
-  bool ball_ok = ball_->recently_visible(millis(), 3000);
+  bool ball_ok = ball_->recently_visible(millis(), 4500);
   bool piter_ok = piter_visible_tm <= 2000;
 
   bool is_piter;

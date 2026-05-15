@@ -113,12 +113,16 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
           millis() - enemy_near_since <=
               config->strategy->attacker->enemy_latch_ms;
       bool facing_up = std::abs(robot.field_angle) <= M_PI / 2;
-      if (icarus_cfg.enabled && enemy_near && facing_up && !inside_special &&
-          !engaged) {
+      // Мяч захвачен в своей зоне (y ниже порога) — icarus включается всегда,
+      // в обход enemy_near и facing_up.
+      bool low_y = robot.position.y < icarus_cfg.always_below_y;
+      if (icarus_cfg.enabled && (low_y || (enemy_near && facing_up)) &&
+          !inside_special && !engaged) {
         icarus_state = robot.position.x < 91.0 ? IcarusState::LEFT
                                                : IcarusState::RIGHT;
-        spdlog::info("ICARUS DECIDED: {}",
-                     icarus_state == IcarusState::LEFT ? "left" : "right");
+        spdlog::info("ICARUS DECIDED: {} ({})",
+                     icarus_state == IcarusState::LEFT ? "left" : "right",
+                     low_y ? "low_y" : "enemy");
       } else {
         icarus_state = IcarusState::OFF;
       }

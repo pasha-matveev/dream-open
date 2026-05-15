@@ -216,6 +216,7 @@
       },
       "icarus": {
         "enabled": true,
+        "always_below_y": 60,
         "curved_rotation": false,
         "recompute_angle_each_tick": true,
         "target_left": {

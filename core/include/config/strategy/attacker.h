@@ -76,6 +76,9 @@ struct Attacker {
   struct Icarus {
     // Выключатель режима. false — icarus никогда не активируется.
     bool enabled;
+    // y, ниже которого icarus включается всегда — независимо от enemy_near и
+    // facing_up. Координата робота в момент захвата мяча.
+    double always_below_y;
     // Тип поворота при ударе → KickParams.curved_rotation.
     bool curved_rotation;
     // true — пересчитываем угол рикошета каждый тик от текущего

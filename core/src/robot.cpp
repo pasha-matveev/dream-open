@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <thread>
 
@@ -41,7 +42,7 @@ void Robot::write_to_arduino() {
       normalize_angle2(-gyro_angle - normalize_angle2(direction)));
   uart->write_data<float>(speed);
   uart->write_data<float>(
-      normalize_angle2(-gyro_angle - normalize_angle2(rotation)));
+      normalize_angle2(-gyro_angle - normalize_angle2(resolve_rotation())));
   uart->write_data<float>(rotation_limit);
   uart->write_data<int32_t>(dribbling);
   uart->write_data<int32_t>(kicker_force);
@@ -219,6 +220,19 @@ void Robot::apply_motion_limits(double dt) {
 
 double Robot::relative_angle(const Vec& p) const {
   return (p - position).field_angle() - field_angle;
+}
+
+double Robot::resolve_rotation() const {
+  const auto& st = config->strategy->safe_turn;
+  if (position.y < st->y &&
+      std::abs(normalize_angle(rotation)) > st->angle) {
+    // Крутимся через направление к ближайшей боковой стенке.
+    double wall_angle =
+        position.x < field_dims::kWidth / 2 ? M_PI / 2 : -M_PI / 2;
+    double delta = normalize_angle(wall_angle - field_angle);
+    return (delta >= 0 ? 1.0 : -1.0) * M_PI / 2;
+  }
+  return rotation;
 }
 
 Vec Robot::ball_hole_position() const {

@@ -33,6 +33,11 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   motion->push_out_k = dmotion["push_out_k"].GetDouble();
   motion->push_out_v_min = dmotion["push_out_v_min"].GetDouble();
 
+  safe_turn = make_unique<SafeTurn>();
+  const rapidjson::Value& dsafe_turn = doc["safe_turn"];
+  safe_turn->y = dsafe_turn["y"].GetDouble();
+  safe_turn->angle = dsafe_turn["angle"].GetDouble();
+
   dribbling = make_unique<Mapper>(doc["dribbling"]);
   dribbling_slow = doc["dribbling_slow"].GetDouble();
 

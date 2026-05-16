@@ -44,6 +44,12 @@ struct Strategy {
   };
   std::unique_ptr<Motion> motion;
 
+  struct SafeTurn {
+    double y;      // ниже этого y (см) включается безопасный разворот
+    double angle;  // порог |доворота| (рад), выше которого крутим через стенку
+  };
+  std::unique_ptr<SafeTurn> safe_turn;
+
   std::unique_ptr<Mapper> dribbling;
   double dribbling_slow;
 

@@ -119,4 +119,8 @@ class Robot {
   void apply_motion_limits(double dt);
   double relative_angle(const Vec& p) const;
   Vec ball_hole_position() const;
+  // Целевой относительный доворот для отправки на моторы. Обычно равен
+  // rotation; возле своих ворот при большом |rotation| подменяется на ±π/2
+  // «через стенку», чтобы не разворачиваться опасно перед своими воротами.
+  double resolve_rotation() const;
 };

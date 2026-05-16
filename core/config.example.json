@@ -147,6 +147,10 @@
       "push_out_k": 2.0,
       "push_out_v_min": 0.0
     },
+    "safe_turn": {
+      "y": 50,
+      "angle": 2.35
+    },
     "dribbling": {
       "param_l": 0,
       "param_r": 600,
@@ -195,6 +199,7 @@
         },
         "spin_timeout_ms": 2000,
         "kicker_angle": 0.0,
+        "kicker_force": 2,
         "drive_max_speed": 30.0
       },
       "kurwa": {

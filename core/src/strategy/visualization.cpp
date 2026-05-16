@@ -104,7 +104,8 @@ void Visualization::run(Robot& robot, Object& ball, Object& goal,
     // нему, ограниченный rotation_limit (rad/s) с коэффициентом /3 для
     // совместимости со старым поведением.
     double max_rotation = robot.rotation_limit * dt / 3;
-    robot.field_angle += clamp(robot.rotation, -1 * max_rotation, max_rotation);
+    robot.field_angle +=
+        clamp(robot.resolve_rotation(), -1 * max_rotation, max_rotation);
     if (robot.emitter && override_ball) {
       ball.field_position = robot.position + robot_dir.resize(REAL_ROBOT_R);
     }

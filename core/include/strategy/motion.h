@@ -11,9 +11,21 @@ struct StabilizeCaptureParams {
   double initial_speed = 10.0;
 };
 
-bool drive_target(Robot& robot, const Vec& target, double max_speed = 120,
-                  double min_speed = 0, bool is_ball = false,
-                  const Mapper* speed_map = nullptr);
+struct DriveParams {
+  double max_speed = 120;
+  double min_speed = 0;
+  bool is_ball = false;
+  // Своя кривая дистанция→скорость (напр. fast_direct). nullptr — берётся
+  // control->speed. Учитывается только при is_ball.
+  const Mapper* speed_map = nullptr;
+  // true  — скорость ограничена физическим пределом торможения до остановки
+  //         в цели (v_safe = sqrt(2·a·d));
+  // false — предел снят, скорость задаёт только маппер / max_speed (таран).
+  bool brake_safe = true;
+};
+
+bool drive_target(Robot& robot, const Vec& target,
+                  const DriveParams& params = {});
 void drive_ball(Robot& robot, const Vec& ball);
 void accelerated_dribbling(Robot& robot, const Mapper& dribbling);
 bool stabilize_capture(Robot& robot, const StabilizeCaptureParams& params);

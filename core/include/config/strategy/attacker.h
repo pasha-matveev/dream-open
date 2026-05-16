@@ -25,6 +25,8 @@ struct Attacker {
   double enemy_min_y;          // см, препятствия ниже игнорируются (зона вратаря)
   long long enemy_latch_ms;    // мс, латч режима при пропаже цели лидаром
   int fast_direct_dribbling;   // скорость дриблера в быстром подъезде
+  bool fast_direct_brake_safe; // тормозить ли у мяча в быстром подъезде
+                               // (false — таран без торможения)
 
   struct SpecialPos {
     double x, y;

@@ -60,7 +60,8 @@ void run_square(TestContext& ctx) {
       robot.rotation =
           normalize_angle(point_rotation[square_state] - robot.field_angle);
       robot.rotation_limit = 15;
-      drive_target(robot, target, 1, 80, 80);
+      drive_target(robot, target,
+                   {.max_speed = 80, .min_speed = 1, .is_ball = true});
       if ((target - robot.position).len() <= 10) {
         square_state = (square_state + 1) % 4;
       }

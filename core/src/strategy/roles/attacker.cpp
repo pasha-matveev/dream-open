@@ -234,8 +234,11 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         // Враг захватил мяч и убегает — dubins бесполезен. Едем напрямую и
         // быстрее (fast_direct), дриблер сразу на максимум, чтобы выхватить
         // мяч на подъезде.
-        drive_target(robot, ball_pos, 120, 0, true,
-                     config->strategy->attacker->fast_direct.get());
+        drive_target(robot, ball_pos,
+                     {.is_ball = true,
+                      .speed_map = config->strategy->attacker->fast_direct.get(),
+                      .brake_safe =
+                          config->strategy->attacker->fast_direct_brake_safe});
         robot.dribbling = config->strategy->attacker->fast_direct_dribbling;
         robot.rotation_limit = 40;
       } else {

@@ -190,8 +190,9 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         // окажемся в другой ветке (projection/ray) и ram сам сбросится.
         if (ram_cfg.enabled && safety_ok && (fresh || far || was_ram)) {
           // RAM: едем на мяч на физически безопасной скорости, минуя мапер.
-          drive_target(robot, ball_pos, ram_cfg.max_speed, ram_cfg.min_speed,
-                       /*is_ball=*/false);
+          drive_target(robot, ball_pos,
+                       {.max_speed = ram_cfg.max_speed,
+                        .min_speed = ram_cfg.min_speed});
           robot.dribbling = config->strategy->dribbling->value_l;
           robot.rotation_limit = 40;
           ram_active = true;

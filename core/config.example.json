@@ -175,6 +175,7 @@
       "enemy_min_y": 60,
       "enemy_latch_ms": 1000,
       "fast_direct_dribbling": 8000,
+      "fast_direct_brake_safe": false,
       "special_pos": {
         "x": 38,
         "y": 45

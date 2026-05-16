@@ -18,6 +18,7 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   enemy_min_y = doc["enemy_min_y"].GetDouble();
   enemy_latch_ms = doc["enemy_latch_ms"].GetInt64();
   fast_direct_dribbling = doc["fast_direct_dribbling"].GetInt();
+  fast_direct_brake_safe = doc["fast_direct_brake_safe"].GetBool();
 
   special_pos = make_unique<SpecialPos>();
   special_pos->x = doc["special_pos"]["x"].GetDouble();

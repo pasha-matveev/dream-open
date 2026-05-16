@@ -44,9 +44,9 @@ int main() {
 
   const bool is_keeper = config->strategy->role == "keeper";
   spdlog::info("Running as {}", is_keeper ? "keeper" : "attacker");
-  Field field = is_keeper
-                    ? Field(keeper_zone_points(), keeper_zone_brake_flags())
-                    : Field(attacker_zone_points());
+  Field field =
+      is_keeper ? Field(keeper_zone_points(), keeper_zone_brake_modes())
+                : Field(attacker_zone_points(), attacker_zone_brake_modes());
 
   if (config->tracking->preview_enabled) {
     cv::namedWindow("Camera", cv::WINDOW_AUTOSIZE);

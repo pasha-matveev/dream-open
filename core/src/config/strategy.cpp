@@ -29,6 +29,7 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   motion->max_linear_accel = dmotion["max_linear_accel"].GetDouble();
   motion->max_angular_accel = dmotion["max_angular_accel"].GetDouble();
   motion->decel_k = dmotion["decel_k"].GetDouble();
+  motion->decel_k_low = dmotion["decel_k_low"].GetDouble();
   motion->wall_limit = dmotion["wall_limit"].GetDouble();
   motion->push_out_k = dmotion["push_out_k"].GetDouble();
   motion->push_out_v_min = dmotion["push_out_v_min"].GetDouble();

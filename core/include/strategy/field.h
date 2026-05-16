@@ -5,6 +5,7 @@
 
 #include "field_dims.h"
 #include "robot.h"
+#include "strategy/brake_mode.h"
 #include "utils/geo/polygon.h"
 #include "utils/geo/vec.h"
 
@@ -20,18 +21,25 @@ constexpr int FIELD_HEIGHT = static_cast<int>(field_dims::kHeight);
 // храним по часовой стрелке
 class Field : public Polygon {
  private:
-  // Параллельный массив: brake_enabled_[i] управляет применением
-  // Segment::apply на ребре points[i]→points[(i+1)%N]. false означает, что
-  // ребро остаётся частью геометрии (inside/find_intersection/dispatch
-  // работают как раньше), но Field::apply_seg для него no-op — не клампит
-  // скорость робота. Используется для зонных границ keeper'а, у которых нет
-  // физической стенки.
-  std::vector<bool> brake_enabled_;
+  // Параллельный массив: brake_modes_[i] управляет применением
+  // Segment::apply на ребре points[i]→points[(i+1)%N].
+  //   Normal — обычное торможение (decel_k).
+  //   Off    — Field::apply_seg для ребра no-op: оно остаётся частью
+  //            геометрии (inside/find_intersection работают как раньше),
+  //            но скорость робота не клампится. Виртуальные границы зоны
+  //            keeper'а, у которых нет физической стенки.
+  //   Low    — ослабленное торможение (decel_k_low вместо decel_k). Верхняя
+  //            граница выреза зоны вратаря у нападающего: не мешает погоне
+  //            за врагом, но push-out по-прежнему не пускает внутрь зоны.
+  std::vector<BrakeMode> brake_modes_;
+
+  // decel_k для ребра с данным режимом: Low → decel_k_low, иначе decel_k.
+  static double decel_k_for(BrakeMode mode);
 
   void apply_seg(int i, Robot& robot, double push_k, double push_v_min) const;
 
  public:
   Field(const vector<Vec>& points_);
-  Field(const vector<Vec>& points_, std::vector<bool> brake_enabled);
+  Field(const vector<Vec>& points_, std::vector<BrakeMode> brake_modes);
   void apply(Robot& robot, double push_k, double push_v_min) const;
 };

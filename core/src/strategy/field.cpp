@@ -4,22 +4,29 @@
 
 #include <cassert>
 
+#include "config/config.h"
+#include "config/strategy.h"
 #include "strategy/segment.h"
 
 Field::Field(const vector<Vec>& points_)
-    : Polygon(points_), brake_enabled_(points_.size(), true) {}
+    : Polygon(points_), brake_modes_(points_.size(), BrakeMode::Normal) {}
 
-Field::Field(const vector<Vec>& points_, std::vector<bool> brake_enabled)
-    : Polygon(points_), brake_enabled_(std::move(brake_enabled)) {
-  assert(points.size() == brake_enabled_.size());
+Field::Field(const vector<Vec>& points_, std::vector<BrakeMode> brake_modes)
+    : Polygon(points_), brake_modes_(std::move(brake_modes)) {
+  assert(points.size() == brake_modes_.size());
+}
+
+double Field::decel_k_for(BrakeMode mode) {
+  return mode == BrakeMode::Low ? config->strategy->motion->decel_k_low
+                                : config->strategy->motion->decel_k;
 }
 
 void Field::apply_seg(int i, Robot& robot, double push_k,
                       double push_v_min) const {
-  if (!brake_enabled_[i]) return;
+  if (brake_modes_[i] == BrakeMode::Off) return;
   int j = (i + 1) % points.size();
   Segment seg{points[i], points[j]};
-  seg.apply(robot, push_k, push_v_min);
+  seg.apply(robot, push_k, push_v_min, decel_k_for(brake_modes_[i]));
 }
 
 void Field::apply(Robot& robot, double push_k, double push_v_min) const {
@@ -41,12 +48,12 @@ void Field::apply(Robot& robot, double push_k, double push_v_min) const {
     }
 
     for (int i = 0; i < points.size(); ++i) {
-      if (!brake_enabled_[i]) continue;
+      if (brake_modes_[i] == BrakeMode::Off) continue;
       int j = (i + 1) % points.size();
       Segment seg(points[i], points[j]);
       if (seg.is_proection(robot.position) &&
           seg.correct_side(robot.position)) {
-        seg.apply(robot, push_k, push_v_min);
+        seg.apply(robot, push_k, push_v_min, decel_k_for(brake_modes_[i]));
       }
     }
   } else {

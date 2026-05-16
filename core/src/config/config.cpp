@@ -30,6 +30,8 @@ Config::~Config() = default;
 namespace {
 
 void apply_profile(Config& c, const std::string& name) {
+  c.visualization->interactive = (name == "virtual");
+
   if (name == "manual") return;
   if (name == "play") {
     c.tracking->enabled = true;

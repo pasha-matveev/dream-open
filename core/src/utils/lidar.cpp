@@ -164,13 +164,9 @@ Lidar::ComputeResult Lidar::compute(const Robot& robot) {
       // (вырожденный кадр при ошибке сканирования: grabScanDataHq отдал
       // 0 точек → bounding rect = {w=0,h=0,corners=∅}, далее dist
       // улетает в ~565 при подсчёте от центра-картинки).
-      // Допуски ~±20% от номинала.
-      constexpr double kFieldMinWidth = 200.0;   // 241 * 0.83
-      constexpr double kFieldMaxWidth = 290.0;   // 241 * 1.20
-      constexpr double kFieldMinHeight = 150.0;  // 182 * 0.82
-      constexpr double kFieldMaxHeight = 220.0;  // 182 * 1.21
-      if (field.width < kFieldMinWidth || field.width > kFieldMaxWidth ||
-          field.height < kFieldMinHeight || field.height > kFieldMaxHeight) {
+      const auto& fb = *config->lidar->field;
+      if (field.width < fb.min_width || field.width > fb.max_width ||
+          field.height < fb.min_height || field.height > fb.max_height) {
         spdlog::warn("Lidar field out of bounds: w={} h={} — dropping frame",
                      field.width, field.height);
         return {false, {0, 0}, 0};

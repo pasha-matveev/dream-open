@@ -21,4 +21,11 @@ Lidar::Lidar(const rapidjson::Value& doc) {
   const rapidjson::Value& dpiter = doc["piter"];
   piter->self_exclusion_radius = dpiter["self_exclusion_radius"].GetDouble();
   piter->markup_tolerance = dpiter["markup_tolerance"].GetDouble();
+
+  field = make_unique<Field>();
+  const rapidjson::Value& dfield = doc["field"];
+  field->min_width = dfield["min_width"].GetDouble();
+  field->max_width = dfield["max_width"].GetDouble();
+  field->min_height = dfield["min_height"].GetDouble();
+  field->max_height = dfield["max_height"].GetDouble();
 }

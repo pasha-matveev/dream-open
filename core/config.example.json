@@ -115,6 +115,12 @@
     "piter": {
       "self_exclusion_radius": 10.0,
       "markup_tolerance": 6.0
+    },
+    "field": {
+      "min_width": 200.0,
+      "max_width": 310.0,
+      "min_height": 150.0,
+      "max_height": 240.0
     }
   },
   "visualization": {

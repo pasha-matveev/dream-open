@@ -39,6 +39,14 @@ struct Lidar {
     double markup_tolerance;
   };
   std::unique_ptr<Piter> piter;
+
+  struct Field {
+    double min_width;
+    double max_width;
+    double min_height;
+    double max_height;
+  };
+  std::unique_ptr<Field> field;
 };
 
 }  // namespace cfg

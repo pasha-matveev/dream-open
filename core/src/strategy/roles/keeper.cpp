@@ -152,12 +152,10 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         if (ricochet_mode != RicochetMode::NONE) {
           bool left = (ricochet_mode == RicochetMode::LEFT);
           const auto& t = left ? rc_cfg.target_left : rc_cfg.target_right;
-          execute_ricochet_kick(robot, *kick_, left, {t.x, t.y},
-                                rc_cfg.recompute_angle_each_tick,
-                                /*curved_rotation=*/true,
-                                rc_cfg.dribbling_slowdown.get(),
-                                ricochet_target_field_angle,
-                                ricochet_target_computed);
+          execute_ricochet_kick(
+              robot, *kick_, left, {t.x, t.y}, rc_cfg.recompute_angle_each_tick,
+              /*curved_rotation=*/true, rc_cfg.dribbling_slowdown.get(),
+              ricochet_target_field_angle, ricochet_target_computed);
         } else {
           // Прямой удар по чужим воротам.
           kick_->execute_to_goal(robot, goal, {});
@@ -190,9 +188,9 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         // окажемся в другой ветке (projection/ray) и ram сам сбросится.
         if (ram_cfg.enabled && safety_ok && (fresh || far || was_ram)) {
           // RAM: едем на мяч на физически безопасной скорости, минуя мапер.
-          drive_target(robot, ball_pos,
-                       {.max_speed = ram_cfg.max_speed,
-                        .min_speed = ram_cfg.min_speed});
+          drive_target(
+              robot, ball_pos,
+              {.max_speed = ram_cfg.max_speed, .min_speed = ram_cfg.min_speed});
           robot.dribbling = config->strategy->dribbling->value_l;
           robot.rotation_limit = 40;
           ram_active = true;
@@ -204,13 +202,13 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         double xl = keeper_cfg.line->padding;
         double xr = FIELD_WIDTH - keeper_cfg.line->padding;
         Vec target{clamp(ball_pos.x, xl, xr), keeper_cfg.line->y};
-        drive_target(robot, target);
+        drive_target(robot, target, {.prec = 0});
         robot.rotation = ball_->relative_angle(robot);
       } else {
         // Мяч между линией вратаря и projection_border — лучевая защита.
         Vec target =
             compute_ray_target(ball_pos, field, keeper_cfg.line->ray_min_y);
-        drive_target(robot, target);
+        drive_target(robot, target, {.prec = 0});
         robot.rotation = ball_->relative_angle(robot);
       }
     } else {

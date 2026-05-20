@@ -20,8 +20,7 @@ bool drive_target(Robot& robot, const Vec& target, const DriveParams& params) {
                                        : *config->strategy->control->speed;
     v_safe = min(v_safe, m.map(d_safe));
   }
-  // TODO: в конфигурации
-  bool finished = (target - robot.position).len() <= 2;
+  bool finished = (target - robot.position).len() <= params.prec;
   if (finished) {
     vel = {0, 0};
   } else {

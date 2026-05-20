@@ -22,6 +22,7 @@ struct DriveParams {
   //         в цели (v_safe = sqrt(2·a·d));
   // false — предел снят, скорость задаёт только маппер / max_speed (таран).
   bool brake_safe = true;
+  double prec = 2;
 };
 
 bool drive_target(Robot& robot, const Vec& target,

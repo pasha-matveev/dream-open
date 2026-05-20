@@ -108,18 +108,17 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     // (enemy_near_since из no-ball ветки, дебаунсен enemy_latch_ms) — на
     // одном кадре лидара решение не принимаем.
     if (icarus_state == IcarusState::UNDECIDED) {
-      bool enemy_near =
-          enemy_near_since >= 0 &&
-          millis() - enemy_near_since <=
-              config->strategy->attacker->enemy_latch_ms;
+      bool enemy_near = enemy_near_since >= 0 &&
+                        millis() - enemy_near_since <=
+                            config->strategy->attacker->enemy_latch_ms;
       bool facing_up = std::abs(robot.field_angle) <= M_PI / 2;
       // Мяч захвачен в своей зоне (y ниже порога) — icarus включается всегда,
       // в обход enemy_near и facing_up.
       bool low_y = robot.position.y < icarus_cfg.always_below_y;
       if (icarus_cfg.enabled && (low_y || (enemy_near && facing_up)) &&
           !inside_special && !engaged) {
-        icarus_state = robot.position.x < 91.0 ? IcarusState::LEFT
-                                               : IcarusState::RIGHT;
+        icarus_state =
+            robot.position.x < 91.0 ? IcarusState::LEFT : IcarusState::RIGHT;
         spdlog::info("ICARUS DECIDED: {} ({})",
                      icarus_state == IcarusState::LEFT ? "left" : "right",
                      low_y ? "low_y" : "enemy");
@@ -138,8 +137,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         spdlog::info("STABILIZE");
       } else {
         bool left = icarus_state == IcarusState::LEFT;
-        const auto& t =
-            left ? icarus_cfg.target_left : icarus_cfg.target_right;
+        const auto& t = left ? icarus_cfg.target_left : icarus_cfg.target_right;
         spdlog::info("ICARUS KICK");
         execute_ricochet_kick(robot, *kick_, left, {t.x, t.y},
                               icarus_cfg.recompute_angle_each_tick,
@@ -225,20 +223,19 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         }
       }
       if (detected_now) enemy_near_since = millis();
-      bool enemy_near_ball =
-          enemy_near_since >= 0 &&
-          millis() - enemy_near_since <=
-              config->strategy->attacker->enemy_latch_ms;
+      bool enemy_near_ball = enemy_near_since >= 0 &&
+                             millis() - enemy_near_since <=
+                                 config->strategy->attacker->enemy_latch_ms;
 
       if (enemy_near_ball) {
         // Враг захватил мяч и убегает — dubins бесполезен. Едем напрямую и
         // быстрее (fast_direct), дриблер сразу на максимум, чтобы выхватить
         // мяч на подъезде.
-        drive_target(robot, ball_pos,
-                     {.is_ball = true,
-                      .speed_map = config->strategy->attacker->fast_direct.get(),
-                      .brake_safe =
-                          config->strategy->attacker->fast_direct_brake_safe});
+        drive_target(
+            robot, ball_pos,
+            {.is_ball = true,
+             .speed_map = config->strategy->attacker->fast_direct.get(),
+             .brake_safe = config->strategy->attacker->fast_direct_brake_safe});
         robot.dribbling = config->strategy->attacker->fast_direct_dribbling;
         robot.rotation_limit = 40;
       } else {
@@ -246,8 +243,8 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
         bool res = false;
         if (config->strategy->attacker->dubins_enabled) {
           res = dubins_->dubins_hit(
-              robot, goal, field,
-              KickController::compute_power(robot.position), false);
+              robot, goal, field, KickController::compute_power(robot.position),
+              false);
         }
         if (!res) {
           // Мяч близко к бортам, играем как обычно
@@ -265,5 +262,6 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     }
   }
 
-  robot.vel = robot.vel.resize(std::min(robot.vel.len(), 120.0));
+  // TODO: config
+  robot.vel = robot.vel.resize(std::min(robot.vel.len(), 180.0));
 }

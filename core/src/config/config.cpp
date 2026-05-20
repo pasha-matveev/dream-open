@@ -77,6 +77,8 @@ void apply_profile(Config& c, const std::string& name) {
 Config::Config(const rapidjson::Value& doc) {
   std::string profile = doc["profile"].GetString();
 
+  init_timeout_ms = doc["init_timeout_ms"].GetInt();
+
   tracking = make_unique<Tracking>(doc["tracking"]);
   serial = make_unique<Serial>(doc["serial"]);
   gpio = make_unique<Gpio>(doc["gpio"]);

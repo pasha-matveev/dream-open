@@ -20,6 +20,8 @@ struct Config {
   Config(const Config&) = delete;
   Config& operator=(const Config&) = delete;
 
+  int init_timeout_ms;
+
   std::unique_ptr<cfg::Tracking> tracking;
   std::unique_ptr<cfg::Serial> serial;
   std::unique_ptr<cfg::Gpio> gpio;

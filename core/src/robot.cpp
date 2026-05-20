@@ -19,17 +19,18 @@
 #include "media/img.h"
 #include "utils/millis.h"
 
-void Robot::read_from_arduino() {
+void Robot::read_from_arduino(std::optional<InitDeadline> deadline) {
   uart->write_data<char>('R');
-  gyro_angle = normalize_angle2(-1 * uart->read_data<float>());
+  gyro_angle =
+      normalize_angle2(-1 * uart->read_data<float>(deadline, "arduino read"));
 
-  raw_emitter = uart->read_data<int32_t>();
+  raw_emitter = uart->read_data<int32_t>(deadline, "arduino read");
   if (raw_emitter < config->serial->emitter->threshold) {
     last_seen = millis();
   }
   emitter = (millis() - last_seen) < config->serial->emitter->optimist;
 
-  kicker_charged = uart->read_data<bool>();
+  kicker_charged = uart->read_data<bool>(deadline, "arduino read");
 }
 
 static bool written = false;
@@ -67,10 +68,10 @@ void Robot::update_buzzer() {
 
 void Robot::init_buttons() { setup_buttons(this); }
 
-void Robot::init_uart() {
+void Robot::init_uart(InitDeadline deadline) {
   uart = new UART();
   uart->connect();
-  uart->wait_for_x();
+  uart->wait_for_x(deadline);
 }
 
 void Robot::init_display() {
@@ -83,19 +84,25 @@ void Robot::init_display() {
   }
 }
 
-void Robot::init_lidar() {
+void Robot::init_lidar(InitDeadline deadline) {
   lidar = new Lidar();
   lidar->start();
   while (!lidar->received_data) {
+    check_init_deadline(deadline, "lidar");
     this_thread::sleep_for(chrono::milliseconds(50));
   }
 }
 
 void Robot::init_hardware(Object& ball, Object& goal, Object& own_goal) {
+  // Общий бюджет на всю инициализацию железа. При срабатывании блокирующие
+  // шаги кидают исключение, main ловит его и через ~Robot освобождает ресурсы.
+  InitDeadline deadline = std::chrono::steady_clock::now() +
+                          std::chrono::milliseconds(config->init_timeout_ms);
+
   if (config->tracking->enabled) {
     init_camera(ball, goal, own_goal);
   }
-  spdlog::info("Camera ready");
+  spdlog::info("Camera started");
   if (config->gpio->enabled) {
     setup_wiringpi();
     if (config->gpio->buzzer->enabled) {
@@ -113,17 +120,28 @@ void Robot::init_hardware(Object& ball, Object& goal, Object& own_goal) {
   }
   spdlog::info("GPIO ready");
   if (config->serial->enabled) {
-    init_uart();
+    init_uart(deadline);
     spdlog::info("Reading from arduino");
-    read_from_arduino();
+    read_from_arduino(deadline);
     spdlog::info("Got data from arduino");
     init_gyro();
   }
   spdlog::info("UART ready");
   if (config->lidar->enabled) {
-    init_lidar();
+    init_lidar(deadline);
   }
   spdlog::info("Lidar ready");
+  // Камера запускается в отдельном потоке и прогревается параллельно с
+  // инициализацией arduino/lidar. Ждём первый кадр здесь, в конце, чтобы
+  // «Hardware ready» действительно означало рабочую камеру. camera != nullptr
+  // только при tracking->enabled — иначе цикл пропускается.
+  if (config->tracking->enabled) {
+    while (!camera->new_data()) {
+      check_init_deadline(deadline, "camera");
+      this_thread::sleep_for(chrono::milliseconds(50));
+    }
+    spdlog::info("Camera ready");
+  }
 }
 
 Robot::~Robot() {
@@ -182,8 +200,8 @@ std::optional<LidarPose> Robot::compute_lidar() {
     double total_rotation = 0.0;
     double total_movement = 0.0;
     for (size_t i = 1; i < lidar_history.size(); ++i) {
-      total_rotation += abs(normalize_angle(
-          lidar_history[i].gyro_angle - lidar_history[i - 1].gyro_angle));
+      total_rotation += abs(normalize_angle(lidar_history[i].gyro_angle -
+                                            lidar_history[i - 1].gyro_angle));
       total_movement +=
           (lidar_history[i].position - lidar_history[i - 1].position).len();
     }
@@ -191,9 +209,8 @@ std::optional<LidarPose> Robot::compute_lidar() {
         total_movement < config->lidar->calibration->movement) {
       top_angle = normalize_angle(gyro_angle - measured.field_angle);
       lidar_history.clear();
-      spdlog::info(
-          "Lidar drift calibration: rotation={:.3f} movement={:.2f}",
-          total_rotation, total_movement);
+      spdlog::info("Lidar drift calibration: rotation={:.3f} movement={:.2f}",
+                   total_rotation, total_movement);
     }
   }
 
@@ -224,8 +241,7 @@ double Robot::relative_angle(const Vec& p) const {
 
 double Robot::resolve_rotation() const {
   const auto& st = config->strategy->safe_turn;
-  if (position.y < st->y &&
-      std::abs(normalize_angle(rotation)) > st->angle) {
+  if (position.y < st->y && std::abs(normalize_angle(rotation)) > st->angle) {
     // Крутимся через направление к ближайшей боковой стенке.
     double wall_angle =
         position.x < field_dims::kWidth / 2 ? M_PI / 2 : -M_PI / 2;

@@ -137,14 +137,18 @@ void UART::connect() {
   }
 }
 
-void UART::wait_for_x() {
+void UART::wait_for_x(std::optional<InitDeadline> deadline) {
   if (!config->serial->interference) {
     spdlog::info("Skip init byte");
     return;
   }
   spdlog::info("Waiting for init byte...");
   while (true) {
+    // Проверка дедлайна нужна и здесь: при непрерывном потоке мусора от arduino
+    // IsDataAvailable() всегда true, внутренний цикл не выполняется ни разу.
+    if (deadline) check_init_deadline(*deadline, "wait_for_x");
     while (!serial.IsDataAvailable()) {
+      if (deadline) check_init_deadline(*deadline, "wait_for_x");
       std::this_thread::sleep_for(chrono::milliseconds(20));
     }
     char buffer[1];

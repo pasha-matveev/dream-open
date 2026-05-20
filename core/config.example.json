@@ -1,5 +1,6 @@
 {
   "profile": "manual",
+  "init_timeout_ms": 20000,
   "tracking": {
     "enabled": true,
     "preview_enabled": false,

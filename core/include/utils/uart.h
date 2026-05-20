@@ -5,7 +5,10 @@
 
 #include <chrono>
 #include <cstring>
+#include <optional>
 #include <thread>
+
+#include "utils/init_guard.h"
 
 using namespace LibSerial;
 using namespace std;
@@ -17,13 +20,17 @@ class UART {
  public:
   ~UART();
   void connect();
-  void wait_for_x();
+  void wait_for_x(std::optional<InitDeadline> deadline = std::nullopt);
   void disconnect();
 
+  // Во время init_hardware вызывается с deadline — poll-цикл прерывается по
+  // таймауту/сигналу. В главном цикле deadline отсутствует — поведение прежнее.
   template <class T>
-  T read_data() {
+  T read_data(std::optional<InitDeadline> deadline = std::nullopt,
+              const char* stage = "uart read") {
     assert(serial.good());
     while (!serial.IsDataAvailable()) {
+      if (deadline) check_init_deadline(*deadline, stage);
       std::this_thread::sleep_for(chrono::microseconds(100));
     }
     const int SZ = sizeof(T);

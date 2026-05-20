@@ -2,10 +2,12 @@
 
 #include <spdlog/spdlog.h>
 
+#include <chrono>
 #include <cmath>
 #include <csignal>
 #include <cstdlib>
 #include <sstream>
+#include <thread>
 #include <stdexcept>
 #include <utility>
 #include <sys/wait.h>
@@ -92,8 +94,39 @@ void Lidar::stop() {
 
   if (child_pid > 0) {
     ::kill(child_pid, SIGTERM);
+
+    // Грейс-период: ждём, пока процесс сам завершится по SIGTERM.
+    bool exited = false;
+    const auto deadline =
+        std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (std::chrono::steady_clock::now() < deadline) {
+      if (::waitpid(child_pid, nullptr, WNOHANG) == child_pid) {
+        exited = true;
+        break;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    // Процесс проигнорировал SIGTERM — добиваем SIGKILL и реапим, иначе
+    // output_thread навсегда зависнет в getline (EOF не придёт).
+    if (!exited) {
+      ::kill(child_pid, SIGKILL);
+      // Обычно SIGKILL реапит мгновенно, но процесс в D-state (uninterruptible
+      // sleep на зависшем USB) не реагирует даже на него. Ограничиваем
+      // ожидание, иначе shutdown зависнет навсегда — оставляем zombie, но
+      // наш процесс выходит.
+      const auto kill_deadline =
+          std::chrono::steady_clock::now() + std::chrono::seconds(2);
+      while (std::chrono::steady_clock::now() < kill_deadline) {
+        if (::waitpid(child_pid, nullptr, WNOHANG) == child_pid) break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
+    }
+    child_pid = -1;
   }
 
+  // Процесс гарантированно мёртв → его конец пайпа закрыт → getline в
+  // output_thread получает EOF и цикл завершается. Только теперь join
+  // не зависнет.
   if (output_thread.joinable()) {
     output_thread.join();
   }
@@ -101,11 +134,6 @@ void Lidar::stop() {
   if (pipe) {
     ::fclose(pipe);
     pipe = nullptr;
-  }
-
-  if (child_pid > 0) {
-    ::waitpid(child_pid, nullptr, 0);
-    child_pid = -1;
   }
 }
 

@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <csignal>
+#include <exception>
 #include <thread>
 
 #include "config/config.h"
@@ -16,6 +17,7 @@
 #include "strategy/zones.h"
 #include "tracking/object.h"
 #include "utils/geo/circle.h"
+#include "utils/init_guard.h"
 #include "utils/millis.h"
 
 using namespace std;
@@ -71,7 +73,14 @@ int main() {
                   /*setup=*/false, config->tracking->goal->min_area);
   Robot robot;
   spdlog::info("Initializing hardware...");
-  robot.init_hardware(ball, goal, own_goal);
+  try {
+    robot.init_hardware(ball, goal, own_goal);
+  } catch (const std::exception& e) {
+    // Таймаут/сигнал/ошибка во время init. Выход через return раскручивает
+    // стек и зовёт ~Robot — камера, lidar и serial освобождаются штатно.
+    spdlog::error("Hardware init failed: {}", e.what());
+    return 1;
+  }
   spdlog::info("Hardware ready");
 
   Strategy strategy;

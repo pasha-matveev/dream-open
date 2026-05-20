@@ -33,6 +33,9 @@ struct Camera::Impl {
   bool preview_ready = false;
   std::atomic<bool> running{true};
   std::atomic<bool> new_data{false};
+  // Ставится в самом конце start(). Позволяет Camera::stop() отличить штатно
+  // завершившийся поток от зависшего (например, в cam.startVideo()).
+  std::atomic<bool> thread_exited{false};
 
   void start();
   void analyze();
@@ -140,6 +143,7 @@ void Camera::Impl::start() {
     }
   }
   cam.stopVideo();
+  thread_exited.store(true, std::memory_order_release);
 }
 
 void Camera::start() {
@@ -150,6 +154,7 @@ void Camera::start() {
   if (impl) {
     impl->running.store(true);
     impl->new_data.store(false, std::memory_order_release);
+    impl->thread_exited.store(false, std::memory_order_release);
   }
   camera_thread = thread(&Impl::start, &(*impl));
 }
@@ -159,7 +164,27 @@ void Camera::stop() {
     impl->request_stop();
   }
   if (camera_thread.joinable()) {
-    camera_thread.join();
+    // Поток камеры обычно выходит за ~1с (getVideoFrame с таймаутом 1000мс
+    // видит running=false). Но если он намертво завис в startVideo(),
+    // безусловный join() заблокировал бы очистку навсегда. Ждём флаг с
+    // дедлайном; не дождались — detach (поток утечёт, но процесс всё равно
+    // завершается, ОС освободит устройство камеры).
+    const auto deadline = steady_clock::now() + seconds(3);
+    while (impl && !impl->thread_exited.load(std::memory_order_acquire) &&
+           steady_clock::now() < deadline) {
+      this_thread::sleep_for(milliseconds(50));
+    }
+    if (impl && impl->thread_exited.load(std::memory_order_acquire)) {
+      camera_thread.join();
+    } else {
+      spdlog::warn("Camera thread stuck; detaching");
+      camera_thread.detach();
+      // Detached-поток продолжает держать указатель на Impl. Намеренно НЕ
+      // освобождаем Impl: release() обнуляет unique_ptr без delete, иначе
+      // ~Camera освободил бы память под живым потоком (use-after-free).
+      // Impl утечёт, но процесс всё равно завершается — ОС реклеймит.
+      impl.release();
+    }
   }
 }
 

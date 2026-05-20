@@ -27,10 +27,10 @@ class Robot {
   void init_camera(Object&, Object&, Object&);
   void init_buzzer();
   void init_buttons();
-  void init_uart();
+  void init_uart(InitDeadline deadline);
   void init_gyro();
   void init_display();
-  void init_lidar();
+  void init_lidar(InitDeadline deadline);
 
   double top_angle;
 
@@ -107,7 +107,7 @@ class Robot {
   void calibrate(double measured_field_angle);
   void compute_gyro_angle();
 
-  void read_from_arduino();
+  void read_from_arduino(std::optional<InitDeadline> deadline = std::nullopt);
   void write_to_arduino();
 
   void beep();

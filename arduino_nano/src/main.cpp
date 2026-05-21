@@ -6,8 +6,6 @@
 #include "Const.h"
 #include "Robot.h"
 
-constexpr float MIN_VOLTAGE = 12;
-
 Robot robot;
 Adafruit_NeoPixel pixels(2, 9, NEO_GRB + NEO_KHZ800);
 unsigned long long alive_tm;
@@ -41,15 +39,6 @@ void setup() {
   robot.init(pixels);
   robot.stop();
   delay(1000);
-  robot.motors.requestVoltageData();
-  float voltage = robot.motors.parseMotorVoltage();
-  if (voltage < MIN_VOLTAGE) {
-    pixels.setPixelColor(1, pixels.Color(255, 0, 0));
-    pixels.show();
-    delay(1000);
-    pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-    pixels.show();
-  }
   pixels.setPixelColor(0, pixels.Color(0, 0, 0));
   pixels.show();
 
@@ -90,6 +79,7 @@ void loop() {
       write_data<float>(robot.gyro.angle);
       write_data<int32_t>(robot.emitter.raw);
       write_data<bool>(robot.kicker.is_charged());
+      write_data<float>(robot.motors.getVoltage());
     } else if (c == 'W') {
       robot.direction = read_data<float>();
       robot.speed = read_data<float>();

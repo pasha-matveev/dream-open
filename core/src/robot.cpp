@@ -32,6 +32,7 @@ void Robot::read_from_arduino(std::optional<InitDeadline> deadline) {
   emitter = (millis() - last_seen) < config->serial->emitter->optimist;
 
   kicker_charged = uart->read_data<bool>(deadline, "arduino read");
+  motor_voltage = uart->read_data<float>(deadline, "arduino read");
 }
 
 static bool written = false;

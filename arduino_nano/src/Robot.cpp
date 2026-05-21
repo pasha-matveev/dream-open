@@ -27,6 +27,7 @@ void Robot::init(Adafruit_NeoPixel& pixels) {
 void Robot::read() {
   if (init_gyro) gyro.read();
   if (init_emitter) emitter.read();
+  if (init_motors) motors.updateVoltage();
 }
 
 void Robot::run() {

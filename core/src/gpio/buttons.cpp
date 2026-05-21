@@ -8,6 +8,7 @@
 
 #include "gpio/buzzer.h"
 #include "media/music.h"
+#include "media/r2d2.h"
 #include "robot.h"
 #include "config/config.h"
 #include "config/gpio.h"
@@ -42,6 +43,8 @@ static void handle_pause_button(WPIWfiStatus status, void* p) {
   } else {
     robot->state = RobotState::PAUSE;
   }
+  robot->play_chirps(robot->state == RobotState::PAUSE ? r2d2_pause_in
+                                                       : r2d2_pause_out);
 }
 
 static void setup_pause_button(Robot* robot) {

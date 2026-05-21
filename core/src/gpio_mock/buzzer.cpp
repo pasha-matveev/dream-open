@@ -15,3 +15,7 @@ Buzzer::Buzzer(int pin) : pin(pin) {}
 void Buzzer::beep() {}
 
 void Buzzer::update() {}
+
+void Buzzer::play_chirps(const vector<Chirp> &chirps) {}
+
+void Buzzer::play_chirps_async(const vector<Chirp> &chirps) {}

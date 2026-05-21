@@ -3,6 +3,7 @@
 #include <atomic>
 #include <deque>
 #include <optional>
+#include <vector>
 
 #include "field_dims.h"
 #include "gpio/buzzer.h"
@@ -111,6 +112,7 @@ class Robot {
   void write_to_arduino();
 
   void beep();
+  void play_chirps(const std::vector<Chirp>& chirps);
   void update_buzzer();
 
   void predict_position(double dt);

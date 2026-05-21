@@ -17,6 +17,7 @@
 #include "gpio/buttons.h"
 #include "gpio/setup.h"
 #include "media/img.h"
+#include "media/r2d2.h"
 #include "utils/millis.h"
 
 void Robot::read_from_arduino(std::optional<InitDeadline> deadline) {
@@ -60,6 +61,10 @@ void Robot::init_buzzer() { buzzer = new Buzzer(config->gpio->buzzer->pin); }
 
 void Robot::beep() {
   if (buzzer) buzzer->beep();
+}
+
+void Robot::play_chirps(const std::vector<Chirp>& chirps) {
+  if (buzzer) buzzer->play_chirps_async(chirps);
 }
 
 void Robot::update_buzzer() {
@@ -109,6 +114,7 @@ void Robot::init_hardware(Object& ball, Object& goal, Object& own_goal) {
       init_buzzer();
     }
     spdlog::info("Buzzer ready");
+    play_chirps(r2d2_startup);
     if (config->gpio->buttons->enabled) {
       init_buttons();
     }

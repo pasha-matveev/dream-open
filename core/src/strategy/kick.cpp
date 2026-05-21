@@ -29,10 +29,10 @@ void KickController::execute(Robot& robot, const KickParams& params) {
   // Обработка
   if (status_ == Status::ROTATE) {
     bool finished = turn_->execute(
-        robot, {.target_field_angle = robot.field_angle + params.relative_dir,
-                .curved_rotation = params.curved_rotation,
-                .dribbling = static_cast<int>(
-                    config->strategy->dribbling->value_r)});
+        robot,
+        {.target_field_angle = robot.field_angle + params.relative_dir,
+         .curved_rotation = params.curved_rotation,
+         .dribbling = static_cast<int>(config->strategy->dribbling->value_r)});
 
     if (finished) {
       if (params.dribbling_slowdown) {
@@ -40,9 +40,8 @@ void KickController::execute(Robot& robot, const KickParams& params) {
         // param_r мс, dribbling мапится от прошедшего времени.
         status_ = Status::TIMEOUT;
         slowdown_start_ = millis();
-        timeout_stamp_ =
-            millis() +
-            static_cast<long long>(params.dribbling_slowdown->param_r);
+        timeout_stamp_ = millis() + static_cast<long long>(
+                                        params.dribbling_slowdown->param_r);
         robot.dribbling = params.dribbling_slowdown->map(0);
       } else if (params.kick_timeout) {
         status_ = Status::TIMEOUT;
@@ -92,6 +91,9 @@ void KickController::execute_to_goal(Robot& robot, Object& goal,
   }
   params.relative_dir = target_angle;
   execute(robot, params);
+  if (status_ == Status::KICK) {
+    robot.beep();
+  }
 }
 
 double KickController::compute_power(const Vec& position) {

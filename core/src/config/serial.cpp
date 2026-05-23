@@ -14,4 +14,11 @@ Serial::Serial(const rapidjson::Value& doc) {
   const rapidjson::Value& demitter = doc["emitter"];
   emitter->threshold = demitter["threshold"].GetDouble();
   emitter->optimist = demitter["optimist"].GetInt();
+
+  battery = make_unique<Battery>();
+  const rapidjson::Value& dbattery = doc["battery"];
+  battery->low_threshold = dbattery["low_threshold"].GetFloat();
+  battery->warning_interval_ms = dbattery["warning_interval_ms"].GetInt();
+  battery->pause_warning_interval_ms =
+      dbattery["pause_warning_interval_ms"].GetInt();
 }

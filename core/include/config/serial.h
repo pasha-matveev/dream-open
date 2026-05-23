@@ -22,6 +22,13 @@ struct Serial {
     int optimist;
   };
   std::unique_ptr<Emitter> emitter;
+
+  struct Battery {
+    float low_threshold;
+    int warning_interval_ms;
+    int pause_warning_interval_ms;
+  };
+  std::unique_ptr<Battery> battery;
 };
 
 }  // namespace cfg

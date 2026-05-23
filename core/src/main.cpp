@@ -116,6 +116,7 @@ int main() {
     long long cycle_start = millis();
     if (config->serial->enabled) {
       robot.read_from_arduino();
+      robot.check_battery();
     }
     strategy.run(robot, ball, goal, own_goal, field);
     robot.update_buzzer();

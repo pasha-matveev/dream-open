@@ -72,6 +72,23 @@ void Robot::update_buzzer() {
   if (buzzer) buzzer->update();
 }
 
+void Robot::check_battery() {
+  if (motor_voltage < 0) return;
+  const auto& battery = config->serial->battery;
+  if (motor_voltage >= battery->low_threshold) return;
+  long long interval = state == RobotState::PAUSE
+                           ? battery->pause_warning_interval_ms
+                           : battery->warning_interval_ms;
+  long long now = millis();
+  if (last_battery_warning_ms.has_value() &&
+      now - *last_battery_warning_ms < interval) {
+    return;
+  }
+  play_chirps(r2d2_low_battery);
+  spdlog::warn("Low battery: {:.2f}V", motor_voltage);
+  last_battery_warning_ms = now;
+}
+
 void Robot::init_buttons() { setup_buttons(this); }
 
 void Robot::init_uart(InitDeadline deadline) {

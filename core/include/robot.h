@@ -82,6 +82,11 @@ class Robot {
   // arduino не опрашивает моторы под пусковой нагрузкой).
   float motor_voltage = -1;
 
+  // Время последнего проигранного предупреждения о низком заряде
+  // (millis()). nullopt = ни разу не срабатывало → следующее срабатывание
+  // мгновенное, без ожидания интервала.
+  std::optional<long long> last_battery_warning_ms;
+
   // Желаемая скорость от стратегии (команда).
   Vec vel{0, 0};
   // Целевой относительный угол поворота корпуса (радианы). Arduino доворачивает
@@ -119,6 +124,10 @@ class Robot {
   void beep();
   void play_chirps(const std::vector<Chirp>& chirps);
   void update_buzzer();
+  // Проигрывает r2d2_low_battery и пишет spdlog::warn, если
+  // motor_voltage опустилось ниже config.serial.battery.low_threshold.
+  // Период повторов разный для RUNNING и PAUSE (см. config.serial.battery).
+  void check_battery();
 
   void predict_position(double dt);
   // Сглаживает vel/rotation в actual_vel/actual_rotation с ограничением

@@ -75,6 +75,11 @@
     "emitter": {
       "threshold": 450,
       "optimist": 100
+    },
+    "battery": {
+      "low_threshold": 15.2,
+      "warning_interval_ms": 60000,
+      "pause_warning_interval_ms": 5000
     }
   },
   "gpio": {

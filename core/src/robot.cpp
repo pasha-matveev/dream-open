@@ -132,7 +132,6 @@ void Robot::init_hardware(Object& ball, Object& goal, Object& own_goal) {
       init_buzzer();
     }
     spdlog::info("Buzzer ready");
-    play_chirps(r2d2_startup);
     if (config->gpio->buttons->enabled) {
       init_buttons();
     }

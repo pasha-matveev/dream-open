@@ -14,6 +14,7 @@
 #include "config/strategy/control.h"
 #include "config/strategy/keeper.h"
 #include "config/visualization.h"
+#include "media/r2d2.h"
 #include "strategy/accel_drive.h"
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
@@ -142,6 +143,7 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
       robot.calibrate(measured->field_angle);
       robot.compute_gyro_angle();
       has_lidar_fix = true;
+      robot.play_chirps(r2d2_startup);
     }
   }
   ball_->update(robot, ball, dt, now, config->visualization->interactive);

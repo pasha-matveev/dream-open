@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 constexpr int beat = 500;
@@ -24,5 +25,7 @@ struct Note {
 
 extern std::vector<Note> notes1;
 extern std::vector<Note> notes2;
+extern std::vector<Note> notes_evangelion;
 
 const std::vector<Note>& get_notes(int);
+const std::vector<Note>& get_song_by_name(const std::string& name);

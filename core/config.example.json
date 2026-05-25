@@ -364,6 +364,12 @@
       "ball_drive": {
         "max_accel": 60.0
       }
+    },
+    "meme": {
+      "composition": "evangelion",
+      "radius": 25,
+      "linear_speed": 19,
+      "spin_speed": 30
     }
   }
 }

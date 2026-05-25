@@ -56,6 +56,7 @@ class Strategy {
   void run_challenge(Robot& robot, Object& ball, Object& goal);
   void run_kickoff(Robot& robot, Object& ball, Object& goal, Field& field,
                    bool left);
+  void run_meme(Robot& robot);
 
  public:
   Strategy();

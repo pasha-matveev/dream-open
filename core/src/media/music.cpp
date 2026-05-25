@@ -1,5 +1,9 @@
 #include "media/music.h"
 
+#include <spdlog/spdlog.h>
+
+#include <map>
+
 using namespace std;
 
 const vector<Note>& get_notes(int num) {
@@ -9,6 +13,20 @@ const vector<Note>& get_notes(int num) {
     default:
       return notes2;
   }
+}
+
+const vector<Note>& get_song_by_name(const std::string& name) {
+  static const map<string, const vector<Note>*> registry = {
+      {"megalovania", &notes1},
+      {"anthem", &notes2},
+      {"evangelion", &notes_evangelion},
+  };
+  auto it = registry.find(name);
+  if (it == registry.end()) {
+    spdlog::error("Unknown song name: {} — falling back to megalovania", name);
+    return notes1;
+  }
+  return *it->second;
 }
 
 vector<Note> notes1 = {

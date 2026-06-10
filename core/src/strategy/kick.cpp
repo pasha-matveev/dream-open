@@ -39,6 +39,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
         // Плавное замедление дриблинга перед ударом: фаза TIMEOUT длиной
         // param_r мс, dribbling мапится от прошедшего времени.
         status_ = Status::TIMEOUT;
+        spdlog::info("KICK SLOWDOWN");
         slowdown_start_ = millis();
         timeout_stamp_ = millis() + static_cast<long long>(
                                         params.dribbling_slowdown->param_r);

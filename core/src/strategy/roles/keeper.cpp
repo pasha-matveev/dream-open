@@ -124,9 +124,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
           vigilans_->stationary(now)) {
         // Условие 2: рядом с мячом нет препятствий лидара.
         auto obs = nearest_obstacle(robot, ball_->position());
-        bool clear =
-            !obs ||
-            (*obs - ball_->position()).len() > keeper_cfg.vigilans->clear_radius;
+        bool clear = !obs || (*obs - ball_->position()).len() >
+                                 keeper_cfg.vigilans->clear_radius;
         if (clear) vigilans_->activate(now);
       }
     }
@@ -142,7 +141,18 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
       if (kicked) {
         vigilans_->deactivate(now);  // удар выполнен (мяч покинул лунку) → выкл
       } else if (robot.emitter) {
-        kick_->execute_to_goal(robot, goal, {});  // как у нападающего
+        if (stabilize_capture(robot,
+                              {.dribbling = *config->strategy->dribbling})) {
+          // Стабилизация только что захваченного мяча — как во всех
+          // остальных ударах с dribbling_slowdown.
+        } else {
+          // Переиспользуем замедление дриблинга из ricochet — без него мяч
+          // при ударе летит выше ворот.
+          kick_->execute_to_goal(
+              robot, goal,
+              {.dribbling_slowdown =
+                   keeper_cfg.ricochet->dribbling_slowdown.get()});
+        }
       } else if (!ball_->recently_visible(now, keeper_cfg.vigilans->lost_ms)) {
         vigilans_->deactivate(now);  // мяч потерян в фазе подъезда → выкл
       } else {

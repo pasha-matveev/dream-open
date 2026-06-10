@@ -307,6 +307,18 @@
           "value_l": 8000,
           "value_r": 3000
         }
+      },
+      "vigilans": {
+        "enabled": true,
+        "still_radius": 5.0,
+        "still_inlier_frac": 0.98,
+        "still_ms": 10000,
+        "stale_ms": 300,
+        "clear_radius": 40.0,
+        "ball_max_y": 120.0,
+        "timeout_ms": 20000,
+        "cooldown_ms": 10000,
+        "lost_ms": 1000
       }
     },
     "kickoff": {

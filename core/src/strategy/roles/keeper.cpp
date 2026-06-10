@@ -14,6 +14,7 @@
 #include "strategy/motion.h"
 #include "strategy/obstacles.h"
 #include "strategy/strategy.h"
+#include "strategy/vigilans.h"
 #include "utils/mapper.h"
 #include "utils/millis.h"
 
@@ -105,6 +106,51 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
   if (!robot.emitter) {
     ricochet_mode = RicochetMode::NONE;
     ricochet_target_computed = false;
+  }
+
+  // Vigilans — режим бдительности. Каждый тик копим историю позиций мяча. Если
+  // мяч долго лежит без движения, рядом нет препятствий и он не у чужих ворот —
+  // в обход всей обычной логики едем к нему и бьём по чужим воротам. Весь блок
+  // под enabled — полный выключатель фичи (никакой работы при выключенном).
+  if (keeper_cfg.vigilans->enabled) {
+    long long now = millis();
+    bool fresh = ball_->recently_visible(now, keeper_cfg.vigilans->stale_ms);
+    vigilans_->observe(
+        fresh ? std::optional<Vec>(ball_->position()) : std::nullopt, now);
+
+    if (!vigilans_->active()) {
+      if (vigilans_->cooldown_passed(now) &&
+          ball_->position().y <= keeper_cfg.vigilans->ball_max_y &&
+          vigilans_->stationary(now)) {
+        // Условие 2: рядом с мячом нет препятствий лидара.
+        auto obs = nearest_obstacle(robot, ball_->position());
+        bool clear =
+            !obs ||
+            (*obs - ball_->position()).len() > keeper_cfg.vigilans->clear_radius;
+        if (clear) vigilans_->activate(now);
+      }
+    }
+
+    if (vigilans_->active() &&
+        now - vigilans_->activated_at() >= keeper_cfg.vigilans->timeout_ms) {
+      vigilans_->deactivate(now);  // таймаут
+    }
+
+    if (vigilans_->active()) {
+      bool kicked = vigilans_->had_emitter() && !robot.emitter;
+      vigilans_->set_emitter(robot.emitter);
+      if (kicked) {
+        vigilans_->deactivate(now);  // удар выполнен (мяч покинул лунку) → выкл
+      } else if (robot.emitter) {
+        kick_->execute_to_goal(robot, goal, {});  // как у нападающего
+      } else if (!ball_->recently_visible(now, keeper_cfg.vigilans->lost_ms)) {
+        vigilans_->deactivate(now);  // мяч потерян в фазе подъезда → выкл
+      } else {
+        drive_ball(robot, ball_->position());  // подъезд К мячу
+      }
+      was_ram = ram_active;  // сохранить инвариант ram перед ранним выходом
+      return;                // обход обычной логики вратаря
+    }
   }
 
   if (!is_piter) {

@@ -92,6 +92,20 @@ struct Keeper {
     std::unique_ptr<Mapper> dribbling_slowdown;
   };
   std::unique_ptr<Ricochet> ricochet;
+
+  struct Vigilans {
+    bool enabled;
+    double still_radius;
+    double still_inlier_frac;
+    long long still_ms;
+    long long stale_ms;
+    double clear_radius;
+    double ball_max_y;
+    long long timeout_ms;
+    long long cooldown_ms;
+    long long lost_ms;
+  };
+  std::unique_ptr<Vigilans> vigilans;
 };
 
 }  // namespace cfg

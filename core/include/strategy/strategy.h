@@ -15,6 +15,7 @@ class SpinPipelineController;
 class KurwaController;
 class AccelDriveController;
 class TestController;
+class VigilansController;
 
 class Strategy {
  private:
@@ -31,6 +32,8 @@ class Strategy {
   // Тестовые/калибровочные роли вынесены в TestController, чтобы добавление
   // новой тест-роли не требовало пересборки всех TU, включающих strategy.h.
   std::unique_ptr<TestController> test_;
+  // Режим бдительности вратаря (vigilans).
+  std::unique_ptr<VigilansController> vigilans_;
 
   string role;
 

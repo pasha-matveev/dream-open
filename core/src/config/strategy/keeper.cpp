@@ -48,4 +48,17 @@ Keeper::Keeper(const rapidjson::Value& doc) {
   ricochet->target_right.y = drc["target_right"]["y"].GetDouble();
   ricochet->dribbling_slowdown =
       make_unique<Mapper>(drc["dribbling_slowdown"]);
+
+  vigilans = make_unique<Vigilans>();
+  const rapidjson::Value& dvig = doc["vigilans"];
+  vigilans->enabled = dvig["enabled"].GetBool();
+  vigilans->still_radius = dvig["still_radius"].GetDouble();
+  vigilans->still_inlier_frac = dvig["still_inlier_frac"].GetDouble();
+  vigilans->still_ms = dvig["still_ms"].GetInt64();
+  vigilans->stale_ms = dvig["stale_ms"].GetInt64();
+  vigilans->clear_radius = dvig["clear_radius"].GetDouble();
+  vigilans->ball_max_y = dvig["ball_max_y"].GetDouble();
+  vigilans->timeout_ms = dvig["timeout_ms"].GetInt64();
+  vigilans->cooldown_ms = dvig["cooldown_ms"].GetInt64();
+  vigilans->lost_ms = dvig["lost_ms"].GetInt64();
 }

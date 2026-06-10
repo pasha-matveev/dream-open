@@ -25,6 +25,7 @@
 #include "strategy/spin_shot.h"
 #include "strategy/test.h"
 #include "strategy/turn.h"
+#include "strategy/vigilans.h"
 #include "utils/geo/vec.h"
 #include "utils/millis.h"
 
@@ -40,6 +41,7 @@ Strategy::Strategy() {
   kurwa_ = std::make_unique<KurwaController>();
   accel_drive_ = std::make_unique<AccelDriveController>();
   test_ = std::make_unique<TestController>();
+  vigilans_ = std::make_unique<VigilansController>();
 
   // Фаза 2: связываем зависимости явно. Циклы между контроллерами теперь
   // тоже возможны (если вдруг понадобятся в будущем).

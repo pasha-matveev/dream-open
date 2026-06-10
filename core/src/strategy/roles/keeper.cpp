@@ -29,7 +29,7 @@ using namespace std;
 // высоте ray_min_y, чтобы не пытаться стоять на нижнем горизонтальном
 // отрезке зоны (тот закрывает не ворота, а боковую полку).
 static Vec compute_ray_target(const Vec& target, const Field& field,
-                              double ray_min_y) {
+                              double ray_min_y, bool is_piter) {
   Vec center{91.0, 0.0};
   Vec dir = (target - center).resize(1'000'000);
 
@@ -206,8 +206,8 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
         robot.rotation = ball_->relative_angle(robot);
       } else {
         // Мяч между линией вратаря и projection_border — лучевая защита.
-        Vec target =
-            compute_ray_target(ball_pos, field, keeper_cfg.line->ray_min_y);
+        Vec target = compute_ray_target(ball_pos, field,
+                                        keeper_cfg.line->ray_min_y, false);
         drive_target(robot, target, {.prec = 0});
         robot.rotation = ball_->relative_angle(robot);
       }
@@ -222,7 +222,7 @@ void Strategy::run_keeper(Robot& robot, Object& ball, Object& goal,
     // (без жёсткого клампа по минимальному Y на крыле).
     spdlog::info("CONTR");
     Vec target =
-        compute_ray_target(last_piter, field, keeper_cfg.line->ray_min_y);
+        compute_ray_target(last_piter, field, keeper_cfg.line->ray_min_y, true);
     drive_target(robot, target);
     robot.rotation = normalize_angle(
         (last_piter - robot.position).field_angle() - robot.field_angle);

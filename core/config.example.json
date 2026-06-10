@@ -154,11 +154,22 @@
     "motion": {
       "max_linear_accel": 200,
       "max_angular_accel": 20,
-      "decel_k": 0.6,
-      "decel_k_low": 1.0,
-      "wall_limit": 4,
       "push_out_k": 2.0,
-      "push_out_v_min": 0.0
+      "push_out_v_min": 0.0,
+      "brake": {
+        "wall": {
+          "wall_limit": 0,
+          "decel_k": 0.4
+        },
+        "virtual_normal": {
+          "wall_limit": 0,
+          "decel_k": 0.4
+        },
+        "virtual_low": {
+          "wall_limit": 0,
+          "decel_k": 1.0
+        }
+      }
     },
     "safe_turn": {
       "y": 50,

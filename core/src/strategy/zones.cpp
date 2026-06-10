@@ -19,35 +19,36 @@ constexpr double ATTACKER_BOTTOM_SAFETY = 2.0;
 constexpr std::size_t kKeeperZoneN = 16;
 
 // Источник истины для keeper-зоны. Каждая пара — стартовая вершина ребра и
-// режим торможения на этом ребре. BrakeMode::Off у трёх рёбер: левая/правая
-// боковые границы зоны (x=36, x=146) и верх (y=63) — это виртуальные пределы,
-// без физической стенки, и вратарь сам выбирает позицию внутри. Остальные 13
-// рёбер (низ y=12, столбы ворот x=51/x=131, четверть-окружности углов ворот,
-// горизонталь линии ворот y=37) — реальная физика, нужно тормозить (Normal).
-const std::array<std::pair<Vec, BrakeMode>, kKeeperZoneN>& keeper_zone_spec() {
-  static const std::array<std::pair<Vec, BrakeMode>, kKeeperZoneN> kSpec = {{
+// тип границы на этом ребре. BrakeType::Off у трёх рёбер: левая/правая боковые
+// границы зоны (x=36, x=146) и верх (y=63) — виртуальные пределы без физической
+// стенки, вратарь сам выбирает позицию внутри. Нижние полоски по y=12 (рёбра 3,
+// 15) — это бортик поля → Wall. Разметка ворот (столбы x=51/x=131, дуги углов,
+// горизонталь линии ворот y=37) — виртуальные границы внутри поля →
+// VirtualNormal.
+const std::array<std::pair<Vec, BrakeType>, kKeeperZoneN>& keeper_zone_spec() {
+  static const std::array<std::pair<Vec, BrakeType>, kKeeperZoneN> kSpec = {{
       // Outer rectangle x∈[36,146], y∈[12,63]: боковые и верх — без тормоза.
-      {{KEEPER_ZONE_SIDE_DIST, 12.0}, BrakeMode::Off},  // 0: левая боковая
+      {{KEEPER_ZONE_SIDE_DIST, 12.0}, BrakeType::Off},  // 0: левая боковая
       {{KEEPER_ZONE_SIDE_DIST, KEEPER_ZONE_TOTAL_HEIGHT},
-       BrakeMode::Off},  // 1: верх
+       BrakeType::Off},  // 1: верх
       {{FIELD_WIDTH - KEEPER_ZONE_SIDE_DIST, KEEPER_ZONE_TOTAL_HEIGHT},
-       BrakeMode::Off},  // 2: правая боковая
+       BrakeType::Off},  // 2: правая боковая
       {{FIELD_WIDTH - KEEPER_ZONE_SIDE_DIST, 12.0},
-       BrakeMode::Normal},  // 3: низ правая полоска
-      // Bottom cutout 80x25 with R15 inner corners — реальная разметка вокруг
-      // ворот.
-      {{131.0, 12.0}, BrakeMode::Normal},  // 4: правый столб ворот
-      {{131.0, 22.0}, BrakeMode::Normal},  // 5: правая arc
-      {{129.9, 27.7}, BrakeMode::Normal},  // 6: правая arc
-      {{126.6, 32.6}, BrakeMode::Normal},  // 7: правая arc
-      {{121.7, 35.9}, BrakeMode::Normal},  // 8: правая arc
-      {{116.0, 37.0}, BrakeMode::Normal},  // 9: горизонталь линии ворот y=37
-      {{66.0, 37.0}, BrakeMode::Normal},   // 10: левая arc
-      {{60.3, 35.9}, BrakeMode::Normal},   // 11: левая arc
-      {{55.4, 32.6}, BrakeMode::Normal},   // 12: левая arc
-      {{52.1, 27.7}, BrakeMode::Normal},   // 13: левая arc
-      {{51.0, 22.0}, BrakeMode::Normal},   // 14: левый столб ворот
-      {{51.0, 12.0}, BrakeMode::Normal},   // 15: низ левая полоска
+       BrakeType::Wall},  // 3: низ правая полоска — бортик y=12
+      // Bottom cutout 80x25 with R15 inner corners — виртуальная разметка
+      // вокруг ворот.
+      {{131.0, 12.0}, BrakeType::VirtualNormal},  // 4: правый столб ворот
+      {{131.0, 22.0}, BrakeType::VirtualNormal},  // 5: правая arc
+      {{129.9, 27.7}, BrakeType::VirtualNormal},  // 6: правая arc
+      {{126.6, 32.6}, BrakeType::VirtualNormal},  // 7: правая arc
+      {{121.7, 35.9}, BrakeType::VirtualNormal},  // 8: правая arc
+      {{116.0, 37.0}, BrakeType::VirtualNormal},  // 9: горизонталь y=37
+      {{66.0, 37.0}, BrakeType::VirtualNormal},   // 10: левая arc
+      {{60.3, 35.9}, BrakeType::VirtualNormal},   // 11: левая arc
+      {{55.4, 32.6}, BrakeType::VirtualNormal},   // 12: левая arc
+      {{52.1, 27.7}, BrakeType::VirtualNormal},   // 13: левая arc
+      {{51.0, 22.0}, BrakeType::VirtualNormal},   // 14: левый столб ворот
+      {{51.0, 12.0}, BrakeType::Wall},  // 15: низ левая полоска — y=12
   }};
   static_assert(kKeeperZoneN == 16, "keeper zone size must match spec table");
   return kSpec;
@@ -58,10 +59,12 @@ const std::array<std::pair<Vec, BrakeMode>, kKeeperZoneN>& keeper_zone_spec() {
 constexpr std::size_t kAttackerZoneN = 20;
 
 // Источник истины для attacker-зоны. Каждая пара — стартовая вершина ребра и
-// режим торможения. BrakeMode::Low только у верхней горизонтали выреза зоны
-// вратаря (ребро 17) — ослабленное торможение, чтобы нападающий не отставал
-// в погоне за врагом; боковые рёбра выреза (16, 18) тормозят как Normal.
-const std::array<std::pair<Vec, BrakeMode>, kAttackerZoneN>&
+// тип границы. Рёбра внешнего периметра поля (по x=12/170 и y=12/231) — это
+// бортик → Wall. Разметка вражеских ворот (рёбра 2–12) и боковины выреза
+// keeper-исключения (16, 18) — виртуальные границы внутри поля → VirtualNormal.
+// Верхняя горизонталь выреза зоны вратаря (ребро 17) → VirtualLow: ослабленное
+// торможение, чтобы нападающий не отставал в погоне за врагом.
+const std::array<std::pair<Vec, BrakeType>, kAttackerZoneN>&
 attacker_zone_spec() {
   // U-образный вырез снизу: центральная часть поднята до верха keeper-зоны,
   // а боковые полоски (x∈[12, 34] и x∈[148, 170]) остаются до y=12 — это
@@ -72,29 +75,29 @@ attacker_zone_spec() {
       KEEPER_ZONE_SIDE_DIST - ATTACKER_BOTTOM_SAFETY;  // 34
   constexpr double k_right =
       FIELD_WIDTH - KEEPER_ZONE_SIDE_DIST + ATTACKER_BOTTOM_SAFETY;  // 148
-  static const std::array<std::pair<Vec, BrakeMode>, kAttackerZoneN> kSpec = {{
-      {{12.0, 12.0}, BrakeMode::Normal},   // 0
-      {{12.0, 231.0}, BrakeMode::Normal},  // 1
+  static const std::array<std::pair<Vec, BrakeType>, kAttackerZoneN> kSpec = {{
+      {{12.0, 12.0}, BrakeType::Wall},   // 0: x=12 бортик
+      {{12.0, 231.0}, BrakeType::Wall},  // 1: y=231 бортик (левая часть)
       // Top cutout 80x25 with R15 inner corners (вокруг вражеских ворот).
-      {{51.0, 231.0}, BrakeMode::Normal},   // 2
-      {{51.0, 221.0}, BrakeMode::Normal},   // 3
-      {{52.1, 215.3}, BrakeMode::Normal},   // 4
-      {{55.4, 210.4}, BrakeMode::Normal},   // 5
-      {{60.3, 207.1}, BrakeMode::Normal},   // 6
-      {{66.0, 206.0}, BrakeMode::Normal},   // 7
-      {{116.0, 206.0}, BrakeMode::Normal},  // 8
-      {{121.7, 207.1}, BrakeMode::Normal},  // 9
-      {{126.6, 210.4}, BrakeMode::Normal},  // 10
-      {{129.9, 215.3}, BrakeMode::Normal},  // 11
-      {{131.0, 221.0}, BrakeMode::Normal},  // 12
-      {{131.0, 231.0}, BrakeMode::Normal},  // 13
-      {{170.0, 231.0}, BrakeMode::Normal},  // 14
-      {{170.0, 12.0}, BrakeMode::Normal},   // 15: ребро по y=12 — стенка поля
+      {{51.0, 231.0}, BrakeType::VirtualNormal},   // 2
+      {{51.0, 221.0}, BrakeType::VirtualNormal},   // 3
+      {{52.1, 215.3}, BrakeType::VirtualNormal},   // 4
+      {{55.4, 210.4}, BrakeType::VirtualNormal},   // 5
+      {{60.3, 207.1}, BrakeType::VirtualNormal},   // 6
+      {{66.0, 206.0}, BrakeType::VirtualNormal},   // 7
+      {{116.0, 206.0}, BrakeType::VirtualNormal},  // 8
+      {{121.7, 207.1}, BrakeType::VirtualNormal},  // 9
+      {{126.6, 210.4}, BrakeType::VirtualNormal},  // 10
+      {{129.9, 215.3}, BrakeType::VirtualNormal},  // 11
+      {{131.0, 221.0}, BrakeType::VirtualNormal},  // 12
+      {{131.0, 231.0}, BrakeType::Wall},  // 13: y=231 бортик (правая часть)
+      {{170.0, 231.0}, BrakeType::Wall},  // 14: x=170 бортик
+      {{170.0, 12.0}, BrakeType::Wall},   // 15: y=12 бортик (правая полоска)
       // Bottom keeper-exclusion: bounding rectangle of keeper-зоны + safety.
-      {{k_right, 12.0}, BrakeMode::Normal},  // 16: правая стенка выреза
-      {{k_right, k_top}, BrakeMode::Low},    // 17: верх выреза — ослабленно
-      {{k_left, k_top}, BrakeMode::Normal},  // 18: левая стенка выреза
-      {{k_left, 12.0}, BrakeMode::Normal},   // 19: ребро по y=12 — стенка поля
+      {{k_right, 12.0}, BrakeType::VirtualNormal},  // 16: правая стенка выреза
+      {{k_right, k_top}, BrakeType::VirtualLow},    // 17: верх выреза — слабо
+      {{k_left, k_top}, BrakeType::VirtualNormal},  // 18: левая стенка выреза
+      {{k_left, 12.0}, BrakeType::Wall},  // 19: y=12 бортик (левая полоска)
   }};
   static_assert(kAttackerZoneN == 20,
                 "attacker zone size must match spec table");
@@ -113,14 +116,14 @@ std::vector<Vec> keeper_zone_points() {
   return points;
 }
 
-std::vector<BrakeMode> keeper_zone_brake_modes() {
+std::vector<BrakeType> keeper_zone_brake_types() {
   const auto& spec = keeper_zone_spec();
-  std::vector<BrakeMode> modes;
-  modes.reserve(spec.size());
-  for (const auto& [pt, mode] : spec) {
-    modes.push_back(mode);
+  std::vector<BrakeType> types;
+  types.reserve(spec.size());
+  for (const auto& [pt, type] : spec) {
+    types.push_back(type);
   }
-  return modes;
+  return types;
 }
 
 std::vector<Vec> attacker_zone_points() {
@@ -133,14 +136,14 @@ std::vector<Vec> attacker_zone_points() {
   return points;
 }
 
-std::vector<BrakeMode> attacker_zone_brake_modes() {
+std::vector<BrakeType> attacker_zone_brake_types() {
   const auto& spec = attacker_zone_spec();
-  std::vector<BrakeMode> modes;
-  modes.reserve(spec.size());
-  for (const auto& [pt, mode] : spec) {
-    modes.push_back(mode);
+  std::vector<BrakeType> types;
+  types.reserve(spec.size());
+  for (const auto& [pt, type] : spec) {
+    types.push_back(type);
   }
-  return modes;
+  return types;
 }
 
 std::vector<Vec> keeper_responsibility_points() {
@@ -206,6 +209,4 @@ Polygon make_attacker_zone() { return Polygon(attacker_zone_points()); }
 Polygon make_keeper_responsibility() {
   return Polygon(keeper_responsibility_points());
 }
-Polygon make_full_field_markup() {
-  return Polygon(full_field_markup_points());
-}
+Polygon make_full_field_markup() { return Polygon(full_field_markup_points()); }

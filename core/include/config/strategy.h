@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+#include "config/brake_profile.h"
+
 struct Mapper;
 
 namespace cfg {
@@ -38,14 +40,11 @@ struct Strategy {
   struct Motion {
     double max_linear_accel;
     double max_angular_accel;
-    double decel_k;
-    // Ослабленный decel_k для рёбер с BrakeMode::Low. Должен быть <= 1.0:
-    // при 1.0 робот тормозит ровно на физическом пределе, при значении
-    // больше 1.0 не успевает остановиться и заезжает за границу.
-    double decel_k_low;
-    double wall_limit;
     double push_out_k;
     double push_out_v_min;
+    std::unique_ptr<BrakeProfile> wall;
+    std::unique_ptr<BrakeProfile> virtual_normal;
+    std::unique_ptr<BrakeProfile> virtual_low;
   };
   std::unique_ptr<Motion> motion;
 

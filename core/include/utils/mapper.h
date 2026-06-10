@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rapidjson/rapidjson.h>
+#include <rapidjson/fwd.h>
 
 struct Mapper {
   double param_l, param_r;

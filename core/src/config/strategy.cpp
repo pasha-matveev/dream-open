@@ -29,11 +29,13 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   const rapidjson::Value& dmotion = doc["motion"];
   motion->max_linear_accel = dmotion["max_linear_accel"].GetDouble();
   motion->max_angular_accel = dmotion["max_angular_accel"].GetDouble();
-  motion->decel_k = dmotion["decel_k"].GetDouble();
-  motion->decel_k_low = dmotion["decel_k_low"].GetDouble();
-  motion->wall_limit = dmotion["wall_limit"].GetDouble();
   motion->push_out_k = dmotion["push_out_k"].GetDouble();
   motion->push_out_v_min = dmotion["push_out_v_min"].GetDouble();
+
+  const rapidjson::Value& dbrake = dmotion["brake"];
+  motion->wall = make_unique<BrakeProfile>(dbrake["wall"]);
+  motion->virtual_normal = make_unique<BrakeProfile>(dbrake["virtual_normal"]);
+  motion->virtual_low = make_unique<BrakeProfile>(dbrake["virtual_low"]);
 
   safe_turn = make_unique<SafeTurn>();
   const rapidjson::Value& dsafe_turn = doc["safe_turn"];

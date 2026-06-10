@@ -58,10 +58,8 @@ double Segment::dist(const Vec& p) const {
 }
 
 void Segment::apply(Robot& robot, double push_k, double push_v_min,
-                    double decel_k) const {
-  // Разметка поля смещена на 12 см от бортика; радиус робота 9 см; 2 см
-  // запас на торможение — остаётся свободного расстояния (d + 2) до контакта.
-  double d = normal_dist(robot.position) - config->strategy->motion->wall_limit;
+                    double decel_k, double wall_limit) const {
+  double d = normal_dist(robot.position) - wall_limit;
   Vec ox = b - a;
   Vec oy = ox.turn_left();
 
@@ -73,8 +71,8 @@ void Segment::apply(Robot& robot, double push_k, double push_v_min,
   //   v_safe = sqrt(2 * a_max * d)
   double v_safe;
   if (d >= 0) {
-    v_safe = sqrt(2.0 * config->strategy->motion->max_linear_accel * d) *
-             decel_k;
+    v_safe =
+        sqrt(2.0 * config->strategy->motion->max_linear_accel * d) * decel_k;
   } else {
     d = abs(d);
     v_safe = -(push_k * d + push_v_min);

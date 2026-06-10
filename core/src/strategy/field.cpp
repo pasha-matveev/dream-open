@@ -4,29 +4,37 @@
 
 #include <cassert>
 
+#include "config/brake_profile.h"
 #include "config/config.h"
 #include "config/strategy.h"
 #include "strategy/segment.h"
 
-Field::Field(const vector<Vec>& points_)
-    : Polygon(points_), brake_modes_(points_.size(), BrakeMode::Normal) {}
-
-Field::Field(const vector<Vec>& points_, std::vector<BrakeMode> brake_modes)
-    : Polygon(points_), brake_modes_(std::move(brake_modes)) {
-  assert(points.size() == brake_modes_.size());
+const BrakeProfile profile_for(BrakeType type) {
+  assert(type != BrakeType::Off);  // подразумевается, что Off пропускается
+  switch (type) {
+    case BrakeType::Wall:
+      return *config->strategy->motion->wall;
+    case BrakeType::VirtualLow:
+      return *config->strategy->motion->virtual_low;
+    case BrakeType::VirtualNormal:
+      return *config->strategy->motion->virtual_normal;
+    case BrakeType::Off:
+      assert(false);
+  }
 }
 
-double Field::decel_k_for(BrakeMode mode) {
-  return mode == BrakeMode::Low ? config->strategy->motion->decel_k_low
-                                : config->strategy->motion->decel_k;
+Field::Field(const vector<Vec>& points_, std::vector<BrakeType> brake_types)
+    : Polygon(points_), brake_types_(std::move(brake_types)) {
+  assert(points.size() == brake_types_.size());
 }
 
 void Field::apply_seg(int i, Robot& robot, double push_k,
                       double push_v_min) const {
-  if (brake_modes_[i] == BrakeMode::Off) return;
+  if (brake_types_[i] == BrakeType::Off) return;
   int j = (i + 1) % points.size();
   Segment seg{points[i], points[j]};
-  seg.apply(robot, push_k, push_v_min, decel_k_for(brake_modes_[i]));
+  const auto& p = profile_for(brake_types_[i]);
+  seg.apply(robot, push_k, push_v_min, p.decel_k, p.wall_limit);
 }
 
 void Field::apply(Robot& robot, double push_k, double push_v_min) const {
@@ -48,12 +56,13 @@ void Field::apply(Robot& robot, double push_k, double push_v_min) const {
     }
 
     for (int i = 0; i < points.size(); ++i) {
-      if (brake_modes_[i] == BrakeMode::Off) continue;
+      if (brake_types_[i] == BrakeType::Off) continue;
       int j = (i + 1) % points.size();
       Segment seg(points[i], points[j]);
       if (seg.is_proection(robot.position) &&
           seg.correct_side(robot.position)) {
-        seg.apply(robot, push_k, push_v_min, decel_k_for(brake_modes_[i]));
+        const auto& p = profile_for(brake_types_[i]);
+        seg.apply(robot, push_k, push_v_min, p.decel_k, p.wall_limit);
       }
     }
   } else {

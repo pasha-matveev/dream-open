@@ -5,7 +5,7 @@
 
 #include "field_dims.h"
 #include "robot.h"
-#include "strategy/brake_mode.h"
+#include "strategy/brake_type.h"
 #include "utils/geo/polygon.h"
 #include "utils/geo/vec.h"
 
@@ -21,25 +21,22 @@ constexpr int FIELD_HEIGHT = static_cast<int>(field_dims::kHeight);
 // храним по часовой стрелке
 class Field : public Polygon {
  private:
-  // Параллельный массив: brake_modes_[i] управляет применением
-  // Segment::apply на ребре points[i]→points[(i+1)%N].
-  //   Normal — обычное торможение (decel_k).
-  //   Off    — Field::apply_seg для ребра no-op: оно остаётся частью
-  //            геометрии (inside/find_intersection работают как раньше),
-  //            но скорость робота не клампится. Виртуальные границы зоны
-  //            keeper'а, у которых нет физической стенки.
-  //   Low    — ослабленное торможение (decel_k_low вместо decel_k). Верхняя
-  //            граница выреза зоны вратаря у нападающего: не мешает погоне
-  //            за врагом, но push-out по-прежнему не пускает внутрь зоны.
-  std::vector<BrakeMode> brake_modes_;
-
-  // decel_k для ребра с данным режимом: Low → decel_k_low, иначе decel_k.
-  static double decel_k_for(BrakeMode mode);
+  // Параллельный массив: brake_types_[i] — тип границы ребра
+  // points[i]→points[(i+1)%N], управляет применением Segment::apply.
+  //   Off           — Field::apply_seg для ребра no-op: оно остаётся частью
+  //                   геометрии (inside/find_intersection работают как
+  //                   раньше), но скорость робота не клампится.
+  //   Wall          — физический бортик поля; свой профиль (wall_limit,
+  //                   decel_k).
+  //   VirtualNormal — виртуальная граница, обычное торможение; свой профиль.
+  //   VirtualLow    — виртуальная граница, ослабленное торможение; свой
+  //                   профиль (push-out по-прежнему не пускает внутрь зоны).
+  // Профили (wall_limit + decel_k) берутся из config.strategy.motion.brake.
+  std::vector<BrakeType> brake_types_;
 
   void apply_seg(int i, Robot& robot, double push_k, double push_v_min) const;
 
  public:
-  Field(const vector<Vec>& points_);
-  Field(const vector<Vec>& points_, std::vector<BrakeMode> brake_modes);
+  Field(const vector<Vec>& points_, std::vector<BrakeType> brake_types);
   void apply(Robot& robot, double push_k, double push_v_min) const;
 };

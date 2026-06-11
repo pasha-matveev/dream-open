@@ -26,12 +26,10 @@ bool KurwaController::execute(Robot& robot, Object& goal, bool use_left_hint,
   double turn_2_target = sign * cfg.turn_2_angle;
 
   // Зеркалирование позиций по той же конвенции, что и special_pos.
-  Vec pos_1 = use_left_
-                  ? Vec{cfg.pos_1->x, 240.0 - cfg.pos_1->y}
-                  : Vec{182.0 - cfg.pos_1->x, 240.0 - cfg.pos_1->y};
-  Vec pos_2 = use_left_
-                  ? Vec{cfg.pos_2->x, 240.0 - cfg.pos_2->y}
-                  : Vec{182.0 - cfg.pos_2->x, 240.0 - cfg.pos_2->y};
+  Vec pos_1 = use_left_ ? Vec{cfg.pos_1->x, 240.0 - cfg.pos_1->y}
+                        : Vec{182.0 - cfg.pos_1->x, 240.0 - cfg.pos_1->y};
+  Vec pos_2 = use_left_ ? Vec{cfg.pos_2->x, 240.0 - cfg.pos_2->y}
+                        : Vec{182.0 - cfg.pos_2->x, 240.0 - cfg.pos_2->y};
 
   robot.dribbling = cfg.dribbling;
 
@@ -86,7 +84,12 @@ bool KurwaController::execute(Robot& robot, Object& goal, bool use_left_hint,
     }
     case Phase::KICK: {
       spdlog::info("KURWA KICK");
-      kick_->execute_to_goal(robot, goal, {});
+      KickParams params;
+      Vec target = use_left_ ? Vec{182.0 - cfg.target->x, 243.0 - cfg.target->y}
+                             : Vec{cfg.target->x, 243.0 - cfg.target->y};
+      params.relative_dir =
+          (target - robot.position).field_angle() - robot.field_angle;
+      kick_->execute(robot, params);
       if (robot.kicker_force > 0) {
         spdlog::info("KURWA done: kicker fired");
         phase_ = Phase::IDLE;

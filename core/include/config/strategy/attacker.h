@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include "utils/geo/vec.h"
+
 struct Mapper;
 struct Switch;
 
@@ -19,14 +21,14 @@ struct Attacker {
   double special_height;
 
   // Быстрый прямой подъезд к мячу, когда враг рядом с мячом.
-  bool fast_direct_enabled;                 // вкл/выкл быстрый таран врага у мяча
-  std::unique_ptr<Mapper> fast_direct;      // дистанция → скорость
+  bool fast_direct_enabled;             // вкл/выкл быстрый таран врага у мяча
+  std::unique_ptr<Mapper> fast_direct;  // дистанция → скорость
   std::unique_ptr<Switch> enemy_near_ball;  // гистерезис близости врага к мячу
-  double enemy_min_y;          // см, препятствия ниже игнорируются (зона вратаря)
-  long long enemy_latch_ms;    // мс, латч режима при пропаже цели лидаром
-  int fast_direct_dribbling;   // скорость дриблера в быстром подъезде
-  bool fast_direct_brake_safe; // тормозить ли у мяча в быстром подъезде
-                               // (false — таран без торможения)
+  double enemy_min_y;        // см, препятствия ниже игнорируются (зона вратаря)
+  long long enemy_latch_ms;  // мс, латч режима при пропаже цели лидаром
+  int fast_direct_dribbling;    // скорость дриблера в быстром подъезде
+  bool fast_direct_brake_safe;  // тормозить ли у мяча в быстром подъезде
+                                // (false — таран без торможения)
 
   struct SpecialPos {
     double x, y;
@@ -59,15 +61,14 @@ struct Attacker {
 
   struct Kurwa {
     double probability;  // [0, 1], вероятность выбрать kurwa вместо spin
-    struct Pos {
-      double x, y;
-    };
-    std::unique_ptr<Pos> pos_1;  // x, y в системе special_pos (y от ворот противника)
-    std::unique_ptr<Pos> pos_2;
-    double turn_1_angle;     // рад, базис field_angle=0, знак мирррится по стороне
-    double turn_2_angle;     // рад
-    double ready_dist;       // см, "на позиции"
-    double ready_angle;      // рад, "ровно повёрнут"
+    std::unique_ptr<Vec>
+        pos_1;  // x, y в системе special_pos (y от ворот противника)
+    std::unique_ptr<Vec> pos_2;
+    std::unique_ptr<Vec> target;
+    double turn_1_angle;  // рад, базис field_angle=0, знак мирррится по стороне
+    double turn_2_angle;  // рад
+    double ready_dist;    // см, "на позиции"
+    double ready_angle;   // рад, "ровно повёрнут"
     double drive_max_speed;  // см/с, потолок скорости в DRIVE-фазах
     int dribbling;           // скорость дриблинга в активных фазах
   };

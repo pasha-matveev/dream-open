@@ -1,5 +1,7 @@
 #pragma once
 
+#include <rapidjson/fwd.h>
+
 #include <SFML/Graphics.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -15,6 +17,7 @@ class Vec {
   Vec(cv::Point2f);
   Vec(sf::Vector2f);
   Vec(sf::Vector2i);
+  Vec(const rapidjson::Value&);
   Vec(double);
   operator cv::Point() const;
   operator sf::Vector2f() const;

@@ -1,5 +1,7 @@
 #include "utils/geo/vec.h"
 
+#include <rapidjson/rapidjson.h>
+
 #include <cmath>
 
 using namespace std;
@@ -29,6 +31,10 @@ Vec::Vec(int x, int y) : x(x), y(y) {}
 Vec::Vec(cv::Point2f p) : x(p.x), y(p.y) {}
 Vec::Vec(sf::Vector2f v) : x(v.x), y(v.y) {}
 Vec::Vec(sf::Vector2i v) : x(v.x), y(v.y) {}
+Vec::Vec(const rapidjson::Value& value) {
+  x = value["x"].GetDouble();
+  y = value["y"].GetDouble();
+}
 Vec::Vec(double angle) : x(-1 * sin(angle)), y(cos(angle)) {}
 Vec::operator cv::Point() const { return {(int)x, (int)y}; }
 Vec::operator sf::Vector2f() const { return {(float)x, (float)y}; }

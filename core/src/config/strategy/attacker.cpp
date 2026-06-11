@@ -47,12 +47,9 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   kurwa = make_unique<Kurwa>();
   const rapidjson::Value& dk = doc["kurwa"];
   kurwa->probability = dk["probability"].GetDouble();
-  kurwa->pos_1 = make_unique<Kurwa::Pos>();
-  kurwa->pos_1->x = dk["pos_1"]["x"].GetDouble();
-  kurwa->pos_1->y = dk["pos_1"]["y"].GetDouble();
-  kurwa->pos_2 = make_unique<Kurwa::Pos>();
-  kurwa->pos_2->x = dk["pos_2"]["x"].GetDouble();
-  kurwa->pos_2->y = dk["pos_2"]["y"].GetDouble();
+  kurwa->pos_1 = make_unique<Vec>(dk["pos_1"]);
+  kurwa->pos_2 = make_unique<Vec>(dk["pos_2"]);
+  kurwa->target = make_unique<Vec>(dk["target"]);
   kurwa->turn_1_angle = dk["turn_1_angle"].GetDouble();
   kurwa->turn_2_angle = dk["turn_2_angle"].GetDouble();
   kurwa->ready_dist = dk["ready_dist"].GetDouble();

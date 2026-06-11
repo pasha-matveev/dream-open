@@ -77,6 +77,7 @@ void KickController::execute(Robot& robot, const KickParams& params) {
     }
     robot.rotation = 0;
     robot.vel = {0, 0};
+    robot.beep();
   }
 }
 
@@ -92,9 +93,6 @@ void KickController::execute_to_goal(Robot& robot, Object& goal,
   }
   params.relative_dir = target_angle;
   execute(robot, params);
-  if (status_ == Status::KICK) {
-    robot.beep();
-  }
 }
 
 double KickController::compute_power(const Vec& position) {

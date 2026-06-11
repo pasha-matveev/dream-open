@@ -237,6 +237,10 @@
           "x": 48,
           "y": 25
         },
+        "target": {
+          "x": 71,
+          "y": 12
+        },
         "turn_1_angle": 0.8,
         "turn_2_angle": 0.0,
         "ready_dist": 3.0,

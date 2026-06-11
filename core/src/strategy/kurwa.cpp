@@ -56,7 +56,11 @@ bool KurwaController::execute(Robot& robot, Object& goal, bool use_left_hint,
       // Удерживаем ориентацию TURN1, как в spin pipeline на DRIVE.
       robot.rotation = normalize_angle(turn_1_target - robot.field_angle);
       if ((pos_1 - robot.position).len() < cfg.ready_dist) {
-        phase_ = Phase::TURN2;
+        if (pos_1 == pos_2) {
+          phase_ = Phase::KICK;
+        } else {
+          phase_ = Phase::TURN2;
+        }
       }
       break;
     }

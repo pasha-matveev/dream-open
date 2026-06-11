@@ -68,4 +68,15 @@ Attacker::Attacker(const rapidjson::Value& doc) {
   icarus->target_right.x = di["target_right"]["x"].GetDouble();
   icarus->target_right.y = di["target_right"]["y"].GetDouble();
   icarus->dribbling_slowdown = make_unique<Mapper>(di["dribbling_slowdown"]);
+
+  hobubu = make_unique<Hobubu>();
+  const rapidjson::Value& dh = doc["hobubu"];
+  hobubu->enabled = dh["enabled"].GetBool();
+  hobubu->probability = dh["probability"].GetDouble();
+  hobubu->wall_dist = dh["wall_dist"].GetDouble();
+  hobubu->face_wall_angle = dh["face_wall_angle"].GetDouble();
+  hobubu->drive_max_speed = dh["drive_max_speed"].GetDouble();
+  hobubu->ready_dist = dh["ready_dist"].GetDouble();
+  hobubu->ready_angle = dh["ready_angle"].GetDouble();
+  hobubu->dribbling = dh["dribbling"].GetInt();
 }

@@ -100,6 +100,20 @@ struct Attacker {
     std::unique_ptr<Mapper> dribbling_slowdown;
   };
   std::unique_ptr<Icarus> icarus;
+
+  // hobubu: захватив мяч низко без врага рядом, вместо icarus едем вверх вдоль
+  // ближнего бортика (прижимая мяч к борту) и завершаем атаку через kurwa.
+  struct Hobubu {
+    bool enabled;            // мастер-выключатель режима
+    double probability;      // [0, 1], шанс выбрать hobubu вместо icarus
+    double wall_dist;        // см, удалённость прямой проезда от стенки
+    double face_wall_angle;  // рад, ориентация к стенке (знак мирррится по стороне)
+    double drive_max_speed;  // см/с, потолок accel_drive в фазах подъезда
+    double ready_dist;       // см, "на позиции"
+    double ready_angle;      // рад, "ровно повёрнут" в FACE_WALL
+    int dribbling;           // скорость дриблинга в активных фазах
+  };
+  std::unique_ptr<Hobubu> hobubu;
 };
 
 }  // namespace cfg

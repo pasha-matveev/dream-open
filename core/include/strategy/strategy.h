@@ -13,6 +13,7 @@ class DubinsController;
 class SpinShotController;
 class SpinPipelineController;
 class KurwaController;
+class HobubuController;
 class AccelDriveController;
 class TestController;
 class VigilansController;
@@ -28,6 +29,7 @@ class Strategy {
   std::unique_ptr<SpinShotController> spin_shot_;
   std::unique_ptr<SpinPipelineController> spin_pipeline_;
   std::unique_ptr<KurwaController> kurwa_;
+  std::unique_ptr<HobubuController> hobubu_;
   std::unique_ptr<AccelDriveController> accel_drive_;
   // Тестовые/калибровочные роли вынесены в TestController, чтобы добавление
   // новой тест-роли не требовало пересборки всех TU, включающих strategy.h.

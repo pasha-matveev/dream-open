@@ -267,6 +267,16 @@
           "value_l": 8000,
           "value_r": 3000
         }
+      },
+      "hobubu": {
+        "enabled": true,
+        "probability": 0.5,
+        "wall_dist": 15,
+        "face_wall_angle": 1.4,
+        "drive_max_speed": 30.0,
+        "ready_dist": 3.0,
+        "ready_angle": 0.05,
+        "dribbling": 8000
       }
     },
     "keeper": {

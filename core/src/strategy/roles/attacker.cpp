@@ -12,6 +12,7 @@
 #include "strategy/ball_tracker.h"
 #include "strategy/dubins.h"
 #include "strategy/field.h"
+#include "strategy/hobubu.h"
 #include "strategy/kick.h"
 #include "strategy/kurwa.h"
 #include "strategy/motion.h"
@@ -46,10 +47,19 @@ struct AttackState {
   int prev_first_time = -100000;
 };
 
-// Режим icarus решается один раз на захват мяча и держится до его потери.
+// Режим low-capture решается один раз на захват мяча и держится до его потери.
 // UNDECIDED — решение ещё не принято (до первого тика с мячом);
-// OFF — обычная логика; LEFT/RIGHT — рикошет от соответствующего бортика.
-enum class IcarusState { UNDECIDED, OFF, LEFT, RIGHT };
+// OFF — обычная логика; ICARUS — рикошет от бортика; HOBUBU — проезд вдоль
+// стенки + kurwa. ICARUS и HOBUBU взаимоисключающие; сторона — в low_left.
+enum class LowCapture { UNDECIDED, OFF, ICARUS, HOBUBU };
+
+// Бросок монеты [0, 1) < p. Один общий источник случайности на все решения
+// в attacker (kurwa и hobubu). Seed от random_device.
+bool coin(double p) {
+  static thread_local std::mt19937 rng(std::random_device{}());
+  std::uniform_real_distribution<double> dist(0.0, 1.0);
+  return dist(rng) < p;
+}
 }  // namespace
 
 void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
@@ -66,10 +76,12 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
   // Время последней детекции "враг у мяча"; -1 = не было. Латч переживает
   // пропажи цели лидаром между кадрами (см. enemy_latch_ms).
   static long long enemy_near_since = -1;
-  // Состояние режima icarus. Решается один раз на захват, сбрасывается при
-  // потере мяча. icarus_target_field_angle/icarus_angle_computed — latch угла
-  // для execute_ricochet_kick при recompute_angle_each_tick == false.
-  static IcarusState icarus_state = IcarusState::UNDECIDED;
+  // Состояние режима low-capture (icarus/hobubu). Решается один раз на захват,
+  // сбрасывается при потере мяча. low_left — зафиксированная сторона.
+  // icarus_target_field_angle/icarus_angle_computed — latch угла для
+  // execute_ricochet_kick при recompute_angle_each_tick == false.
+  static LowCapture mode = LowCapture::UNDECIDED;
+  static bool low_left = false;
   static double icarus_target_field_angle = 0.0;
   static bool icarus_angle_computed = false;
 
@@ -91,7 +103,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
       robot.emitter && (robot.first_time != attack.prev_first_time);
   if (!robot.emitter || fresh_capture) {
     attack.kind = AttackKind::NONE;
-    icarus_state = IcarusState::UNDECIDED;
+    mode = LowCapture::UNDECIDED;
     icarus_angle_computed = false;
   }
   attack.prev_first_time = robot.first_time;
@@ -104,31 +116,56 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     // Взяли мяч
     const auto& icarus_cfg = *config->strategy->attacker->icarus;
 
-    // Решение icarus — один раз на захват. Враг берётся из сигнала подъезда
-    // (enemy_near_since из no-ball ветки, дебаунсен enemy_latch_ms) — на
-    // одном кадре лидара решение не принимаем.
-    if (icarus_state == IcarusState::UNDECIDED) {
+    // Решение low-capture (icarus/hobubu) — один раз на захват. Враг берётся
+    // из сигнала подъезда (enemy_near_since из no-ball ветки, дебаунсен
+    // enemy_latch_ms) — на одном кадре лидара решение не принимаем.
+    if (mode == LowCapture::UNDECIDED) {
       bool enemy_near = enemy_near_since >= 0 &&
                         millis() - enemy_near_since <=
                             config->strategy->attacker->enemy_latch_ms;
       bool facing_up = std::abs(robot.field_angle) <= M_PI / 2;
-      // Мяч захвачен в своей зоне (y ниже порога) — icarus включается всегда,
-      // в обход enemy_near и facing_up.
+      // Мяч захвачен в своей зоне (y ниже порога) — low-capture включается
+      // всегда, в обход enemy_near и facing_up.
       bool low_y = robot.position.y < icarus_cfg.always_below_y;
-      if (icarus_cfg.enabled && (low_y || (enemy_near && facing_up)) &&
-          !inside_special && !engaged) {
-        icarus_state =
-            robot.position.x < 91.0 ? IcarusState::LEFT : IcarusState::RIGHT;
-        spdlog::info("ICARUS DECIDED: {} ({})",
-                     icarus_state == IcarusState::LEFT ? "left" : "right",
-                     low_y ? "low_y" : "enemy");
+      bool side_left = robot.position.x < 91.0;
+      if ((low_y || (enemy_near && facing_up)) && !inside_special && !engaged) {
+        const auto& hcfg = *config->strategy->attacker->hobubu;
+        // Coin flip оценивается первым — иначе icarus заберёт low_y на 100%.
+        // hobubu только когда мяч низко и врага рядом нет.
+        bool pick_hobubu =
+            hcfg.enabled && low_y && !enemy_near && coin(hcfg.probability);
+        if (pick_hobubu) {
+          mode = LowCapture::HOBUBU;
+          low_left = side_left;
+          spdlog::info("HOBUBU DECIDED: {}", low_left ? "left" : "right");
+        } else if (icarus_cfg.enabled) {
+          mode = LowCapture::ICARUS;
+          low_left = side_left;
+          spdlog::info("ICARUS DECIDED: {} ({})", low_left ? "left" : "right",
+                       low_y ? "low_y" : "enemy");
+        } else {
+          mode = LowCapture::OFF;
+        }
       } else {
-        icarus_state = IcarusState::OFF;
+        mode = LowCapture::OFF;
       }
     }
 
-    if (icarus_state == IcarusState::LEFT ||
-        icarus_state == IcarusState::RIGHT) {
+    if (mode == LowCapture::HOBUBU) {
+      // Режим hobubu: сперва стабилизируем мяч (как icarus — это же сбрасывает
+      // общие контроллеры на этих тиках), затем везём вдоль стенки и завершаем
+      // через kurwa.
+      if (stabilize_capture(robot,
+                            {.dribbling = *config->strategy->dribbling})) {
+        spdlog::info("STABILIZE");
+      } else {
+        bool done = hobubu_->execute(robot, goal, low_left,
+                                     *config->strategy->attacker);
+        // Kurwa выстрелила: как attack.kind=NONE, не перезапускаем атаку.
+        // Полный сброс придёт с потерей мяча (emitter=false).
+        if (done) mode = LowCapture::OFF;
+      }
+    } else if (mode == LowCapture::ICARUS) {
       // Режим icarus: сперва даём мячу стабилизироваться (это же гарантирует
       // сброс общего KickController — на этих тиках kick_->execute не
       // зовётся), затем бьём рикошетом от ближнего бортика.
@@ -136,7 +173,7 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
                             {.dribbling = *config->strategy->dribbling})) {
         spdlog::info("STABILIZE");
       } else {
-        bool left = icarus_state == IcarusState::LEFT;
+        bool left = low_left;
         const auto& t = left ? icarus_cfg.target_left : icarus_cfg.target_right;
         spdlog::info("ICARUS KICK");
         execute_ricochet_kick(robot, *kick_, left, {t.x, t.y},
@@ -163,14 +200,9 @@ void Strategy::run_attacker(Robot& robot, Object& ball, Object& goal,
     } else {
       if (inside_special || engaged) {
         if (attack.kind == AttackKind::NONE) {
-          // Бросок монеты — один раз на активацию. Seed от random_device;
-          // если понадобится детерминированность в тестах, можно временно
-          // подменить на rng.seed(...).
-          static thread_local std::mt19937 rng(std::random_device{}());
-          std::uniform_real_distribution<double> dist(0.0, 1.0);
-          double r = dist(rng);
+          // Бросок монеты — один раз на активацию (общий хелпер coin).
           double p = config->strategy->attacker->kurwa->probability;
-          attack.kind = (r < p) ? AttackKind::KURWA : AttackKind::SPIN;
+          attack.kind = coin(p) ? AttackKind::KURWA : AttackKind::SPIN;
           spdlog::info("ATTACK START: {}",
                        attack.kind == AttackKind::KURWA ? "kurwa" : "spin");
         }

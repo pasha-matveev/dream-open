@@ -21,6 +21,8 @@ const BrakeProfile profile_for(BrakeType type) {
     case BrakeType::Off:
       assert(false);
   }
+  // выполнение не доходит сюда. return нужен чтобы убрать warning
+  return *config->strategy->motion->virtual_normal;
 }
 
 Field::Field(const vector<Vec>& points_, std::vector<BrakeType> brake_types)

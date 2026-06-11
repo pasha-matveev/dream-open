@@ -8,6 +8,7 @@ struct AccelDriveParams {
   Vec target;
   double max_speed = 120;
   double min_speed = 0;
+  double prec = 2;
 };
 
 // Плавный разгон (предполагается для использования с захваченным мячом)

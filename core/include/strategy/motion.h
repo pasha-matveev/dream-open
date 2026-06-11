@@ -12,7 +12,7 @@ struct StabilizeCaptureParams {
 };
 
 struct DriveParams {
-  double max_speed = 120;
+  double max_speed = 180;
   double min_speed = 0;
   bool is_ball = false;
   // Своя кривая дистанция→скорость (напр. fast_direct). nullptr — берётся

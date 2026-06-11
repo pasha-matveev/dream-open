@@ -16,6 +16,9 @@
 #include "utils/millis.h"
 
 void KickController::execute(Robot& robot, const KickParams& params) {
+  int dribbling = params.dribbling == -1 ? config->strategy->dribbling->value_r
+                                         : params.dribbling;
+
   assert(turn_ != nullptr && "KickController::init() not called");
   reset_pending_ = false;
 
@@ -29,10 +32,9 @@ void KickController::execute(Robot& robot, const KickParams& params) {
   // Обработка
   if (status_ == Status::ROTATE) {
     bool finished = turn_->execute(
-        robot,
-        {.target_field_angle = robot.field_angle + params.relative_dir,
-         .curved_rotation = params.curved_rotation,
-         .dribbling = static_cast<int>(config->strategy->dribbling->value_r)});
+        robot, {.target_field_angle = robot.field_angle + params.relative_dir,
+                .curved_rotation = params.curved_rotation,
+                .dribbling = dribbling});
 
     if (finished) {
       if (params.dribbling_slowdown) {

@@ -20,5 +20,6 @@ bool AccelDriveController::execute(Robot& robot,
 
   return drive_target(robot, params.target,
                       {.max_speed = current_speed_cap_,
-                       .min_speed = params.min_speed});
+                       .min_speed = params.min_speed,
+                       .prec = params.prec});
 }

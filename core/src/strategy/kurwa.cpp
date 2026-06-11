@@ -93,6 +93,7 @@ bool KurwaController::execute(Robot& robot, Object& goal, bool use_left_hint,
                              : Vec{cfg.target->x, 243.0 - cfg.target->y};
       params.relative_dir =
           (target - robot.position).field_angle() - robot.field_angle;
+      params.dribbling = cfg.dribbling;
       kick_->execute(robot, params);
       if (robot.kicker_force > 0) {
         spdlog::info("KURWA done: kicker fired");

@@ -50,10 +50,11 @@ bool HobubuController::execute(Robot& robot, Object& goal, bool use_left_hint,
       spdlog::info("HOBUBU DRIVE_TO_LINE");
       // Подъезд вбок к прямой (цель по y = текущая y, движемся только по x),
       // без accel-разгона. Удерживаем ориентацию к стенке.
-      drive_target(robot, {line_x, robot.position.y},
-                   {.max_speed = cfg.drive_max_speed});
+      bool finished = drive_target(
+          robot, {line_x, robot.position.y},
+          {.max_speed = cfg.drive_max_speed, .prec = cfg.ready_dist});
       robot.rotation = normalize_angle(face_target - robot.field_angle);
-      if (std::abs(robot.position.x - line_x) < cfg.ready_dist) {
+      if (finished) {
         phase_ = Phase::DRIVE_UP;
       }
       break;
@@ -64,9 +65,10 @@ bool HobubuController::execute(Robot& robot, Object& goal, bool use_left_hint,
       AccelDriveParams p;
       p.target = {line_x, top_y};
       p.max_speed = cfg.drive_max_speed;
-      accel_drive_->execute(robot, p);
+      p.prec = cfg.ready_dist;
+      bool finished = accel_drive_->execute(robot, p);
       robot.rotation = normalize_angle(face_target - robot.field_angle);
-      if (robot.position.y >= top_y - cfg.ready_dist) {
+      if (finished) {
         phase_ = Phase::KURWA;
       }
       break;

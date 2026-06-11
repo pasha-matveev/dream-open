@@ -14,6 +14,7 @@ struct KickParams {
   // Опциональный мапер плавного замедления дриблинга перед ударом
   // (прошедшие мс → значение дриблинга). nullptr — замедление не нужно.
   const Mapper* dribbling_slowdown = nullptr;
+  int dribbling = -1;
 };
 
 class KickController {

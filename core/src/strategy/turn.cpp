@@ -59,7 +59,7 @@ bool TurnController::execute(Robot& robot, const TurnParams& params) {
   }
   robot.rotation = delta;
   robot.dribbling = params.dribbling;
-  bool low_precision = near_enemy_goal;
+  bool low_precision = false;
   double prec = low_precision ? 0.1 : config->strategy->turn_precision;
   if (low_precision) {
     spdlog::info("LOW PRECISION");

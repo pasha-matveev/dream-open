@@ -20,7 +20,8 @@
 // FSM:
 //
 //                  enabled · cooldown_passed · ball.y<=ball_max_y
-//                  · stationary(still_ms, центроид±still_radius) · obstacle_clear
+//                  · stationary(still_ms, центроид±still_radius) ·
+//                  obstacle_clear
 //    IDLE ----------------------------------------------------------> ACTIVE
 //     ^   (observe() копит deque позиций каждый тик)                    |
 //     |                                       emitter:  execute_to_goal |
@@ -48,6 +49,7 @@ class VigilansController {
   bool cooldown_passed(long long now) const;
   void activate(long long now);
   void deactivate(long long now);
+  void clear();
 
   // Хранение emitter прошлого тика для детекции удара по падающему фронту.
   bool had_emitter() const { return had_emitter_; }

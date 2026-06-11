@@ -194,6 +194,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
                robot.state == RobotState::KICKOFF_RIGHT) {
       bool left = robot.state == RobotState::KICKOFF_LEFT;
       run_kickoff(robot, ball, goal, field, left);
+    } else if (robot.state == RobotState::PAUSE) {
+      vigilans_->clear();
     }
 
     kick_->apply_reset_if_pending();

@@ -38,7 +38,8 @@ bool VigilansController::stationary(long long now) const {
   for (const auto& s : history_) {
     if ((s.second - centroid).len() <= cfg.still_radius) inliers++;
   }
-  return inliers >= cfg.still_inlier_frac * static_cast<double>(history_.size());
+  return inliers >=
+         cfg.still_inlier_frac * static_cast<double>(history_.size());
 }
 
 bool VigilansController::cooldown_passed(long long now) const {
@@ -59,3 +60,5 @@ void VigilansController::deactivate(long long now) {
   active_ = false;
   last_deactivated_at_ = now;
 }
+
+void VigilansController::clear() { history_.clear(); }

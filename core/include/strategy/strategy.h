@@ -62,6 +62,8 @@ class Strategy {
   void run_kickoff(Robot& robot, Object& ball, Object& goal, Field& field,
                    bool left);
   void run_meme(Robot& robot);
+  // Прикол: езда по линии (body-frame визуальный серво). См. roles/line.cpp.
+  void run_line(Robot& robot);
 
  public:
   Strategy();

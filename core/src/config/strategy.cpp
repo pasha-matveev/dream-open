@@ -6,6 +6,7 @@
 #include "config/strategy/dubins.h"
 #include "config/strategy/keeper.h"
 #include "config/strategy/kickoff.h"
+#include "config/strategy/line.h"
 #include "config/strategy/meme.h"
 #include "utils/mapper.h"
 
@@ -51,4 +52,5 @@ Strategy::Strategy(const rapidjson::Value& doc) {
   dubins = make_unique<Dubins>(doc["dubins"]);
   control = make_unique<Control>(doc["control"]);
   meme = make_unique<Meme>(doc["meme"]);
+  line = make_unique<Line>(doc["line"]);
 }

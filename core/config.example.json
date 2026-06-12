@@ -407,6 +407,18 @@
       "radius": 25,
       "linear_speed": 19,
       "spin_speed": 30
+    },
+    "line": {
+      "speed": 30,
+      "rotation_gain": 0.6,
+      "rotation_limit": 6,
+      "ring_radius_px": 90,
+      "v_threshold": 60,
+      "samples": 180,
+      "min_arc_deg": 4,
+      "max_arc_deg": 40,
+      "max_turn_deg": 80,
+      "lost_timeout_ms": 400
     }
   }
 }

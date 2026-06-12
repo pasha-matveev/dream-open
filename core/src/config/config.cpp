@@ -65,10 +65,21 @@ void apply_profile(Config& c, const std::string& name) {
     c.lidar->enabled = false;
     c.visualization->enabled = false;
     c.strategy->enabled = false;
+  } else if (name == "line") {
+    // Прикол: езда по линии на чужой трассе. Камера + моторы + стратегия ON,
+    // лидар OFF (на чужой трассе он видит мусор и блокирует init). Превью
+    // включено для калибровки порога/радиуса кольца по оверлею.
+    c.tracking->enabled = true;
+    c.tracking->preview_enabled = true;
+    c.serial->enabled = true;
+    c.gpio->enabled = true;
+    c.lidar->enabled = false;
+    c.visualization->enabled = false;
+    c.strategy->enabled = true;
   } else {
     throw std::runtime_error(
         "config.json: unknown profile '" + name +
-        "' (expected one of: manual, play, visual, virtual, camera)");
+        "' (expected one of: manual, play, visual, virtual, camera, line)");
   }
 }
 

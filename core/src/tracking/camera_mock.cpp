@@ -15,3 +15,5 @@ void Camera::stop() {}
 void Camera::show_preview() {}
 
 bool Camera::new_data() { return false; }
+
+std::vector<double> Camera::get_line_candidates() { return {}; }

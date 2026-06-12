@@ -18,6 +18,7 @@ struct Keeper;
 struct Kickoff;
 struct Dubins;
 struct Meme;
+struct Line;
 
 struct Strategy {
   Strategy(const rapidjson::Value&);
@@ -63,6 +64,7 @@ struct Strategy {
   std::unique_ptr<Dubins> dubins;
   std::unique_ptr<Control> control;
   std::unique_ptr<Meme> meme;
+  std::unique_ptr<Line> line;
 };
 
 }  // namespace cfg

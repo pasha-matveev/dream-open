@@ -5,21 +5,91 @@
 
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <lccv.hpp>
 #include <libcamera_app.hpp>
+#include <mutex>
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <vector>
 
 #include "tracking/object.h"
 #include "config/config.h"
+#include "config/strategy.h"
+#include "config/strategy/line.h"
 #include "config/tracking.h"
+#include "utils/geo/vec.h"
 #include "utils/millis.h"
 
 using namespace std;
 using namespace chrono;
 
 long long millis();
+
+namespace {
+
+// Сэмплит кольцо радиуса ring_radius_px вокруг центра изображения и возвращает
+// углы (в кадре робота, рад) середин чёрных дуг — точек, где кольцо пересекает
+// линию. «Чёрный» сэмпл: средний V по маленькому радиальному патчу <=
+// v_threshold (денойз против одиночного шума и алиасинга тонкой линии). Дуги
+// фильтруются по [min_arc_deg, max_arc_deg]: узкие — шум, широкие — тело
+// робота/тень. Конвенция угла та же, что в Object::find:
+//   θ = normalize_angle(M_PI - φ),  φ = raw_angle = atan2(x, y).
+std::vector<double> sample_line_ring(const cv::Mat& hsv) {
+  std::vector<double> out;
+  const cfg::Line& lc = *config->strategy->line;
+  const int radius = config->tracking->radius;
+  const int R = lc.ring_radius_px;
+  const int N = lc.samples;
+  if (N <= 0 || R <= 0) return out;
+
+  std::vector<char> black(N, 0);
+  for (int i = 0; i < N; ++i) {
+    const double phi = 2.0 * M_PI * i / N;
+    const double s = std::sin(phi), c = std::cos(phi);
+    int sum = 0, cnt = 0;
+    for (int dr = -1; dr <= 1; ++dr) {
+      const double rr = R + dr;
+      const int px = (int)std::lround(radius + rr * s);
+      const int py = (int)std::lround(radius + rr * c);
+      if (px < 0 || py < 0 || px >= hsv.cols || py >= hsv.rows) continue;
+      sum += hsv.at<cv::Vec3b>(py, px)[2];
+      ++cnt;
+    }
+    if (cnt > 0 && sum / cnt <= lc.v_threshold) black[i] = 1;
+  }
+
+  // Старт скана с не-чёрного сэмпла, чтобы дуга на стыке 0/2π считалась один раз.
+  int start = -1;
+  for (int i = 0; i < N; ++i)
+    if (!black[i]) {
+      start = i;
+      break;
+    }
+  if (start < 0) return out;  // всё кольцо чёрное → линии нет
+
+  const double deg_per = 360.0 / N;
+  int run_len = 0, run_start = 0;
+  for (int k = 0; k <= N; ++k) {
+    const bool b = (k < N) && black[(start + k) % N];
+    if (b) {
+      if (run_len == 0) run_start = k;
+      ++run_len;
+    } else if (run_len > 0) {
+      const double width_deg = run_len * deg_per;
+      if (width_deg >= lc.min_arc_deg && width_deg <= lc.max_arc_deg) {
+        const double mid_k = run_start + (run_len - 1) / 2.0;
+        const double phi = 2.0 * M_PI * (start + mid_k) / N;
+        out.push_back(normalize_angle(M_PI - phi));
+      }
+      run_len = 0;
+    }
+  }
+  return out;
+}
+
+}  // namespace
 
 struct Camera::Impl {
  public:
@@ -30,6 +100,8 @@ struct Camera::Impl {
   Object& ball;
   Object& goal;
   Object& own_goal;
+  std::vector<double> line_candidates;
+  std::mutex line_mtx;
   bool preview_ready = false;
   std::atomic<bool> running{true};
   std::atomic<bool> new_data{false};
@@ -67,6 +139,13 @@ void Camera::Impl::analyze() {
   ball.find(hsv_frame);
   goal.find(hsv_frame);
   own_goal.find(hsv_frame);
+
+  // Кольцевой детектор линии — только в режиме "line", иначе лишняя работа.
+  if (config->strategy->role == "line") {
+    std::vector<double> cand = sample_line_ring(hsv_frame);
+    std::lock_guard<std::mutex> lock(line_mtx);
+    line_candidates = std::move(cand);
+  }
 }
 
 void Camera::Impl::draw() {
@@ -75,6 +154,26 @@ void Camera::Impl::draw() {
   ball.draw(preview_image);
   goal.draw(preview_image);
   own_goal.draw(preview_image);
+
+  // Оверлей линии для калибровки: кольцо + найденные пересечения (θ).
+  if (config->strategy->role == "line") {
+    const int radius = config->tracking->radius;
+    const int R = config->strategy->line->ring_radius_px;
+    const cv::Point center{radius, radius};
+    cv::circle(preview_image, center, R, cv::Scalar(0, 255, 0), 2);
+    std::vector<double> cand;
+    {
+      std::lock_guard<std::mutex> lock(line_mtx);
+      cand = line_candidates;
+    }
+    for (double theta : cand) {
+      const double phi = M_PI - theta;  // обратное к θ = M_PI - φ
+      const cv::Point p{(int)std::lround(radius + R * std::sin(phi)),
+                        (int)std::lround(radius + R * std::cos(phi))};
+      cv::line(preview_image, center, p, cv::Scalar(255, 0, 0), 2);
+      cv::circle(preview_image, p, 8, cv::Scalar(255, 0, 0), -1);
+    }
+  }
   preview_ready = true;
 }
 
@@ -193,6 +292,14 @@ bool Camera::new_data() {
     return false;
   }
   return impl->new_data.exchange(false, std::memory_order_acq_rel);
+}
+
+std::vector<double> Camera::get_line_candidates() {
+  if (!impl) {
+    return {};
+  }
+  std::lock_guard<std::mutex> lock(impl->line_mtx);
+  return impl->line_candidates;
 }
 
 Camera::~Camera() { stop(); }

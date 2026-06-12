@@ -188,6 +188,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
         run_challenge(robot, ball, goal);
       } else if (role == "meme") {
         run_meme(robot);
+      } else if (role == "line") {
+        run_line(robot);
       } else {
         TestContext ctx{robot, ball, goal, *ball_};
         if (!test_->run(role, ctx)) {
@@ -217,7 +219,8 @@ void Strategy::run(Robot& robot, Object& ball, Object& goal, Object& own_goal,
       push_k = config->strategy->motion->push_out_k;
       push_v_min = config->strategy->motion->push_out_v_min;
     }
-    if (role != "meme") field.apply(robot, push_k, push_v_min);
+    // "line" — прикол на чужой трассе: поле не наше, push-out отключаем.
+    if (role != "meme" && role != "line") field.apply(robot, push_k, push_v_min);
   }
   dubins_->on_tick_end();
 
